@@ -1,0 +1,108 @@
+[
+  {
+    "name": "Create a cell group and retain approval state",
+    "sanity": true,
+    "viewport": "mobile",
+    "covers": [
+      "authenticated cell group creation",
+      "database persistence",
+      "pending approval state",
+      "activity log"
+    ],
+    "description": "A member creates a real cell group and sees its persisted pending status.",
+    "steps": [
+      "Sign in",
+      "Open Cells",
+      "Create a group with a name and description",
+      "Refresh and reopen Cells"
+    ],
+    "expected": "The new group remains visible to its creator with pending approval status; no invented sample groups appear."
+  },
+  {
+    "name": "Edit group details and schedule a meeting",
+    "viewport": "desktop",
+    "covers": [
+      "group description editing",
+      "moderator management",
+      "meeting scheduling",
+      "database persistence"
+    ],
+    "description": "A group manager updates the group and schedules a future meeting.",
+    "steps": [
+      "Open a group you manage",
+      "Edit its description and moderators",
+      "Schedule a future meeting"
+    ],
+    "expected": "The saved group details and meeting schedule are returned by the backend."
+  },
+  {
+    "name": "Record attendance and member development",
+    "viewport": "mobile",
+    "covers": [
+      "attendance reporting",
+      "spiritual growth tracking",
+      "mentorship structure"
+    ],
+    "description": "A cell leader records attendance and creates member development and mentorship records.",
+    "steps": [
+      "Open an approved group you manage",
+      "Record attendance for a meeting",
+      "Add a growth update for a member",
+      "Create a mentor and mentee pairing"
+    ],
+    "expected": "Each record is saved to the backend and appears in the group's reports."
+  },
+  {
+    "name": "Share group media and start a meeting",
+    "viewport": "desktop",
+    "covers": [
+      "group media upload",
+      "meeting start notifications",
+      "realtime group updates",
+      "activity log"
+    ],
+    "description": "An authorized group member shares supported media and a leader starts a meeting.",
+    "steps": [
+      "Open an approved cell",
+      "Upload an image or PDF",
+      "Start a meeting as leader or moderator"
+    ],
+    "expected": "Media is stored and recorded; meeting start is logged and push notifications are sent to the group's known members."
+  },
+  {
+    "name": "Invite a member and join a cell",
+    "viewport": "mobile",
+    "covers": [
+      "secure expiring cell invitations",
+      "authenticated invite join",
+      "membership persistence",
+      "member directory"
+    ],
+    "description": "A leader shares an expiring invite and a second signed-in account joins the approved cell.",
+    "steps": [
+      "Sign in as the cell leader",
+      "Create and copy a member invitation",
+      "Open the invitation in a second account",
+      "Join the cell and open the member list"
+    ],
+    "expected": "The second account joins once, appears in the member directory, and the group activity records the membership."
+  },
+  {
+    "name": "Create a prayer room and share requests",
+    "viewport": "mobile",
+    "covers": [
+      "persistent prayer rooms",
+      "prayer request sharing",
+      "member prayer response",
+      "member notifications"
+    ],
+    "description": "Cell members create a prayer room, share a request and record that they prayed.",
+    "steps": [
+      "Open an approved cell as a member",
+      "Create a prayer room",
+      "Share a prayer request",
+      "Mark that you prayed for the request"
+    ],
+    "expected": "The room and request persist, the prayer response is recorded once per member, and other members are notified."
+  }
+]
