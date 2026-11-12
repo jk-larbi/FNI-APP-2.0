@@ -42,7 +42,7 @@ export default function BibleBotWorkspace({ onNotice }: Props) {
   const suggestions = useMemo(() => Object.keys(topics), []);
 
   async function lookup(reference: string, translation = version): Promise<VerseResult> {
-    const clean = reference.trim().replace(/^@BibleBot\\s*/i, '').replace(/^\/verse\\s*/i, '');
+    const clean = reference.trim().replace(/^@BibleBot\s*/i, '').replace(/^\/verse\s*/i, '');
     const response = await fetch(`https://bible-api.com/${encodeURIComponent(clean)}?translation=${encodeURIComponent(translation)}`);
     if (!response.ok) throw new Error('That passage could not be found in this translation. Check the reference or choose another version.');
     const data = await response.json();
@@ -55,8 +55,8 @@ export default function BibleBotWorkspace({ onNotice }: Props) {
     if (!raw) { setError('Enter a Bible reference or a topic to search.'); return; }
     setLoading(true); setError(''); setResults([]); setCompare(null);
     try {
-      const command = raw.replace(/^@BibleBot\\s*/i, '').replace(/^\/(verse|search)\\s*/i, '').trim();
-      const topic = command.toLowerCase().replace(/^scriptures? about\\s+/, '').replace(/^verses? about\\s+/, '').replace(/^about\\s+/, '');
+      const command = raw.replace(/^@BibleBot\s*/i, '').replace(/^\/(verse|search)\s*/i, '').trim();
+      const topic = command.toLowerCase().replace(/^scriptures? about\s+/, '').replace(/^verses? about\s+/, '').replace(/^about\s+/, '');
       if (topics[topic]) {
         const passages = await Promise.all(topics[topic].map(ref => lookup(ref, version)));
         setResults(passages); setResult(null);
@@ -91,8 +91,8 @@ export default function BibleBotWorkspace({ onNotice }: Props) {
 
   function submit() {
     const raw = query.trim();
-    if (/^\\/versions?$/i.test(raw)) { setShowVersions(true); setError('Choose a translation from the list below.'); return; }
-    if (/^\\/help$/i.test(raw)) { setError('Try @BibleBot John 3:16, /verse Psalm 23:1, or /search faith.'); return; }
+    if (/^\/versions?$/i.test(raw)) { setShowVersions(true); setError('Choose a translation from the list below.'); return; }
+    if (/^\/help$/i.test(raw)) { setError('Try @BibleBot John 3:16, /verse Psalm 23:1, or /search faith.'); return; }
     runSearch(raw);
   }
 
