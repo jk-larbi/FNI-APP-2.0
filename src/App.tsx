@@ -603,8 +603,8 @@ export default function App() {
     setForwardingMessage(null); setForwardRecipient('');
   };
   useEffect(() => {
-    const reference = bibleReferenceInput.trim();
-    if (!bibleBotOpen || reference.length < 5) {
+    const reference = (bibleReferenceInput || bibleCommand?.[1] || '').trim();
+    if ((!bibleBotOpen && !bibleCommand) || reference.length < 5) {
       setBibleLookupResult(null);
       setBibleLookupError('');
       setBibleLookupLoading(false);
@@ -635,7 +635,7 @@ export default function App() {
       }
     }, 500);
     return () => { cancelled = true; window.clearTimeout(timer); };
-  }, [bibleReferenceInput, bibleTranslation, bibleBotOpen]);
+  }, [bibleReferenceInput, bibleTranslation, bibleBotOpen, draft]);
 
   const lookupBibleVerse = async () => {
     const reference = (bibleReferenceInput || bibleCommand?.[1] || '').trim();
