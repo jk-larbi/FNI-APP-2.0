@@ -98,6 +98,7 @@ export default function App() {
 
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
+  const [groupInitialMembers, setGroupInitialMembers] = useState('');
   const [groupMemberInput, setGroupMemberInput] = useState('');
   const [prayerRequestInput, setPrayerRequestInput] = useState('');
   const [groupGoalTitle, setGroupGoalTitle] = useState('');
@@ -294,10 +295,12 @@ export default function App() {
     if (!name) return;
     const id = `group-${Date.now()}`;
     const inviteCode = Math.random().toString(36).slice(2, 10).toUpperCase();
-    setGroupDetails((current) => ({ ...current, [id]: { name, description: groupDescription.trim(), members: ['You'], moderators: [], allowMembersToJoin: true, requireJoinApproval: false, discoverable: true, inviteCode, createdBy: 'You' } }));
+    const invitedMembers = groupInitialMembers.split(/[\n,;]/).map((value) => value.trim()).filter(Boolean).map((value) => '@' + value.replace(/^@+/, ''));
+    const members = Array.from(new Set(['You', ...invitedMembers]));
+    setGroupDetails((current) => ({ ...current, [id]: { name, description: groupDescription.trim(), members, moderators: [], allowMembersToJoin: true, requireJoinApproval: false, discoverable: true, inviteCode, createdBy: 'You' } }));
     setConversations((current) => ({ ...current, [id]: [] }));
     setSection('Chats'); setFolder('Groups'); setActiveChat(id);
-    setNewGroupOpen(false); setNewActionOpen(false); setGroupName(''); setGroupDescription(''); setReplyTo(null);
+    setNewGroupOpen(false); setNewActionOpen(false); setGroupName(''); setGroupDescription(''); setGroupInitialMembers(''); setReplyTo(null);
   };
 
   const joinGroup = (groupId: string) => {
@@ -473,14 +476,20 @@ export default function App() {
           <div className="telegram-settings fni-community-page">
             <div className="settings-section">
               <h3>Forerunners Network International</h3>
-              <p className="settings-footnote">Your ministry and community space. Explore FNI groups, gatherings and spiritual resources.</p>
-              <div className="settings-info-row"><Users/><span><strong>Cell groups</strong><small>Create groups, discover groups and manage your group conversations</small></span><button type="button" onClick={() => { setSection('Chats'); setFolder('Groups'); setActiveChat(''); }}>Open groups</button></div>
-              <div className="settings-info-row"><CalendarDays/><span><strong>Meetings and events</strong><small>Find group meetings, event details and attendance updates</small></span><button type="button" onClick={() => { setSection('Chats'); setFolder('Groups'); setActiveChat(''); }}>View groups</button></div>
-              <div className="settings-info-row"><BookOpen/><span><strong>Sermons and spiritual resources</strong><small>Sermon notes, scriptures and devotion plans</small></span><em>FNI workspace</em></div>
-              <div className="settings-info-row"><HandHeart/><span><strong>Prayer and care</strong><small>Prayer requests and group prayer rooms</small></span><em>FNI workspace</em></div>
-              <div className="settings-info-row"><HeartHandshake/><span><strong>Giving and support</strong><small>Future secure giving options</small></span><em>Planned</em></div>
-              <div className="settings-info-row"><Bell/><span><strong>Ministry announcements</strong><small>Church-wide updates and event notices</small></span><em>Planned</em></div>
-              <p className="settings-footnote">Community tools are currently a frontend preview. Shared membership, live updates and secure giving will require the FNI backend.</p>
+              <p className="settings-footnote">Your ministry and community space. Create a cell once, add its members, and keep everyone in the same group conversation.</p>
+              <div className="settings-info-row"><Users/><span><strong>Cell groups</strong><small>Create a cell, add members and open its shared chat</small></span><button type="button" onClick={() => { setNewGroupOpen(true); }}>Create group</button></div>
+              <div className="find-group-results">
+                {Object.entries(groupDetails).map(([id, group]) => <article className="find-group-result" key={id}><div className="find-group-avatar">{group.name.slice(0,1).toUpperCase()}</div><div className="find-group-result-copy"><strong>{group.name}</strong><span>{group.description || 'FNI cell group'}</span><small>{(group.members || []).length} members</small></div><button type="button" onClick={() => { setSection('Chats'); setFolder('Groups'); setActiveChat(id); setChatInfoOpen(false); }}>Open chat</button></article>)}
+                {!Object.keys(groupDetails).length && <p className="group-members-empty">No cell groups yet. Create the first group and add its members.</p>}
+              </div>
+              <div className="settings-info-row"><Search/><span><strong>Discover groups</strong><small>Find a group or join with an invite code, subject to that group's settings</small></span><button type="button" onClick={() => setFindGroupsOpen(true)}>Find groups</button></div>
+              <div className="settings-info-row"><CalendarDays/><span><strong>Meetings and events</strong><small>See scheduled group meetings and open their attendance and agenda</small></span><button type="button" onClick={() => { const first = Object.entries(groupDetails).find(([, group]) => group.meeting); if (first) { setSection('Chats'); setFolder('Groups'); setActiveChat(first[0]); setChatInfoOpen(true); } else { setSection('Chats'); setFolder('Groups'); setActiveChat(''); } }}>View meetings</button></div>
+              {Object.entries(groupDetails).filter(([, group]) => group.meeting).map(([id, group]) => <button type="button" className="community-list-row" key={'meeting-'+id} onClick={() => { setSection('Chats'); setFolder('Groups'); setActiveChat(id); setChatInfoOpen(true); }}><strong>{group.name}</strong><span>{group.meeting?.date || 'Date not set'}{group.meeting?.time ? ' · '+group.meeting.time : ''}</span></button>)}
+              <div className="settings-info-row"><BookOpen/><span><strong>Sermons and spiritual resources</strong><small>Open shared sermon links, scripture resources and devotion plans saved by your cells</small></span><button type="button" onClick={() => { const first = Object.entries(groupDetails).find(([, group]) => (group.resources?.length || 0) + (group.devotionPlans?.length || 0) > 0) || Object.entries(groupDetails)[0]; if (first) { setSection('Chats'); setFolder('Groups'); setActiveChat(first[0]); setChatInfoOpen(true); } else setNewGroupOpen(true); }}>Open resources</button></div>
+              <div className="settings-info-row"><HandHeart/><span><strong>Prayer and care</strong><small>Open cell prayer requests and mark requests as prayed for</small></span><button type="button" onClick={() => { const first = Object.entries(groupDetails).find(([, group]) => (group.prayerRequests?.length || 0) > 0) || Object.entries(groupDetails)[0]; if (first) { setSection('Chats'); setFolder('Groups'); setActiveChat(first[0]); setChatInfoOpen(true); } else setNewGroupOpen(true); }}>Open prayer</button></div>
+              <div className="settings-info-row"><HeartHandshake/><span><strong>Giving and support</strong><small>Secure contributions are not enabled in this preview</small></span><em>Backend required</em></div>
+              <div className="settings-info-row"><Bell/><span><strong>Ministry announcements</strong><small>Read announcements shared inside your cell group chats</small></span><button type="button" onClick={() => { const first = Object.entries(groupDetails).find(([, group]) => (group.announcements?.length || 0) > 0) || Object.entries(groupDetails)[0]; if (first) { setSection('Chats'); setFolder('Groups'); setActiveChat(first[0]); setChatInfoOpen(true); } else setNewGroupOpen(true); }}>View updates</button></div>
+              <p className="settings-footnote">Group details and member lists are saved on this device only for now. Cross-device membership, shared messages, live meetings, notifications and payment processing need the FNI backend.</p>
             </div>
           </div>
         ) : section === 'Settings' ? (
@@ -1176,7 +1185,9 @@ export default function App() {
             <input id="group-name" autoFocus maxLength={60} value={groupName} onChange={(event) => setGroupName(event.target.value)} placeholder="Enter a group name" />
             <label htmlFor="group-description">Description <span className="optional-label">Optional</span></label>
             <textarea id="group-description" maxLength={180} rows={3} value={groupDescription} onChange={(event) => setGroupDescription(event.target.value)} placeholder="What is this group about?" />
-            <p>Members and invitations can be added when FNI accounts are connected.</p>
+            <label htmlFor="group-initial-members">Add members <span className="optional-label">Optional</span></label>
+            <textarea id="group-initial-members" rows={3} maxLength={600} value={groupInitialMembers} onChange={(event) => setGroupInitialMembers(event.target.value)} placeholder="Enter usernames separated by commas or new lines\n@member1, @member2" />
+            <p>One group is created with everyone you add. The group appears once in Chats → Groups, with all members inside it.</p>
             <button className="modal-submit" type="submit" disabled={!groupName.trim()}>Create group</button>
           </form>
         </div>
