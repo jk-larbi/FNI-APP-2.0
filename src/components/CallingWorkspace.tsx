@@ -22,9 +22,9 @@ function formatDuration(seconds: number) {
 }
 function makeCode() { return Array.from(crypto.getRandomValues(new Uint8Array(6)), n => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[n % 32]).join('').match(/.{1,3}/g)?.join('-') ?? 'FNI-ROOM'; }
 
-type Props = { initialGroup?: string; onClearInitialGroup?: () => void; isVisible?: boolean; onNavigateToCalls?: () => void };
+type Props = { initialGroup?: string; onClearInitialGroup?: () => void; isVisible?: boolean; onNavigateToCalls?: () => void; onBack?: () => void };
 
-export default function CallingWorkspace({ initialGroup = '', onClearInitialGroup, isVisible = true, onNavigateToCalls }: Props) {
+export default function CallingWorkspace({ initialGroup = '', onClearInitialGroup, isVisible = true, onNavigateToCalls, onBack }: Props) {
   const [tab, setTab] = useState<'calls' | 'rooms' | 'privacy'>('calls');
   const [callKind, setCallKind] = useState<CallKind>('Voice');
   const [callTarget, setCallTarget] = useState('');
@@ -181,7 +181,7 @@ export default function CallingWorkspace({ initialGroup = '', onClearInitialGrou
   </div>;
 
   return <div className="calling-workspace">
-    <div className="calling-heading"><div><span className="call-kicker">FNI CONNECT</span><h2>Calls & meetings</h2><p>Personal calls, group conversations and ministry meeting rooms in one place.</p></div><div className="calling-heading-actions"><button className="call-secondary" onClick={() => {setShowJoin(v => !v);setShowCreate(false)}}><Link2 size={16}/> Join with code</button><button className="call-primary" onClick={() => {setShowCreate(v => !v);setShowJoin(false)}}><Plus size={16}/> Create meeting</button></div></div>
+    <div className="calling-heading"><div className="calling-heading-main"><button className="call-back" onClick={onBack} aria-label="Back to chats"><ArrowLeft size={17}/> Back</button><div><span className="call-kicker">FNI CONNECT</span><h2>Calls & meetings</h2><p>Personal calls, group conversations and ministry meeting rooms in one place.</p></div></div><div className="calling-heading-actions"><button className="call-secondary" onClick={() => {setShowJoin(v => !v);setShowCreate(false)}}><Link2 size={16}/> Join with code</button><button className="call-primary" onClick={() => {setShowCreate(v => !v);setShowJoin(false)}}><Plus size={16}/> Create meeting</button></div></div>
     <div className="calling-tabs" role="tablist" aria-label="Calling sections">
       <button className={tab==='calls'?'active':''} onClick={() => setTab('calls')}><Phone size={16}/> Calls</button>
       <button className={tab==='rooms'?'active':''} onClick={() => setTab('rooms')}><Video size={16}/> Meeting rooms</button>
