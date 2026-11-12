@@ -4713,3 +4713,15 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
  .saved-chat-send,.saved-chat-compose-wrap .fni-voice-button{width:38px!important;height:38px!important;flex-basis:38px!important}
  .saved-chat-emoji-popover{bottom:calc(58px + env(safe-area-inset-bottom))}
 }
+
+
+/* A native-style open conversation owns the entire phone viewport.
+   Keep the five-tab app navigation out of the composer area while chatting. */
+@supports selector(.app-shell:has(.fni-group-conversation)) {
+  .app-shell:has(.fni-group-conversation) .mobile-nav {
+    display: none !important;
+  }
+  .app-shell:has(.fni-group-conversation) .main-panel {
+    padding-bottom: 0 !important;
+  }
+}
