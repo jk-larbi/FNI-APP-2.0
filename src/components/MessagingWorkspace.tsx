@@ -184,6 +184,19 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const openMessageMenu = (message: GroupMessage, x: number, y: number) => {
     setMessageMenu({ messageId: message.id, x: Math.max(8, Math.min(x, window.innerWidth - 220)), y: Math.max(8, Math.min(y, window.innerHeight - 360)) });
   };
+  useEffect(() => {
+    if (!messageMenu) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMessageMenu(null);
+    };
+    const closeOnResize = () => setMessageMenu(null);
+    window.addEventListener('keydown', closeOnEscape);
+    window.addEventListener('resize', closeOnResize);
+    return () => {
+      window.removeEventListener('keydown', closeOnEscape);
+      window.removeEventListener('resize', closeOnResize);
+    };
+  }, [messageMenu]);
   const clearLongPress = () => { if (longPressTimer.current) clearTimeout(longPressTimer.current); longPressTimer.current = null; };
   const handleMessageAction = async (action: string, message: GroupMessage) => {
     setMessageMenu(null);
@@ -341,6 +354,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
                 title="Message options"
                 aria-label="More options for this message"
                 aria-haspopup="menu"
+                aria-expanded={messageMenu?.messageId === message.id}
                 onClick={event => {
                   event.stopPropagation();
                   const rect = event.currentTarget.getBoundingClientRect();
