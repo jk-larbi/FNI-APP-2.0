@@ -20,7 +20,6 @@ const permissionLabels: { key: PermissionKey; label: string }[] = [
   { key: 'manageInvites', label: 'Manage invitation links' },
   { key: 'appointAdmins', label: 'Appoint other administrators' },
 ];
-const allPermissions = Object.fromEntries(permissionLabels.map(p => [p.key, true])) as Record<PermissionKey, boolean>;
 const blankPermissions = Object.fromEntries(permissionLabels.map(p => [p.key, false])) as Record<PermissionKey, boolean>;
 
 export default function MessagingWorkspace() {
@@ -39,7 +38,7 @@ export default function MessagingWorkspace() {
   const [notice, setNotice] = useState('');
   const selected = groups.find(g => g.id === selectedId);
   useEffect(() => { localStorage.setItem('fni-chat-groups', JSON.stringify(groups)); }, [groups]);
-  const filtered = useMemo(() => groups.filter(g => (tab !== 'Personal') && (tab !== 'Groups' || true) && (g.name + ' ' + g.description).toLowerCase().includes(query.toLowerCase())), [groups, query, tab]);
+  const filtered = useMemo(() => tab === 'Personal' ? [] : groups.filter(g => (g.name + ' ' + g.description).toLowerCase().includes(query.toLowerCase())), [groups, query, tab]);
   const updateGroup = (patch: Partial<Group>) => setGroups(current => current.map(g => g.id === selectedId ? { ...g, ...patch } : g));
   const createGroup = () => {
     if (!groupName.trim()) { setNotice('Enter a group name to continue.'); return; }
