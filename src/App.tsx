@@ -13,6 +13,11 @@ export default function App() {
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [activeChat, setActiveChat] = useState('');
+  const [unreadChats, setUnreadChats] = useState<Record<string, boolean>>(() => {
+    try { return JSON.parse(localStorage.getItem('fni-local-unread') || '{}'); }
+    catch { return {}; }
+  });
+  const [chatOptionsOpen, setChatOptionsOpen] = useState(false);
   const [drafts, setDrafts] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-drafts') || '{}'); }
     catch { return {}; }
@@ -41,6 +46,9 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem('fni-local-drafts', JSON.stringify(drafts)); } catch { /* storage may be unavailable */ }
   }, [drafts]);
+  useEffect(() => {
+    try { localStorage.setItem('fni-local-unread', JSON.stringify(unreadChats)); } catch { /* storage may be unavailable */ }
+  }, [unreadChats]);
   useEffect(() => {
     const textOnly: Record<string, Message[]> = {};
     Object.entries(conversations).forEach(([chat, items]) => {
@@ -78,7 +86,10 @@ export default function App() {
   const startChat = () => {
     const handle = username.trim().replace(/^@/, '');
     if (!handle) return;
-    setActiveChat(handle.startsWith('@') ? handle : `@${handle}`);
+    const nextChat = handle.startsWith('@') ? handle : `@${handle}`;
+    setActiveChat(nextChat);
+    setUnreadChats((current) => ({ ...current, [nextChat]: false }));
+    setChatOptionsOpen(false);
     setNewChatOpen(false);
     setUsername('');
     setReplyTo(null);
@@ -205,10 +216,10 @@ export default function App() {
           <div className="recent-chat-list">
             {recentChats.map(([chat, items]) => {
               const latest = items[items.length - 1];
-              return <button className={`recent-chat-row ${activeChat === chat ? 'selected' : ''}`} key={chat} onClick={() => { setActiveChat(chat); setReplyTo(null); setEditingMessage(null); setOpenMessageMenu(null); }}>
+              return <button className={`recent-chat-row ${activeChat === chat ? 'selected' : ''}`} key={chat} onClick={() => { setActiveChat(chat); setUnreadChats((current) => ({ ...current, [chat]: false })); setReplyTo(null); setEditingMessage(null); setOpenMessageMenu(null); setChatOptionsOpen(false); }}>
                 <span className="recent-chat-avatar">{chat.replace('@','').slice(0,1).toUpperCase()}</span>
                 <span className="recent-chat-copy"><strong>{chat}</strong><span>{latest?.text || (latest?.mediaType === 'photo' ? 'Photo' : latest?.mediaType === 'video' ? 'Video' : 'No messages yet')}</span></span>
-                <span className="recent-chat-time">{latest?.time || ''}</span>
+                <span className="recent-chat-meta"><span className="recent-chat-time">{latest?.time || ''}</span>{unreadChats[chat] && <span className="unread-chat-badge">1</span>}</span>
               </button>;
             })}
           </div>
@@ -233,9 +244,10 @@ export default function App() {
                 <button className="icon-button" aria-label="Search messages" title="Search messages" onClick={() => { setChatSearchOpen((open) => !open); setChatSearch(''); }}><Search /></button>
                 <button className="icon-button" aria-label="Voice call"><PhoneCall /></button>
                 <button className="icon-button" aria-label="Video call"><Video /></button>
-                <button className="icon-button" aria-label="More options"><MoreVertical /></button>
+                <button className="icon-button" aria-label="Chat options" aria-expanded={chatOptionsOpen} onClick={() => setChatOptionsOpen((open) => !open)}><MoreVertical /></button>
               </div>
             </header>
+            {chatOptionsOpen && <div className="chat-options-menu"><button onClick={() => { setUnreadChats((current) => ({ ...current, [activeChat]: true })); setActiveChat(''); setChatOptionsOpen(false); }}>Mark as unread</button></div>}
             {chatSearchOpen && <div className="chat-search-bar"><Search size={17} /><input autoFocus value={chatSearch} onChange={(event) => setChatSearch(event.target.value)} placeholder="Search in conversation" /><span>{chatSearch.trim() ? `${matchingMessages.length} found` : ''}</span><button aria-label="Close search" onClick={() => { setChatSearchOpen(false); setChatSearch(''); }}><X size={17} /></button></div>}
             {pinnedMessageId !== null && messages.find((item) => item.id === pinnedMessageId) && (
               <button
