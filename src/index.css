@@ -820,3 +820,103 @@ button{cursor:pointer}
  .app-shell.settings-mode .settings-theme-option{min-height:85px;padding:10px 4px}
  .app-shell.settings-mode .settings-footnote{font-size:10px}
 }
+
+
+/* App-wide Telegram light/dark appearance */
+.app-shell[data-theme="dark"]{
+ --surface:#1c2028;--soft-surface:#252b35;--text:#e7eaf0;--muted:#9ba6b5;--border-color:#343c48;--border:#343c48;
+ background:#17212b;color:#e7eaf0;color-scheme:dark;
+}
+.app-shell[data-theme="dark"] .navigation-drawer,
+.app-shell[data-theme="dark"] .chat-list-panel,
+.app-shell[data-theme="dark"] .list-header,
+.app-shell[data-theme="dark"] .conversation-panel,
+.app-shell[data-theme="dark"] .conversation-topbar,
+.app-shell[data-theme="dark"] .active-chat-header,
+.app-shell[data-theme="dark"] .conversation-footer{background:#17212b;color:#e7eaf0;border-color:#29323d}
+.app-shell[data-theme="dark"] .navigation-drawer{border-right-color:#29323d}
+.app-shell[data-theme="dark"] .nav-item{color:#aab5c4}
+.app-shell[data-theme="dark"] .nav-item:hover,
+.app-shell[data-theme="dark"] .nav-item.active{background:#263746;color:#70b5f8}
+.app-shell[data-theme="dark"] .drawer-footer{border-color:#303a46;color:#aab5c4}
+.app-shell[data-theme="dark"] .list-title-row h1,
+.app-shell[data-theme="dark"] .empty-list h2,
+.app-shell[data-theme="dark"] .welcome-state h2,
+.app-shell[data-theme="dark"] .settings-content-heading h2{color:#e7eaf0}
+.app-shell[data-theme="dark"] .list-header,
+.app-shell[data-theme="dark"] .chat-item,
+.app-shell[data-theme="dark"] .conversation-topbar,
+.app-shell[data-theme="dark"] .active-chat-header{border-color:#29323d}
+.app-shell[data-theme="dark"] .search-box,
+.app-shell[data-theme="dark"] .folder-tab,
+.app-shell[data-theme="dark"] .empty-icon,
+.app-shell[data-theme="dark"] .welcome-logo{background:#232d38;color:#aab5c4}
+.app-shell[data-theme="dark"] .search-box input,
+.app-shell[data-theme="dark"] .chat-search-bar input{color:#e7eaf0}
+.app-shell[data-theme="dark"] .folder-tab.selected{background:#263f55;color:#70b5f8}
+.app-shell[data-theme="dark"] .empty-list p,
+.app-shell[data-theme="dark"] .welcome-state p,
+.app-shell[data-theme="dark"] .secure-indicator{color:#9ba6b5}
+.app-shell[data-theme="dark"] .conversation-footer{color:#8e9aaa}
+.app-shell[data-theme="dark"] .telegram-settings{color:#e7eaf0}
+.app-shell[data-theme="dark"] .settings-profile-card,
+.app-shell[data-theme="dark"] .settings-category-list,
+.app-shell[data-theme="dark"] .settings-content,
+.app-shell[data-theme="dark"] .settings-mode .list-header{background:#1c2028;border-color:#343c48;color:#e7eaf0;box-shadow:none}
+.app-shell[data-theme="dark"] .settings-profile-card strong,
+.app-shell[data-theme="dark"] .settings-category strong,
+.app-shell[data-theme="dark"] .settings-toggle-row strong,
+.app-shell[data-theme="dark"] .settings-control-row strong,
+.app-shell[data-theme="dark"] .settings-info-row strong,
+.app-shell[data-theme="dark"] .settings-about strong{color:#e7eaf0}
+.app-shell[data-theme="dark"] .settings-category{color:#aab5c4}
+.app-shell[data-theme="dark"] .settings-category.active{background:#263f55}
+.app-shell[data-theme="dark"] .settings-category.active strong{color:#70b5f8}
+.app-shell[data-theme="dark"] .settings-content-heading,
+.app-shell[data-theme="dark"] .settings-toggle-row,
+.app-shell[data-theme="dark"] .settings-control-row,
+.app-shell[data-theme="dark"] .settings-info-row{border-color:#343c48}
+.app-shell[data-theme="dark"] .settings-control-row select,
+.app-shell[data-theme="dark"] .settings-theme-option{background:#232d38;border-color:#3a4654;color:#dce3ec}
+.app-shell[data-theme="dark"] .settings-theme-option strong{color:#e7eaf0}
+.app-shell[data-theme="dark"] .settings-theme-option.selected{background:#263f55;border-color:#3390ec;color:#70b5f8}
+.app-shell[data-theme="dark"] .settings-footnote{background:#252d37;color:#aab5c4}
+.app-shell[data-theme="dark"] .settings-mobile-back{color:#aab5c4}
+.app-shell[data-theme="dark"] .settings-mode .chat-list-panel{background:#17212b}
+.app-shell[data-theme="dark"] .settings-mode .list-title-row h1{color:#e7eaf0}
+.app-shell[data-theme="dark"] .settings-mode .settings-category{border-color:#343c48}
+.app-shell[data-theme="dark"] .chat-search-bar{background:#1c2028;border-color:#343c48;color:#aab5c4}
+.app-shell[data-theme="dark"] .message-bubble,
+.app-shell[data-theme="dark"] .message-content{background:#242f3b;color:#e7eaf0;border-color:#34404d}
+.app-shell[data-theme="dark"] .message-bubble.own,
+.app-shell[data-theme="dark"] .own-message .message-bubble{background:#2b5278;color:#f2f6fb}
+.app-shell[data-theme="dark"] input:not([type="checkbox"]),
+.app-shell[data-theme="dark"] textarea,
+.app-shell[data-theme="dark"] select{background-color:#202a35;color:#e7eaf0;border-color:#3a4654}
+.app-shell[data-theme="dark"] input::placeholder,
+.app-shell[data-theme="dark"] textarea::placeholder{color:#8996a6}
+.app-shell[data-theme="dark"] .modal,
+.app-shell[data-theme="dark"] .new-chat-modal,
+.app-shell[data-theme="dark"] .chat-info-panel,
+.app-shell[data-theme="dark"] .new-action-menu,
+.app-shell[data-theme="dark"] .message-menu,
+.app-shell[data-theme="dark"] .group-feature-card,
+.app-shell[data-theme="dark"] .group-rsvp-panel,
+.app-shell[data-theme="dark"] .group-meeting-workspace>section{background:#1c2028;color:#e7eaf0;border-color:#343c48}
+.app-shell[data-theme="dark"] .new-action-menu button{color:#e7eaf0}
+.app-shell[data-theme="dark"] .new-action-menu button:hover{background:#293542}
+.app-shell[data-theme="dark"] .group-feature-card-head strong,
+.app-shell[data-theme="dark"] .group-task-row label strong,
+.app-shell[data-theme="dark"] .group-rsvp-heading strong,
+.app-shell[data-theme="dark"] .meeting-check-list label{color:#e7eaf0}
+.app-shell[data-theme="dark"] .meeting-check-list>div,
+.app-shell[data-theme="dark"] .group-rsvp-roster>div{border-color:#343c48}
+.app-shell[data-theme="dark"] .meeting-inline-form input,
+.app-shell[data-theme="dark"] .meeting-followup-form input,
+.app-shell[data-theme="dark"] .meeting-minutes-panel textarea{background:#202a35;color:#e7eaf0;border-color:#3a4654}
+.app-shell[data-theme="dark"] .settings-about span,
+.app-shell[data-theme="dark"] .settings-about small{color:#9ba6b5}
+.app-shell[data-theme="dark"] .settings-profile-avatar{background:#3390ec}
+@media(prefers-reduced-motion:reduce){
+ .app-shell[data-theme] *, .app-shell[data-theme] *:before, .app-shell[data-theme] *:after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}
+}
