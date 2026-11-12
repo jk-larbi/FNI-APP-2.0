@@ -218,7 +218,7 @@ function App() {
         <div className="topbar-title"><span className="eyebrow">FORERUNNERS NETWORK INTERNATIONAL</span><h1>{t(section === 'chats' ? 'Messages' : section === 'settings' ? 'Settings' : current.label)}</h1></div>
         <div className="topbar-actions">
           {section === 'settings' ? <button className="icon-button" aria-label="Back to chats" onClick={() => setSection('chats')}><ArrowLeft size={19} /></button> : <button className="icon-button notification-button" aria-label="Notifications" onClick={() => comingSoon('Notifications')}><Bell size={19} /></button>}
-          {section !== 'settings' && <button className="new-button" onClick={() => section === 'meetings' ? setActiveAction('Create a meeting') : comingSoon(section === 'chats' ? 'New conversation' : 'Create ' + current.label.toLowerCase())}><Plus size={17} /><span>{section === 'chats' ? 'New message' : 'Create new'}</span></button>}
+          {section !== 'settings' && section !== 'calls' && <button className="new-button" onClick={() => comingSoon(section === 'chats' ? 'New conversation' : 'Create ' + current.label.toLowerCase())}><Plus size={17} /><span>{section === 'chats' ? 'New message' : 'Create new'}</span></button>}
         </div>
       </header>
 
