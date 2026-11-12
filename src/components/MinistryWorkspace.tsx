@@ -92,7 +92,7 @@ export default function MinistryWorkspace() {
     if (area === 'media') {
       if (!mediaLink.trim()) { setNotice('Add a media link before saving.'); return; }
       if (!/^https?:\/\//i.test(mediaLink.trim())) { setNotice('Enter a valid http or https media link.'); return; }
-      item = makeItem(formTitle, [formBody, 'Media link: ' + mediaLink.trim()].filter(Boolean).join('\n'), mediaKind, 'Media draft');
+      item = makeItem(formTitle, [formBody, eventDate ? 'Event date: ' + eventDate : '', 'Media link: ' + mediaLink.trim()].filter(Boolean).join('\n'), mediaKind, 'Media draft');
       const next = [item, ...mediaDrafts]; setMediaDrafts(next); storage.write('fni-ministry-media-drafts', next);
     } else if (area === 'events') {
       item = makeItem(formTitle, formBody + (eventDate ? '\nDate: ' + eventDate : ''), 'Event draft', 'Draft');
@@ -167,6 +167,7 @@ export default function MinistryWorkspace() {
         {formOpen && <EntryForm title="Add media link" submitLabel="Save media draft" onCancel={() => setFormOpen(false)} onSave={saveAreaItem}>
           <label>Media title<input value={formTitle} onChange={e => setFormTitle(e.target.value)} placeholder="Give this photo or video a title"/></label>
           <label>Media type<select value={mediaKind} onChange={e => setMediaKind(e.target.value)}><option>Video</option><option>Photo</option></select></label>
+          <label>Event date<input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)}/></label>
           <label>Photo or video URL<input type="url" value={mediaLink} onChange={e => setMediaLink(e.target.value)} placeholder="https://..."/></label>
           <label>Caption (optional)<textarea rows={3} value={formBody} onChange={e => setFormBody(e.target.value)} placeholder="Add a caption or event context"/></label>
         </EntryForm>}
