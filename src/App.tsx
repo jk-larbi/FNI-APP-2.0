@@ -16,11 +16,12 @@ export default function App() {
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [groupMemberInput, setGroupMemberInput] = useState('');
+  const [prayerRequestInput, setPrayerRequestInput] = useState('');
   const [meetingDate, setMeetingDate] = useState('');
   const [meetingTime, setMeetingTime] = useState('');
   const [meetingLocation, setMeetingLocation] = useState('');
   const [meetingLink, setMeetingLink] = useState('');
-  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string } }>>(() => {
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[] }>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-groups') || '{}'); }
     catch { return {}; }
   });
@@ -449,6 +450,33 @@ export default function App() {
                   {groupDetails[activeChat].meeting && <button type="button" className="group-meeting-cancel" onClick={() => { setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: undefined } })); setMeetingDate(''); setMeetingTime(''); setMeetingLocation(''); setMeetingLink(''); }}>Remove meeting</button>}
                 </form>
                 <p className="group-meeting-note">Meeting details are saved on this device only. Member notifications and live meeting rooms require the FNI backend.</p>
+              </section>
+            )}
+            {groupDetails[activeChat] && (
+              <section className="group-prayer-section">
+                <div className="shared-media-heading"><strong>Prayer room</strong><span>{groupDetails[activeChat].prayerRequests?.length || 0} requests</span></div>
+                <form className="group-prayer-form" onSubmit={(event) => {
+                  event.preventDefault();
+                  const prayer = prayerRequestInput.trim();
+                  if (!prayer) return;
+                  setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], prayerRequests: [{ id: Date.now(), text: prayer, createdAt: new Date().toLocaleDateString([], { day: 'numeric', month: 'short' }), prayed: false }, ...(current[activeChat].prayerRequests || [])] } }));
+                  setPrayerRequestInput('');
+                }}>
+                  <textarea value={prayerRequestInput} onChange={(event) => setPrayerRequestInput(event.target.value)} maxLength={500} rows={2} placeholder="Share a prayer request with this group..." aria-label="Prayer request" />
+                  <button type="submit" disabled={!prayerRequestInput.trim()}>Add prayer request</button>
+                </form>
+                {(groupDetails[activeChat].prayerRequests || []).length > 0 ? (
+                  <div className="group-prayer-list">
+                    {(groupDetails[activeChat].prayerRequests || []).map((request) => (
+                      <article className={`group-prayer-card ${request.prayed ? 'prayer-answered' : ''}`} key={request.id}>
+                        <div className="group-prayer-card-top"><span>{request.prayed ? 'Prayed for' : 'Prayer request'}</span><time>{request.createdAt}</time></div>
+                        <p>{request.text}</p>
+                        <div className="group-prayer-actions"><button type="button" onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], prayerRequests: (current[activeChat].prayerRequests || []).map((item) => item.id === request.id ? { ...item, prayed: !item.prayed } : item) } }))}>{request.prayed ? 'Undo' : 'Mark as prayed'}</button><button type="button" className="prayer-delete" onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], prayerRequests: (current[activeChat].prayerRequests || []).filter((item) => item.id !== request.id) } }))}>Remove</button></div>
+                      </article>
+                    ))}
+                  </div>
+                ) : <p className="group-members-empty">No prayer requests yet. Share the group's first request here.</p>}
+                <p className="group-meeting-note">Prayer requests are saved on this device only. Sharing with members and private prayer rooms require the FNI backend.</p>
               </section>
             )}
             <div className="chat-info-stat"><span>Messages</span><strong>{messages.length}</strong></div>
