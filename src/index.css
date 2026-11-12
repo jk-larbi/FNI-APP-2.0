@@ -644,3 +644,27 @@ button{cursor:pointer}
 .rsvp-status{font-size:10px;font-weight:550;color:var(--muted,#8993a1)}
 .rsvp-going{color:#219568}.rsvp-maybe{color:#b47b24}.rsvp-not-going{color:#c05a5a}
 @media(max-width:380px){.group-rsvp-options{grid-template-columns:1fr}.group-rsvp-heading{align-items:flex-start;flex-direction:column}}
+
+
+/* FNI group meeting workspace */
+.group-meeting-workspace{display:grid;gap:12px;margin:12px 0}
+.group-meeting-workspace>section{display:grid;gap:10px;padding:12px;border:1px solid #e7ebf1;border-radius:10px;background:#fff}
+.meeting-inline-form{display:flex;gap:7px}
+.meeting-inline-form input,.meeting-followup-form input,.meeting-minutes-panel textarea{width:100%;min-width:0;border:1px solid #e0e5ed;border-radius:7px;background:#fff;padding:9px 10px;color:#263449;font:inherit;font-size:12px;outline:none}
+.meeting-inline-form input:focus,.meeting-followup-form input:focus,.meeting-minutes-panel textarea:focus{border-color:#4389d5}
+.meeting-inline-form button,.meeting-followup-form>button,.meeting-minutes-panel form>button{border:0;border-radius:7px;background:#2878d0;color:#fff;padding:8px 12px;font-size:11px;font-weight:600;white-space:nowrap}
+.meeting-inline-form button:disabled,.meeting-followup-form>button:disabled{opacity:.45;cursor:not-allowed}
+.meeting-check-list{display:grid;gap:2px}
+.meeting-check-list>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 2px;border-top:1px solid #edf0f4}
+.meeting-check-list label{display:flex;align-items:flex-start;gap:8px;min-width:0;color:#344054;font-size:12px}
+.meeting-check-list label input{margin:2px 0 0;accent-color:#2878d0}
+.meeting-check-list label span{display:grid;gap:3px;overflow-wrap:anywhere}
+.meeting-check-list label small{font-size:10px;color:#8993a1}
+.meeting-check-list .is-done label span{text-decoration:line-through;color:#929baa}
+.meeting-check-list>div>button{border:0;background:transparent;color:#8993a1;font-size:18px;padding:0 5px}
+.meeting-minutes-panel form{display:grid;gap:8px}
+.meeting-minutes-panel textarea{resize:vertical;line-height:1.5}
+.meeting-followup-form{display:grid;gap:7px}
+.meeting-followup-form>div{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.meeting-countdown{display:inline-flex!important;width:max-content;padding:3px 7px;border-radius:5px;background:#edf5ff;color:#2878d0!important;font-size:10px!important;font-weight:650}
+@media(max-width:380px){.meeting-followup-form>div{grid-template-columns:1fr}}
