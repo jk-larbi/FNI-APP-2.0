@@ -4608,6 +4608,24 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
 }
 
 
+/* FNI MESSAGE ACTIONS: reliable thumb-sized controls on touch screens */
+.fni-chat-message-tools{opacity:1!important;align-items:center}
+.fni-chat-message-tools .fni-message-more-button{
+  width:36px!important;height:36px!important;min-width:36px;min-height:36px;
+  display:grid;place-items:center;border:1px solid var(--fni-line);
+  border-radius:50%;background:var(--fni-surface);color:var(--fni-text);
+  box-shadow:0 2px 8px rgba(20,32,55,.10);touch-action:manipulation;
+}
+.fni-chat-message-tools .fni-message-more-button svg{width:19px;height:19px}
+.fni-chat-message-tools .fni-message-more-button:focus-visible{
+  outline:2px solid var(--fni-blue);outline-offset:2px
+}
+.fni-message-context-menu button{min-height:44px!important}
+.fni-message-menu-dismiss{touch-action:manipulation}
+:root[data-theme="dark"] .fni-chat-message-tools .fni-message-more-button{
+  background:#202633!important;border-color:#394354!important;color:#e4e9f2!important
+}
+
 /* FNI SAVED MESSAGES + STORY VIEWER POLISH */
 .saved-chat-shell{
   position:relative;width:min(100%,820px)!important;height:100dvh!important;min-height:0!important;
