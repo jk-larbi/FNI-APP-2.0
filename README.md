@@ -8,3 +8,5 @@ A clean rebuild of the FNI application.
 - Build: `npm run build`
 
 The project is deployed to GitHub Pages from the `main` branch.
+
+<!-- GitHub Pages redeployment trigger: 2026-11-12 -->
