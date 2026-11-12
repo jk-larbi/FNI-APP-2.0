@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Check, ChevronRight, Lock, MessageCircle, Plus, Search, Settings2, Shield, Users, X } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Lock, MessageCircle, Phone, Plus, Search, Settings2, Shield, Users, X } from 'lucide-react';
 
 type PermissionKey = 'addMembers' | 'approveRequests' | 'editInfo' | 'pinDelete' | 'restrictMembers' | 'manageInvites' | 'appointAdmins';
 type Group = {
@@ -22,7 +22,7 @@ const permissionLabels: { key: PermissionKey; label: string }[] = [
 ];
 const blankPermissions = Object.fromEntries(permissionLabels.map(p => [p.key, false])) as Record<PermissionKey, boolean>;
 
-export default function MessagingWorkspace() {
+export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupCall?: (groupName: string) => void }) {
   const [groups, setGroups] = useState<Group[]>(() => { try { return JSON.parse(localStorage.getItem('fni-chat-groups') || '[]'); } catch { return []; } });
   const [selectedId, setSelectedId] = useState('');
   const [tab, setTab] = useState<'All chats' | 'Personal' | 'Groups'>('All chats');
@@ -78,7 +78,7 @@ export default function MessagingWorkspace() {
   if (view === 'new-chat') return <div className="msg-workspace"><div className="msg-heading"><button className="msg-back" onClick={() => setView('list')}><ArrowLeft size={17}/> Back to chats</button><span className="msg-eyebrow">PERSONAL MESSAGE</span><h2>Start a conversation</h2><p>Find a member using their public FNI username.</p></div><div className="msg-form-card"><label>Username<input value={newChatUsername} onChange={e => setNewChatUsername(e.target.value)} placeholder="@username"/></label><div className="msg-info"><MessageCircle size={17}/><span>Member search and message delivery will activate when FNI accounts and messaging services are connected. No sample conversations are shown.</span></div><button className="msg-primary" onClick={() => setNotice('Username search requires the FNI account directory and backend.')}>Find member <Search size={16}/></button></div></div>;
 
   if (view === 'group' && selected) return <div className="msg-workspace">
-    <div className="msg-heading"><button className="msg-back" onClick={closeToList}><ArrowLeft size={17}/> All chats</button><div className="msg-group-title"><div className="msg-group-avatar"><Users size={21}/></div><div><span className="msg-eyebrow">GROUP SETTINGS</span><h2>{selected.name}</h2><p>{selected.description || 'No group description yet'}</p></div></div></div>
+    <div className="msg-heading"><button className="msg-back" onClick={closeToList}><ArrowLeft size={17}/> All chats</button><div className="msg-group-title"><div className="msg-group-avatar"><Users size={21}/></div><div><span className="msg-eyebrow">GROUP SETTINGS</span><h2>{selected.name}</h2><p>{selected.description || 'No group description yet'}</p></div><button className="msg-secondary" onClick={() => onStartGroupCall?.(selected.name)}><Phone size={16}/> Start group call</button></div></div>
     <div className="msg-detail-grid">
       <section className="msg-panel"><div className="msg-panel-title"><div><h3>Group ownership</h3><p>Authority and roles</p></div><span className="msg-role owner">OWNER</span></div><div className="msg-role-row"><b>You · Group Owner</b><span>Full control over group settings and permissions</span></div>
         <div className="msg-section-label">ADMINISTRATORS</div>
