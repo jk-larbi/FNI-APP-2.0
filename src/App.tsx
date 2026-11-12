@@ -156,12 +156,13 @@ const settingCategories: SettingCategory[] = [
   ]},
 ];
 
-function Brand() {
-  return <div className="brand"><div className="brand-mark">F</div><div className="brand-copy"><strong>FNI</strong><span>Forerunners Network International</span></div></div>;
+function Brand({ photo }: { photo: string }) {
+  return <div className="brand"><div className={photo ? "brand-mark has-photo" : "brand-mark"}>{photo ? <img src={photo} alt="Your profile picture" /> : "F"}</div><div className="brand-copy"><strong>FNI</strong><span>Forerunners Network International</span></div></div>;
 }
 
 function App() {
   const [identity, setIdentity] = useState<{name:string;email:string;role:'member'|'admin'} | null>(() => readFniDemoSession());
+  const [profilePhoto, setProfilePhoto] = useState(() => localStorage.getItem('fni-profile-photo') || '');
   const [section, setSection] = useState<Section>('chats');
   const [callGroup, setCallGroup] = useState('');
   const [folder, setFolder] = useState('All chats');
@@ -238,7 +239,7 @@ function App() {
 
   return <div className="app-shell" data-theme={appTheme} data-language={language}>
     <aside className="sidebar">
-      <div className="sidebar-top"><Brand />
+      <div className="sidebar-top"><Brand photo={profilePhoto} />
         <button className="icon-button mobile-menu" aria-label="Open menu" onClick={() => setMenuOpen(v => !v)}><Menu size={20} /></button>
         <button className="icon-button desktop-more" aria-label="More options" onClick={() => setMenuOpen(v => !v)}><MoreHorizontal size={21} /></button>
       </div>
