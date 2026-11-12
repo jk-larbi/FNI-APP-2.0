@@ -11,7 +11,8 @@ export default function StoriesWorkspace({onReply}:{onReply?:()=>void}){
  const fileRef=useRef<HTMLInputElement>(null);
  useEffect(()=>{localStorage.setItem(KEY,JSON.stringify(stories.map(s=>({...s,media:s.kind==='text'?undefined:s.media}))));},[stories]);
  const mine=stories.filter(s=>s.mine),others=stories.filter(s=>!s.mine);
-  const recentUpdates=others.filter(s=>!s.viewers.includes('You'));\n const viewedUpdates=others.filter(s=>s.viewers.includes('You'));
+  const recentUpdates=others.filter(s=>!s.viewers.includes('You'));
+  const viewedUpdates=others.filter(s=>s.viewers.includes('You'));
  const current=stories.find(s=>s.id===viewer);
  const ownerStories=useMemo(()=>current?stories.filter(s=>s.owner===current.owner&&s.expiresAt>Date.now()):[],[stories,current]);
  const [storyIndex,setStoryIndex]=useState(0);
