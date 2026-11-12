@@ -466,7 +466,8 @@ export default function App() {
     const title = window.prompt('Enter a title for this recording:')?.trim();
     if (!title) return;
     try {
-      const preferred = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'audio/webm;codecs=opus', 'video/webm'];
+      const hasVideo = videoStream.getVideoTracks().length > 0;
+      const preferred = hasVideo ? ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'] : ['audio/webm;codecs=opus', 'audio/webm'];
       const mimeType = preferred.find(type => MediaRecorder.isTypeSupported(type));
       const recorder = new MediaRecorder(videoStream, mimeType ? { mimeType } : undefined);
       recordingChunksRef.current = [];
