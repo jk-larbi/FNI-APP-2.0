@@ -73,7 +73,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     });
   };
 
-  if (view === 'saved') return <div className="msg-workspace"><div className="msg-heading"><button className="msg-back" onClick={() => setView('list')}><ArrowLeft size={17}/> Back to chats</button></div><SavedMessagesWorkspace /></div>;
+  if (view === 'saved') return <div className="msg-workspace"><SavedMessagesWorkspace onBack={() => setView('list')} /></div>;
 
   if (view === 'create') return <div className="msg-workspace">
     <div className="msg-heading"><button className="msg-back" onClick={() => setView('list')}><ArrowLeft size={17}/> Back to chats</button><span className="msg-eyebrow">NEW GROUP</span><h2>Create a group</h2><p>Set up the group and decide how members can participate.</p></div>
