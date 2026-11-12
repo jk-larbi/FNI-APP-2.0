@@ -119,6 +119,8 @@ export default function App() {
   const [devotionReflection, setDevotionReflection] = useState('');
   const [attendanceDate, setAttendanceDate] = useState('');
   const [attendanceSelection, setAttendanceSelection] = useState<string[]>([]);
+  const [meetingTitle, setMeetingTitle] = useState('');
+  const [meetingDetails, setMeetingDetails] = useState('');
   const [meetingDate, setMeetingDate] = useState('');
   const [meetingTime, setMeetingTime] = useState('');
   const [meetingLocation, setMeetingLocation] = useState('');
@@ -129,7 +131,7 @@ export default function App() {
   const [meetingActionDueDate, setMeetingActionDueDate] = useState('');
   const [groupApprovalRequests, setGroupApprovalRequests] = useState<{ id: string; name: string; description: string; requestedAt: string; status: 'Pending' | 'Approved' | 'Declined' }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-requests') || '[]'); } catch { return []; } });
   const [groupApprovalLog, setGroupApprovalLog] = useState<{ id: string; groupName: string; action: 'Submitted' | 'Approved' | 'Declined'; time: string }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-log') || '[]'); } catch { return []; } });
-  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string; responses?: Record<string, 'Going' | 'Maybe' | 'Not going'>; agenda?: { id: number; text: string; done: boolean }[]; minutes?: string; followUps?: { id: number; title: string; assignee: string; dueDate: string; done: boolean }[] }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[]; announcements?: { id: number; text: string; important: boolean; createdAt: string }[];
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { title?: string; details?: string; date: string; time: string; location: string; link: string; createdBy?: string; responses?: Record<string, 'Going' | 'Maybe' | 'Not going'>; agenda?: { id: number; text: string; done: boolean }[]; minutes?: string; followUps?: { id: number; title: string; assignee: string; dueDate: string; done: boolean }[] }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[]; announcements?: { id: number; text: string; important: boolean; createdAt: string }[];
     polls?: { id: number; question: string; options: string[]; votes: Record<string, string>; createdAt: string; closed?: boolean }[];
     tasks?: { id: number; title: string; assignee: string; dueDate: string; completed: boolean; createdAt: string }[];
     resources?: { id: number; title: string; url: string; category: string; createdAt: string }[];
@@ -842,19 +844,31 @@ export default function App() {
                     {groupDetails[activeChat].meeting.link && <a href={groupDetails[activeChat].meeting.link} target="_blank" rel="noreferrer">Join meeting</a>}
                   </div>
                 )}
-                <form className="group-meeting-form" onSubmit={(event) => {
-                  event.preventDefault();
-                  if (!meetingDate || !meetingTime) return;
-                  setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: { date: meetingDate, time: meetingTime, location: meetingLocation.trim(), link: meetingLink.trim() } } }));
-                }}>
-                  <label>Meeting date<input type="date" value={meetingDate} onChange={(event) => setMeetingDate(event.target.value)} required /></label>
-                  <label>Start time<input type="time" value={meetingTime} onChange={(event) => setMeetingTime(event.target.value)} required /></label>
-                  <label>Location <span className="optional-label">Optional</span><input value={meetingLocation} onChange={(event) => setMeetingLocation(event.target.value)} placeholder="e.g. UCC campus or online" /></label>
-                  <label>Meeting link <span className="optional-label">Optional</span><input type="url" value={meetingLink} onChange={(event) => setMeetingLink(event.target.value)} placeholder="https://..." /></label>
-                  <button type="submit" disabled={!meetingDate || !meetingTime}>{groupDetails[activeChat].meeting ? 'Update meeting' : 'Schedule meeting'}</button>
-                  {groupDetails[activeChat].meeting && <button type="button" className="group-meeting-cancel" onClick={() => { setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: undefined } })); setMeetingDate(''); setMeetingTime(''); setMeetingLocation(''); setMeetingLink(''); }}>Remove meeting</button>}
-                </form>
-                <p className="group-meeting-note">Meeting details are saved on this device only. Member notifications and live meeting rooms require the FNI backend.</p>
+                {groupDetails[activeChat].createdBy === 'You' ? (
+                  <form className="group-meeting-form" onSubmit={(event) => {
+                    event.preventDefault();
+                    if (!meetingDate || !meetingTime || !meetingTitle.trim()) return;
+                    const previousMeeting = groupDetails[activeChat].meeting;
+                    const nextMeeting = { title: meetingTitle.trim(), details: meetingDetails.trim(), date: meetingDate, time: meetingTime, location: meetingLocation.trim(), link: meetingLink.trim(), createdBy: 'You', responses: previousMeeting?.responses || {}, agenda: previousMeeting?.agenda || [], minutes: previousMeeting?.minutes || '', followUps: previousMeeting?.followUps || [] };
+                    setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: nextMeeting } }));
+                    const dateLabel = new Date(meetingDate + 'T' + meetingTime).toLocaleString([], { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+                    const announcement = (previousMeeting ? 'MEETING UPDATED' : 'NEW GROUP MEETING') + '\\n' + nextMeeting.title + '\\n' + dateLabel + (nextMeeting.location ? '\\nLocation: ' + nextMeeting.location : '') + (nextMeeting.link ? '\\nJoin link: ' + nextMeeting.link : '') + (nextMeeting.details ? '\\nDetails: ' + nextMeeting.details : '');
+                    const chatMessage = { id: Date.now(), text: announcement, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+                    setConversations((current) => ({ ...current, [activeChat]: [...(current[activeChat] || []), chatMessage] }));
+                    setMeetingNotifications((current) => [{ id: Date.now() + 1, title: (groupDetails[activeChat].name || 'Group') + ' · ' + (previousMeeting ? 'Meeting updated' : 'New meeting'), body: nextMeeting.title + ' · ' + dateLabel, time: new Date().toLocaleString(), read: false, groupId: activeChat }, ...current]);
+                    setMeetingTitle(''); setMeetingDetails('');
+                  }}>
+                    <label>Meeting title<input value={meetingTitle} onChange={(event) => setMeetingTitle(event.target.value)} placeholder="e.g. Weekly Cell Meeting" required /></label>
+                    <label>Meeting date<input type="date" value={meetingDate} onChange={(event) => setMeetingDate(event.target.value)} required /></label>
+                    <label>Start time<input type="time" value={meetingTime} onChange={(event) => setMeetingTime(event.target.value)} required /></label>
+                    <label>Location <span className="optional-label">Optional</span><input value={meetingLocation} onChange={(event) => setMeetingLocation(event.target.value)} placeholder="e.g. UCC campus or Online" /></label>
+                    <label>Meeting link <span className="optional-label">Optional</span><input type="url" value={meetingLink} onChange={(event) => setMeetingLink(event.target.value)} placeholder="https://..." /></label>
+                    <label>Message to members <span className="optional-label">Optional</span><textarea value={meetingDetails} onChange={(event) => setMeetingDetails(event.target.value)} placeholder="Agenda, preparation, or other instructions" rows={3} /></label>
+                    <button type="submit" disabled={!meetingTitle.trim() || !meetingDate || !meetingTime}>{groupDetails[activeChat].meeting ? 'Update & send details' : 'Create meeting & send details'}</button>
+                    {groupDetails[activeChat].meeting && <button type="button" className="group-meeting-cancel" onClick={() => { setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: undefined } })); setMeetingTitle(''); setMeetingDetails(''); setMeetingDate(''); setMeetingTime(''); setMeetingLocation(''); setMeetingLink(''); }}>Cancel meeting</button>}
+                  </form>
+                ) : <p className="group-meeting-note">Only the group creator can schedule, update, or cancel this meeting. Members can view the details and respond to the invitation.</p>}
+                <p className="group-meeting-note">Meeting details are posted into this group chat and saved on this device. Actual notifications to other members and shared live meeting rooms require the FNI backend.</p>
               </section>
             )}
             {groupDetails[activeChat] && (
