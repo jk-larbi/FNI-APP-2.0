@@ -11,10 +11,10 @@ function readMedia(): MediaItem[] {
 }
 
 function getLink(body: string) {
-  return body.match(/Media link:\\s*(https?:\\/\\/[^\\s]+)/i)?.[1] || '';
+  return body.match(/Media link:\s*(https?:\/\/[^\s]+)/i)?.[1] || '';
 }
 function getEventDate(body: string, createdAt: string) {
-  const match = body.match(/Event date:\\s*([^\\n]+)/i);
+  const match = body.match(/Event date:\s*([^\n]+)/i);
   const raw = match?.[1]?.trim() || createdAt;
   const date = new Date(raw);
   return Number.isNaN(date.getTime()) ? raw : date.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
@@ -31,7 +31,7 @@ export default function MediaHubWorkspace() {
     <label className="media-hub-search"><Search size={17}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search events and photos..." aria-label="Search Media Hub"/></label>
     {photos.length ? <div className="media-hub-grid">{photos.map(item => {
       const link = getLink(item.body);
-      const caption = item.body.split('Media link:')[0].trim();
+      const caption = item.body.replace(/Event date:\s*[^\n]+/i, '').split('Media link:')[0].trim();
       return <article className="media-hub-card" key={item.id}>
         <a className="media-hub-image" href={link} target="_blank" rel="noreferrer" aria-label={'Open photo: '+item.title}>
           <img src={link} alt={item.title} loading="lazy" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.classList.add('media-hub-image-unavailable'); }}/>
