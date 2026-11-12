@@ -176,3 +176,26 @@ button{cursor:pointer}
  .message-composer textarea{font-size:16px;padding:9px 3px}
  .local-preview-note{font-size:9px}
 }
+
+/* Telegram-like message action controls */
+.message-action-wrap{position:relative;display:flex;align-items:center;gap:4px;max-width:min(88%,620px)}
+.message-action-wrap .message-bubble{max-width:100%}
+.message-more-button{width:30px;height:32px;flex:none;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:#8b96a4;opacity:0;transition:opacity .15s,background .15s}
+.message-row:hover .message-more-button,.message-more-button:focus-visible{opacity:1}
+.message-more-button:hover{background:#e8edf2}
+.message-action-menu{position:absolute;z-index:8;right:34px;top:0;min-width:132px;padding:5px;background:#fff;border:1px solid #e8ebef;border-radius:9px;box-shadow:0 5px 22px #17203320}
+.message-action-menu button{width:100%;display:block;text-align:left;border:0;border-radius:6px;padding:9px 11px;background:transparent;color:#344054;font-size:12px}
+.message-action-menu button:hover{background:#f2f5f8}
+.message-action-menu button.delete-action{color:#d04444}
+.quoted-message{padding:5px 8px;margin:0 0 6px;border-left:3px solid #55a58a;border-radius:3px;background:#c8efc1;color:#50665a;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reply-preview{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;background:#f7f9fb;border-top:1px solid #e8ebef}
+.reply-preview>div{min-width:0;display:flex;flex-direction:column;gap:3px;border-left:3px solid #3984d6;padding-left:9px}
+.reply-preview strong{font-size:11px;color:#3278bd}
+.reply-preview span{font-size:12px;color:#687386;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reply-preview>button{border:0;background:transparent;color:#8792a1;width:32px;height:32px;display:grid;place-items:center}
+@media(max-width:620px){
+ .message-more-button{opacity:1;width:26px;height:30px}
+ .message-action-wrap{max-width:96%;gap:1px}
+ .message-action-menu{right:28px}
+ .reply-preview{padding:7px 10px}
+}
