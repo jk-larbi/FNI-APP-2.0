@@ -315,3 +315,16 @@ button{cursor:pointer}
 .new-chat-modal textarea:focus{border-color:#3390ec;box-shadow:0 0 0 2px #3390ec20}
 .optional-label{margin-left:5px;color:#929ba7;font-size:11px;font-weight:400}
 .group-description{margin:8px 0 0;padding:10px 0 0;border-top:1px solid var(--border-color,#edf0f3);color:#7c8795;font-size:12px;line-height:1.5;text-align:center}
+
+
+.group-members-section{padding:14px 0;border-top:1px solid var(--border-color,#e8eaf0)}
+.group-member-add{display:flex;gap:8px;margin:12px 0}
+.group-member-add input{min-width:0;flex:1;height:40px;padding:0 12px;border:1px solid #dfe3ea;border-radius:9px;background:transparent;color:inherit;font:inherit}
+.group-member-add button,.group-member-row button{border:0;border-radius:8px;padding:0 13px;background:#2878d0;color:#fff;font:inherit;font-size:13px;cursor:pointer}
+.group-member-add button:disabled{opacity:.45;cursor:not-allowed}
+.group-member-list{display:grid;gap:8px}
+.group-member-row{display:flex;align-items:center;gap:10px;min-height:42px}
+.group-member-avatar{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#e8f1fc;color:#2878d0;font-weight:700}
+.group-member-row strong{flex:1;font-size:14px;font-weight:500}
+.group-member-row button{background:transparent;color:#d34b4b;padding:7px 9px}
+.group-members-empty{font-size:13px;color:#89919e;line-height:1.45;margin:8px 0}
