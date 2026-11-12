@@ -1,12 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, MoreVertical, Video, PhoneCall } from 'lucide-react';
+import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, MoreVertical, Video, PhoneCall, UserRound, LockKeyhole, BellRing, Palette, Database, Smartphone, Globe2, MessageSquare, HeartHandshake, CircleHelp, ChevronRight, ShieldCheck, Volume2, Moon, Sun, Monitor, Download, Eye, BookOpen, HandHeart, CalendarDays, Image, KeyRound } from 'lucide-react';
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups' | 'Archived';
 type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
 
+function SettingToggle({ title, description, checked, onChange }: { title: string; description: string; checked: boolean; onChange: (value: boolean) => void }) {
+  return <label className="settings-toggle-row"><span><strong>{title}</strong><small>{description}</small></span><input type="checkbox" checked={checked} onChange={event => onChange(event.target.checked)}/><i aria-hidden="true"/></label>;
+}
+
 export default function App() {
   const [section, setSection] = useState<Section>('Chats');
+  const [settingsCategory, setSettingsCategory] = useState('Account');
+  const [preferences, setPreferences] = useState(() => {
+    try {
+      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, ...JSON.parse(localStorage.getItem('fni-settings') || '{}') };
+    } catch {
+      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false };
+    }
+  });
+  const updatePreference = (key: string, value: string | boolean) => setPreferences((current: Record<string, string | boolean>) => ({ ...current, [key]: value }));
   const [folder, setFolder] = useState<Folder>('All chats');
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -393,19 +406,102 @@ export default function App() {
             })}
           </div>
         ) : section === 'Settings' ? (
-            <div className="group-approval-panel">
-              <div className="group-approval-title"><div><h2>Group approval</h2><p>Review new FNI group creation requests.</p></div><span>{groupApprovalRequests.filter((item) => item.status === 'Pending').length} pending</span></div>
-              {groupApprovalRequests.length ? groupApprovalRequests.map((request) => (
-                <article className="group-approval-card" key={request.id}>
-                  <div className="group-approval-card-head"><strong>{request.name}</strong><span className={request.status === 'Pending' ? 'approval-pending' : request.status === 'Approved' ? 'approval-approved' : 'approval-declined'}>{request.status}</span></div>
-                  <p>{request.description || 'No description provided.'}</p><time>Requested {request.requestedAt}</time>
-                  {request.status === 'Pending' && <div className="group-approval-actions"><button type="button" onClick={() => { const time = new Date().toLocaleString(); setGroupApprovalRequests((current) => current.map((item) => item.id === request.id ? { ...item, status: 'Approved' } : item)); setGroupApprovalLog((current) => [{ id: `${request.id}-approved-${Date.now()}`, groupName: request.name, action: 'Approved', time }, ...current]); setGroupDetails((current) => ({ ...current, [request.id]: { name: request.name, description: request.description, members: [] } })); setConversations((current) => ({ ...current, [request.id]: [] })); }}>Approve group</button><button type="button" onClick={() => { const time = new Date().toLocaleString(); setGroupApprovalRequests((current) => current.map((item) => item.id === request.id ? { ...item, status: 'Declined' } : item)); setGroupApprovalLog((current) => [{ id: `${request.id}-declined-${Date.now()}`, groupName: request.name, action: 'Declined', time }, ...current]); }}>Decline</button></div>}
-                </article>
-              )) : <p className="group-approval-empty">No group requests yet. New group requests will appear here for review.</p>}
-              <section className="group-approval-history"><div className="group-approval-history-head"><strong>Approval activity</strong><span>{groupApprovalLog.length} events</span></div>{groupApprovalLog.length ? groupApprovalLog.map((entry) => <div className="group-approval-log-row" key={entry.id}><span className={entry.action === 'Approved' ? 'approval-approved' : entry.action === 'Declined' ? 'approval-declined' : 'approval-pending'}>{entry.action}</span><strong>{entry.groupName}</strong><time>{entry.time}</time></div>) : <p className="group-approval-empty">Approval actions will appear here.</p>}</section>
-              <p className="group-approval-note">Activity is stored on this device for preview. A shared, tamper-resistant administrator audit log requires backend storage and role permissions.</p>
+          <div className="telegram-settings">
+            <div className="settings-profile-card">
+              <div className="settings-profile-avatar">F</div>
+              <div><strong>FNI Member</strong><span>@fni_member · Forerunners Network International</span><small>Profile editing and account verification will be available when FNI accounts are connected.</small></div>
+              <button type="button" aria-label="Edit profile" onClick={() => setSettingsCategory('Account')}><ChevronRight size={18}/></button>
             </div>
-          ) : (
+            <div className="settings-layout">
+              <nav className="settings-category-list" aria-label="Settings categories">
+                {[
+                  { name: 'Account', icon: UserRound, detail: 'Profile and account' },
+                  { name: 'Privacy and Security', icon: ShieldCheck, detail: 'Visibility and security' },
+                  { name: 'Notifications and Sounds', icon: BellRing, detail: 'Messages, groups and calls' },
+                  { name: 'Appearance', icon: Palette, detail: 'Theme and interface' },
+                  { name: 'Chat Settings', icon: MessageSquare, detail: 'Messages and behaviour' },
+                  { name: 'Data and Storage', icon: Database, detail: 'Media and data usage' },
+                  { name: 'Devices', icon: Smartphone, detail: 'Active sessions' },
+                  { name: 'Language', icon: Globe2, detail: 'App language' },
+                  { name: 'FNI Community', icon: HeartHandshake, detail: 'Ministry and community' },
+                  { name: 'Help', icon: CircleHelp, detail: 'Support and information' },
+                ].map(({name, icon: Icon, detail}) => <button type="button" key={name} className={settingsCategory === name ? 'settings-category active' : 'settings-category'} onClick={() => setSettingsCategory(name)}><Icon size={18}/><span><strong>{name}</strong><small>{detail}</small></span><ChevronRight size={16}/></button>)}
+              </nav>
+              <div className="settings-content">
+                <div className="settings-content-heading"><button type="button" className="settings-mobile-back" onClick={() => setSettingsCategory('Account')}><ArrowLeft size={17}/></button><div><h2>{settingsCategory}</h2><p>Manage your FNI app preferences</p></div></div>
+                {settingsCategory === 'Account' && <div className="settings-section">
+                  <h3>Account information</h3>
+                  <div className="settings-info-row"><UserRound/><span><strong>Profile details</strong><small>Name, username, bio and profile photo</small></span><em>Coming with account setup</em></div>
+                  <div className="settings-info-row"><KeyRound/><span><strong>Phone number and email</strong><small>Manage sign-in and recovery methods</small></span><em>Coming with account setup</em></div>
+                  <div className="settings-info-row"><ShieldCheck/><span><strong>Two-step verification</strong><small>Add an extra layer of account protection</small></span><em>Backend required</em></div>
+                  <p className="settings-footnote">Your FNI profile, sign-in methods and security credentials will be connected when account services are added.</p>
+                </div>}
+                {settingsCategory === 'Privacy and Security' && <div className="settings-section">
+                  <h3>Privacy</h3>
+                  <label className="settings-control-row"><span><strong>Who can see my last seen</strong><small>Control when people can see your activity</small></span><select value={String(preferences.lastSeen)} onChange={e => updatePreference('lastSeen', e.target.value)}><option>Everybody</option><option>My contacts</option><option>Nobody</option></select></label>
+                  <label className="settings-control-row"><span><strong>Who can see my profile photo</strong><small>Choose who can view your photo</small></span><select value={String(preferences.profilePhoto)} onChange={e => updatePreference('profilePhoto', e.target.value)}><option>Everybody</option><option>My contacts</option><option>Nobody</option></select></label>
+                  <label className="settings-control-row"><span><strong>Who can see my phone number</strong><small>Choose who can view your number</small></span><select value={String(preferences.phoneNumber)} onChange={e => updatePreference('phoneNumber', e.target.value)}><option>Everybody</option><option>My contacts</option><option>Nobody</option></select></label>
+                  <SettingToggle title="Read receipts" description="Show when you have read a message" checked={Boolean(preferences.readReceipts)} onChange={v => updatePreference('readReceipts', v)}/>
+                  <h3>Security</h3><div className="settings-info-row"><LockKeyhole/><span><strong>Passcode lock</strong><small>Lock FNI when you leave your device</small></span><em>Device security setup</em></div>
+                  <div className="settings-info-row"><Eye/><span><strong>Active sessions</strong><small>Review devices signed in to your account</small></span><em>Backend required</em></div>
+                  <p className="settings-footnote">These privacy choices are saved on this device in the preview. They will be enforced across accounts after FNI authentication is connected.</p>
+                </div>}
+                {settingsCategory === 'Notifications and Sounds' && <div className="settings-section">
+                  <h3>Message notifications</h3>
+                  <SettingToggle title="Private chats" description="Alerts for one-to-one messages" checked={Boolean(preferences.desktopNotifications)} onChange={v => updatePreference('desktopNotifications', v)}/>
+                  <SettingToggle title="Group notifications" description="Updates from FNI groups and cell groups" checked={Boolean(preferences.groupNotifications)} onChange={v => updatePreference('groupNotifications', v)}/>
+                  <SettingToggle title="Meeting reminders" description="Reminders for scheduled FNI meetings" checked={Boolean(preferences.meetingReminders)} onChange={v => updatePreference('meetingReminders', v)}/>
+                  <SettingToggle title="Message previews" description="Show message text in notifications" checked={Boolean(preferences.messagePreview)} onChange={v => updatePreference('messagePreview', v)}/>
+                  <SettingToggle title="In-app sounds" description="Play sounds for messages and actions" checked={Boolean(preferences.sound)} onChange={v => updatePreference('sound', v)}/>
+                  <p className="settings-footnote">Notification preferences are stored locally. Push notifications require the FNI notification service.</p>
+                </div>}
+                {settingsCategory === 'Appearance' && <div className="settings-section">
+                  <h3>Theme</h3><div className="settings-theme-options">{[{value:'Light',icon:Sun,label:'Light'},{value:'Dark',icon:Moon,label:'Dark'},{value:'System',icon:Monitor,label:'System'}].map(({value,icon:Icon,label}) => <button type="button" key={value} className={preferences.appearance === value ? 'settings-theme-option selected' : 'settings-theme-option'} onClick={() => updatePreference('appearance', value)}><Icon size={20}/><strong>{label}</strong><small>{preferences.appearance === value ? 'Selected' : 'Choose theme'}</small></button>)}</div>
+                  <SettingToggle title="Reduce motion" description="Limit animated transitions" checked={Boolean(preferences.reducedMotion)} onChange={v => updatePreference('reducedMotion', v)}/>
+                  <p className="settings-footnote">Theme preference is saved. Applying a full app-wide dark or light theme is part of the visual polish pass.</p>
+                </div>}
+                {settingsCategory === 'Chat Settings' && <div className="settings-section">
+                  <h3>Messages</h3><SettingToggle title="Send by pressing Enter" description="Use Enter to send and Shift + Enter for a new line" checked={Boolean(preferences.enterToSend)} onChange={v => updatePreference('enterToSend', v)}/>
+                  <div className="settings-info-row"><MessageSquare/><span><strong>Chat folders</strong><small>All chats, Personal, Groups and Archived</small></span><em>Available</em></div>
+                  <div className="settings-info-row"><Image/><span><strong>Media gallery</strong><small>Photos and videos shared in conversations</small></span><em>Available</em></div>
+                  <div className="settings-info-row"><Volume2/><span><strong>Chat sounds</strong><small>Managed under Notifications and Sounds</small></span><button type="button" onClick={() => setSettingsCategory('Notifications and Sounds')}>Open</button></div>
+                </div>}
+                {settingsCategory === 'Data and Storage' && <div className="settings-section">
+                  <h3>Automatic media download</h3><SettingToggle title="Photos" description="Automatically download photos" checked={Boolean(preferences.autoDownloadPhotos)} onChange={v => updatePreference('autoDownloadPhotos', v)}/>
+                  <SettingToggle title="Videos" description="Automatically download videos" checked={Boolean(preferences.autoDownloadVideos)} onChange={v => updatePreference('autoDownloadVideos', v)}/>
+                  <h3>Storage and data</h3><SettingToggle title="Data saver" description="Prefer lower data usage for media" checked={Boolean(preferences.dataSaver)} onChange={v => updatePreference('dataSaver', v)}/>
+                  <SettingToggle title="Save incoming media to gallery" description="Keep received media in your device gallery" checked={Boolean(preferences.saveToGallery)} onChange={v => updatePreference('saveToGallery', v)}/>
+                  <div className="settings-info-row"><Download/><span><strong>Storage usage</strong><small>Review cached files and downloaded media</small></span><em>Device tools later</em></div>
+                  <p className="settings-footnote">Download preferences are saved locally; automatic downloads and cache controls will be wired to native app storage.</p>
+                </div>}
+                {settingsCategory === 'Devices' && <div className="settings-section">
+                  <h3>Active sessions</h3><div className="settings-info-row"><Smartphone/><span><strong>This device</strong><small>Current browser session · Active now</small></span><em className="settings-status">Current</em></div>
+                  <p className="settings-footnote">Telegram-style session management will show all phones, tablets and desktop sessions after FNI sign-in is connected. This preview cannot verify or revoke other devices.</p>
+                </div>}
+                {settingsCategory === 'Language' && <div className="settings-section">
+                  <h3>App language</h3><label className="settings-control-row"><span><strong>Language</strong><small>Choose the language used across FNI</small></span><select value={String(preferences.language)} onChange={e => updatePreference('language', e.target.value)}><option>English</option><option disabled>French · Coming soon</option><option disabled>Twi · Coming soon</option></select></label>
+                  <p className="settings-footnote">English is currently the available interface language.</p>
+                </div>}
+                {settingsCategory === 'FNI Community' && <div className="settings-section">
+                  <h3>Forerunners Network International</h3>
+                  <div className="settings-info-row"><Users/><span><strong>Cell groups</strong><small>Create groups, manage members and group privacy</small></span><button type="button" onClick={() => { setSection('Chats'); setFolder('Groups'); }}>Open</button></div>
+                  <div className="settings-info-row"><CalendarDays/><span><strong>Meetings and events</strong><small>Group meetings, attendance and reminders</small></span><button type="button" onClick={() => { setSection('Chats'); setFolder('Groups'); }}>Open</button></div>
+                  <div className="settings-info-row"><BookOpen/><span><strong>Sermons and spiritual resources</strong><small>Sermon notes, scriptures and devotion plans</small></span><em>FNI workspace</em></div>
+                  <div className="settings-info-row"><HandHeart/><span><strong>Prayer and care</strong><small>Prayer requests and group prayer rooms</small></span><em>FNI workspace</em></div>
+                  <div className="settings-info-row"><HeartHandshake/><span><strong>Giving and support</strong><small>Future secure giving options</small></span><em>Planned</em></div>
+                  <div className="settings-info-row"><Bell/><span><strong>Ministry announcements</strong><small>Church-wide updates and event notices</small></span><em>Planned</em></div>
+                  <p className="settings-footnote">FNI-specific tools will connect to the ministry's verified groups, events and services when the backend is ready. No giving or payment data is collected in this preview.</p>
+                </div>}
+                {settingsCategory === 'Help' && <div className="settings-section">
+                  <h3>Support</h3><div className="settings-info-row"><CircleHelp/><span><strong>Help Centre</strong><small>Guides for chats, calls and FNI groups</small></span><em>Coming soon</em></div>
+                  <div className="settings-info-row"><MessageCircle/><span><strong>Contact FNI support</strong><small>Get help with your account or the app</small></span><em>Coming soon</em></div>
+                  <div className="settings-info-row"><ShieldCheck/><span><strong>Privacy policy and terms</strong><small>How FNI handles account and community data</small></span><em>To be published</em></div>
+                  <div className="settings-about"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI logo"/><strong>FNI Connect</strong><span>Forerunners Network International</span><small>Web preview</small></div>
+                </div>}
+              </div>
+            </div>
+          </div>
+        ) : (
           <div className="empty-list">
             <div className="empty-icon"><MessageCircle size={27} strokeWidth={1.5} /></div>
             <h2>{search ? 'No matches found' : section === 'Chats' ? (folder === 'Groups' ? 'No groups yet' : folder === 'Archived' ? 'No archived chats' : 'No conversations yet') : section === 'Contacts' ? 'Your contacts will appear here' : section === 'Calls' ? 'No recent calls' : 'Your settings will appear here'}</h2>
