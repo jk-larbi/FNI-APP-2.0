@@ -32,7 +32,7 @@ export default function App() {
   const [meetingLink, setMeetingLink] = useState('');
   const [groupApprovalRequests, setGroupApprovalRequests] = useState<{ id: string; name: string; description: string; requestedAt: string; status: 'Pending' | 'Approved' | 'Declined' }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-requests') || '[]'); } catch { return []; } });
   const [groupApprovalLog, setGroupApprovalLog] = useState<{ id: string; groupName: string; action: 'Submitted' | 'Approved' | 'Declined'; time: string }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-log') || '[]'); } catch { return []; } });
-  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[]; announcements?: { id: number; text: string; important: boolean; createdAt: string }[] }>>(() => {
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[]; announcements?: { id: number; text: string; important: boolean; createdAt: string }[]; allowMembersToJoin?: boolean; requireJoinApproval?: boolean; discoverable?: boolean; inviteCode?: string; createdBy?: string }>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-groups') || '{}'); }
     catch { return {}; }
   });
@@ -189,11 +189,13 @@ export default function App() {
   const createGroup = () => {
     const name = groupName.trim();
     if (!name) return;
-    const request = { id: `group-${Date.now()}`, name, description: groupDescription.trim(), requestedAt: new Date().toLocaleString(), status: 'Pending' as const };
-    setGroupApprovalRequests((current) => [request, ...current]);
-    setGroupApprovalLog((current) => [{ id: `${request.id}-submitted`, groupName: name, action: 'Submitted', time: request.requestedAt }, ...current]);
-    setSection('Settings');
-    setActiveChat('');
+    const id = `group-${Date.now()}`;
+    const inviteCode = Math.random().toString(36).slice(2, 10).toUpperCase();
+    setGroupDetails((current) => ({ ...current, [id]: { name, description: groupDescription.trim(), members: [], moderators: [], allowMembersToJoin: true, requireJoinApproval: false, discoverable: true, inviteCode } }));
+    setConversations((current) => ({ ...current, [id]: [] }));
+    setSection('Chats');
+    setFolder('Groups');
+    setActiveChat(id);
     setNewGroupOpen(false);
     setNewActionOpen(false);
     setGroupName('');
@@ -458,6 +460,16 @@ export default function App() {
           <section className="chat-info-modal" role="dialog" aria-modal="true" aria-label="Chat information">
             <div className="modal-heading"><h2>Chat information</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setChatInfoOpen(false)}><X /></button></div>
             <div className="chat-info-profile"><div className="chat-info-avatar">{(groupDetails[activeChat]?.name || activeChat.replace('@','')).slice(0,1).toUpperCase()}</div><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{groupDetails[activeChat] ? 'FNI group' : 'FNI member'}</span>{groupDetails[activeChat]?.description && <p className="group-description">{groupDetails[activeChat].description}</p>}</div>
+            {groupDetails[activeChat] && (
+              <section className="group-members-section group-privacy-settings">
+                <div className="shared-media-heading"><strong>Group permissions</strong><span>Admin controls</span></div>
+                <label className="attendance-member-option"><input type="checkbox" checked={groupDetails[activeChat].discoverable !== false} onChange={(event) => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], discoverable: event.target.checked } }))} /><span>Show this group in group search</span></label>
+                <label className="attendance-member-option"><input type="checkbox" checked={groupDetails[activeChat].allowMembersToJoin !== false} onChange={(event) => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], allowMembersToJoin: event.target.checked } }))} /><span>Allow people to join using a link or search</span></label>
+                <label className="attendance-member-option"><input type="checkbox" checked={groupDetails[activeChat].requireJoinApproval === true} onChange={(event) => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], requireJoinApproval: event.target.checked } }))} /><span>Approve new member requests</span></label>
+                <div className="group-invite-link"><span>Invite code: <strong>{groupDetails[activeChat].inviteCode || 'Not generated'}</strong></span><button type="button" onClick={() => { const code = groupDetails[activeChat].inviteCode || ''; const link = window.location.origin + window.location.pathname + '?join=' + code; if (navigator.clipboard?.writeText) navigator.clipboard.writeText(link); }}>Copy invite link</button></div>
+                <p className="group-insights-note">These controls are saved in this preview. Search discovery, invite validation and join requests will work across accounts once FNI has its backend.</p>
+              </section>
+            )}
             {groupDetails[activeChat] && (
               <div className="group-members-section">
                 <div className="shared-media-heading"><strong>Members</strong><span>{groupDetails[activeChat].members?.length || 0}</span></div>
