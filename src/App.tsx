@@ -70,9 +70,30 @@ export default function App() {
   const sendMessage = () => {
     const value = draft.trim();
     if (!value) return;
-    setMessages((current) => [...current, { id: Date.now(), text: value, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), replyTo: replyTo?.text }]);
+
+    if (editingMessage) {
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === editingMessage.id
+            ? { ...message, text: value, edited: true }
+            : message
+        )
+      );
+      setEditingMessage(null);
+    } else {
+      setMessages((current) => [
+        ...current,
+        {
+          id: Date.now(),
+          text: value,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          replyTo: replyTo?.text,
+        },
+      ]);
+      setReplyTo(null);
+    }
+
     setDraft('');
-    setReplyTo(null);
   };
 
   return (
