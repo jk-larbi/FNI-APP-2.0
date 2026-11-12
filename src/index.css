@@ -328,3 +328,9 @@ button{cursor:pointer}
 .group-member-row strong{flex:1;font-size:14px;font-weight:500}
 .group-member-row button{background:transparent;color:#d34b4b;padding:7px 9px}
 .group-members-empty{font-size:13px;color:#89919e;line-height:1.45;margin:8px 0}
+
+
+.group-member-identity{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.group-member-identity strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.group-moderator-label{font-size:11px;color:#2878d0;font-weight:600}
+.group-member-row .group-role-button{background:#edf4fc;color:#286db4;padding:7px 9px}
