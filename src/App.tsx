@@ -23,6 +23,7 @@ export default function App() {
   const [meetingTime, setMeetingTime] = useState('');
   const [meetingLocation, setMeetingLocation] = useState('');
   const [meetingLink, setMeetingLink] = useState('');
+  const [groupApprovalRequests, setGroupApprovalRequests] = useState<{ id: string; name: string; description: string; requestedAt: string; status: 'Pending' | 'Approved' | 'Declined' }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-requests') || '[]'); } catch { return []; } });
   const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[] }>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-groups') || '{}'); }
     catch { return {}; }
@@ -80,6 +81,7 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem('fni-local-groups', JSON.stringify(groupDetails)); } catch { /* storage may be unavailable */ }
   }, [groupDetails]);
+  useEffect(() => { try { localStorage.setItem('fni-group-approval-requests', JSON.stringify(groupApprovalRequests)); } catch { /* storage may be unavailable */ } }, [groupApprovalRequests]);
   useEffect(() => {
     try { localStorage.setItem('fni-local-drafts', JSON.stringify(drafts)); } catch { /* storage may be unavailable */ }
   }, [drafts]);
@@ -175,12 +177,10 @@ export default function App() {
   const createGroup = () => {
     const name = groupName.trim();
     if (!name) return;
-    const groupId = `group-${Date.now()}`;
-    setGroupDetails((current) => ({ ...current, [groupId]: { name, description: groupDescription.trim(), members: [] } }));
-    setConversations((current) => ({ ...current, [groupId]: [] }));
-    setActiveChat(groupId);
-    setFolder('Groups');
-    setSection('Chats');
+    const request = { id: `group-${Date.now()}`, name, description: groupDescription.trim(), requestedAt: new Date().toLocaleString(), status: 'Pending' as const };
+    setGroupApprovalRequests((current) => [request, ...current]);
+    setSection('Settings');
+    setActiveChat('');
     setNewGroupOpen(false);
     setNewActionOpen(false);
     setGroupName('');
@@ -329,12 +329,26 @@ export default function App() {
             })}
           </div>
         ) : (
+          {section === 'Settings' ? (
+            <div className="group-approval-panel">
+              <div className="group-approval-title"><div><h2>Group approval</h2><p>Review new FNI group creation requests.</p></div><span>{groupApprovalRequests.filter((item) => item.status === 'Pending').length} pending</span></div>
+              {groupApprovalRequests.length ? groupApprovalRequests.map((request) => (
+                <article className="group-approval-card" key={request.id}>
+                  <div className="group-approval-card-head"><strong>{request.name}</strong><span className={request.status === 'Pending' ? 'approval-pending' : request.status === 'Approved' ? 'approval-approved' : 'approval-declined'}>{request.status}</span></div>
+                  <p>{request.description || 'No description provided.'}</p><time>Requested {request.requestedAt}</time>
+                  {request.status === 'Pending' && <div className="group-approval-actions"><button type="button" onClick={() => { setGroupApprovalRequests((current) => current.map((item) => item.id === request.id ? { ...item, status: 'Approved' } : item)); setGroupDetails((current) => ({ ...current, [request.id]: { name: request.name, description: request.description, members: [] } })); setConversations((current) => ({ ...current, [request.id]: [] })); }}>Approve group</button><button type="button" onClick={() => setGroupApprovalRequests((current) => current.map((item) => item.id === request.id ? { ...item, status: 'Declined' } : item))}>Decline</button></div>}
+                </article>
+              )) : <p className="group-approval-empty">No group requests yet. New group requests will appear here for review.</p>}
+              <p className="group-approval-note">Local preview only. Notifications to the Man of God, administrator audit logs and shared approvals require the FNI backend and role permissions.</p>
+            </div>
+          ) : (
           <div className="empty-list">
             <div className="empty-icon"><MessageCircle size={27} strokeWidth={1.5} /></div>
             <h2>{search ? 'No matches found' : section === 'Chats' ? (folder === 'Groups' ? 'No groups yet' : folder === 'Archived' ? 'No archived chats' : 'No conversations yet') : section === 'Contacts' ? 'Your contacts will appear here' : section === 'Calls' ? 'No recent calls' : 'Your settings will appear here'}</h2>
             <p>{search ? 'Try another name or keyword.' : 'When you connect with people on FNI, you will find them here.'}</p>
             {section === 'Chats' && folder !== 'Groups' && folder !== 'Archived' && <button className="start-chat-button" onClick={() => setNewChatOpen(true)}>Start a conversation</button>}
           </div>
+          )}
         )}
       </section>
 
