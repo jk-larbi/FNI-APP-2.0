@@ -14,7 +14,9 @@ export default function App() {
   const [username, setUsername] = useState('');
   const [activeChat, setActiveChat] = useState('');
   const [draft, setDraft] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);\n  const [replyTo, setReplyTo] = useState<Message | null>(null);\n  const [openMessageMenu, setOpenMessageMenu] = useState<number | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const [openMessageMenu, setOpenMessageMenu] = useState<number | null>(null);
 
   const navigation = [
     { label: 'Chats' as const, icon: MessageCircle },
@@ -30,13 +32,16 @@ export default function App() {
     setNewChatOpen(false);
     setUsername('');
     setMessages([]);
+    setReplyTo(null);
+    setOpenMessageMenu(null);
   };
 
   const sendMessage = () => {
     const value = draft.trim();
     if (!value) return;
-    setMessages((current) => [...current, { id: Date.now(), text: value, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    setMessages((current) => [...current, { id: Date.now(), text: value, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), replyTo: replyTo?.text }]);
     setDraft('');
+    setReplyTo(null);
   };
 
   return (
