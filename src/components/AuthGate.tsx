@@ -76,7 +76,7 @@ export default function AuthGate({ onAuthenticated }: Props) {
     setBusy(true);
     window.setTimeout(() => {
       setBusy(false);
-      if (password === 'adminfni') enter({ name: 'FNI Administrator', email: 'admin@fni.demo', role: 'admin' });
+      if (password === 'adminfni' || password === 'admin123') enter({ name: 'FNI Administrator', email: 'admin@fni.demo', role: 'admin' });
       else setError('That administrator password is not correct.');
     }, 450);
   }
@@ -86,12 +86,11 @@ export default function AuthGate({ onAuthenticated }: Props) {
   if (screen === 'splash') return <main className="fni-auth-splash">
     <div className="fni-splash-glow" />
     <div className="fni-splash-content">
-      <div className="fni-logo-frame"><img src={logoSrc} alt="Forerunners Network International logo" onError={e=>{e.currentTarget.style.display="none";}} /></div>
-      <div className="fni-splash-wordmark">FNI</div>
-      <p>FORERUNNERS NETWORK INTERNATIONAL</p>
+      <div className="fni-logo-frame"><img src={logoSrc} alt="Forerunners Network International logo" /></div>
+      <div className="fni-splash-wordmark">FNI APP</div>
+      <p className="fni-splash-meaning">Forerunners Network International</p>
       <div className="fni-splash-loader"><span /></div>
     </div>
-    <span className="fni-splash-footer">A generation set apart</span>
   </main>;
 
   return <main className="fni-auth-page">
