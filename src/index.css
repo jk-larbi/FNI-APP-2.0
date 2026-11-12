@@ -5776,9 +5776,7 @@ body{color:var(--fni-text)}
   .fni-chat-home-title h2{font-size:18px!important;font-weight:650;color:var(--fni-text)}
   .fni-chat-edit-toggle,.fni-chat-home-actions button{width:38px;height:38px;border-radius:50%;background:transparent;color:var(--fni-muted)}
   .fni-chat-edit-toggle:hover,.fni-chat-home-actions button:hover{background:var(--fni-hover);color:var(--fni-blue)}
-  .main-panel[data-section="chats"] .stories-workspace,
-  .main-panel[data-section="chats"] .fni-stories-compact,
-  .main-panel[data-section="chats"] .stories-strip{grid-column:1;grid-row:2;min-width:0}
+   .main-panel[data-section="chats"] .fni-stories-compact{grid-column:1;grid-row:2;min-width:0}
   .fni-chat-search{grid-column:1;grid-row:3;margin:9px 12px!important;min-height:40px;border:0;border-radius:9px;background:var(--fni-bg)}
   .fni-chat-search input{font-size:12px;color:var(--fni-text)}
   .fni-chat-folder-bar{grid-column:1;grid-row:4;padding:0 10px;border-bottom:1px solid var(--fni-line)}
