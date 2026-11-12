@@ -19,6 +19,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      # No npm cache is configured because this repository intentionally has no lockfile yet.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
