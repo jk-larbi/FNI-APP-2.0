@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import SavedMessagesWorkspace from './SavedMessagesWorkspace';
-import { ArrowLeft, Bookmark, Check, ChevronRight, Lock, MessageCircle, Phone, Pin, Plus, Search, Settings2, Shield, Users, X } from 'lucide-react';
+import { ArrowLeft, Bookmark, Check, ChevronRight, Lock, MessageCircle, Phone, Pin, Plus, Search, Send, Settings2, Shield, Users, X } from 'lucide-react';
 
 type PermissionKey = 'addMembers' | 'approveRequests' | 'editInfo' | 'pinDelete' | 'restrictMembers' | 'manageInvites' | 'appointAdmins';
+type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; };
 type Group = {
   id: string; name: string; description: string; createdAt: string;
   mode: 'Everyone' | 'Admins only' | 'Selected members';
@@ -28,7 +29,9 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [selectedId, setSelectedId] = useState('');
   const [tab, setTab] = useState<'All chats' | 'Personal' | 'Groups'>('All chats');
   const [query, setQuery] = useState('');
-  const [view, setView] = useState<'list' | 'create' | 'group' | 'new-chat'>('list');
+  const [view, setView] = useState<'list' | 'create' | 'group' | 'group-chat' | 'new-chat'>('list');
+  const [groupMessages, setGroupMessages] = useState<GroupMessage[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-chat-messages') || '[]'); } catch { return []; } });
+  const [groupDraft, setGroupDraft] = useState('');
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [groupMode, setGroupMode] = useState<Group['mode']>('Everyone');
@@ -40,6 +43,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [pinnedChats, setPinnedChats] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('fni-pinned-chats') || '[]'); } catch { return []; } });
   const selected = groups.find(g => g.id === selectedId);
   useEffect(() => { localStorage.setItem('fni-chat-groups', JSON.stringify(groups)); }, [groups]);
+  useEffect(() => { localStorage.setItem('fni-group-chat-messages', JSON.stringify(groupMessages)); }, [groupMessages]);
   useEffect(() => { localStorage.setItem('fni-pinned-chats', JSON.stringify(pinnedChats)); }, [pinnedChats]);
   useEffect(() => { try { const globalWallpaper = localStorage.getItem('fni-global-wallpaper') || ''; const individual = JSON.parse(localStorage.getItem('fni-chat-wallpapers') || '{}') as Record<string,string>; const key = selected?.name.toLowerCase() || ''; const wallpaper = (key && individual[key]) || globalWallpaper; document.documentElement.style.setProperty('--fni-chat-wallpaper-image', wallpaper ? (wallpaper.startsWith('linear-gradient') ? wallpaper : 'url(' + wallpaper + ')') : 'none'); } catch { document.documentElement.style.setProperty('--fni-chat-wallpaper-image', 'none'); } }, [selected?.name, selectedId]);
   const filtered = useMemo(() => tab === 'Personal' ? [] : groups.filter(g => (g.name + ' ' + g.description).toLowerCase().includes(query.toLowerCase())).sort((a,b) => Number(pinnedChats.includes(b.id)) - Number(pinnedChats.includes(a.id))), [groups, query, tab, pinnedChats]);
@@ -47,7 +51,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const createGroup = () => {
     if (!groupName.trim()) { setNotice('Enter a group name to continue.'); return; }
     const group: Group = { id: crypto.randomUUID(), name: groupName.trim(), description: groupDescription.trim(), createdAt: new Date().toISOString(), mode: groupMode, infoAccess: 'Admins', inviteAccess: 'Admins', approval, pictureAccess: 'Admins', admins: [], permitted: [] };
-    setGroups(current => [group, ...current]); setSelectedId(group.id); setGroupName(''); setGroupDescription(''); setView('group');
+    setGroups(current => [group, ...current]); setSelectedId(group.id); setGroupName(''); setGroupDescription(''); setView('group-chat');
     setNotice('Group created in this browser preview. It is not yet shared with other FNI accounts.');
   };
   const addAdmin = () => {
@@ -64,7 +68,8 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     if (!selected) return;
     updateGroup({ admins: selected.admins.map(a => a.username === username ? { ...a, permissions: { ...a.permissions, [key]: value } } : a) });
   };
-  const closeToList = () => { setView('list'); setSelectedId(''); };
+  const closeToList = () => { setView('list'); setSelectedId(''); setGroupDraft(''); };
+  const sendGroupMessage = () => { const text = groupDraft.trim(); if (!text || !selected) return; setGroupMessages(current => [...current, { id: crypto.randomUUID(), groupId: selected.id, text, createdAt: new Date().toISOString() }]); setGroupDraft(''); };
   const togglePinnedChat = (id: string) => {
     setPinnedChats(current => {
       if (current.includes(id)) return current.filter(item => item !== id);
@@ -89,6 +94,26 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   </div>;
 
   if (view === 'new-chat') return <div className="msg-workspace"><div className="msg-heading"><button className="msg-back" onClick={() => setView('list')}><ArrowLeft size={17}/> Back to chats</button><span className="msg-eyebrow">PERSONAL MESSAGE</span><h2>Start a conversation</h2><p>Find a member using their public FNI username.</p></div><div className="msg-form-card"><label>Username<input value={newChatUsername} onChange={e => setNewChatUsername(e.target.value)} placeholder="@username"/></label><div className="msg-info"><MessageCircle size={17}/><span>Member search and message delivery will activate when FNI accounts and messaging services are connected. No sample conversations are shown.</span></div><button className="msg-primary" onClick={() => setNotice('Username search requires the FNI account directory and backend.')}>Find member <Search size={16}/></button></div></div>;
+
+  if (view === 'group-chat' && selected) return <div className="msg-workspace msg-fullscreen-workspace fni-group-conversation">
+    <header className="fni-group-chat-header">
+      <button className="saved-chat-back-button" onClick={closeToList} aria-label="Back to chats"><ArrowLeft size={21}/></button>
+      <div className="msg-group-avatar"><Users size={20}/></div>
+      <div className="fni-group-chat-identity"><b>{selected.name}</b><span>{selected.description || 'FNI group conversation'} · Preview</span></div>
+      <button className="fni-group-chat-action" onClick={() => setView('group')} aria-label="Group settings" title="Group settings"><Settings2 size={19}/></button>
+      <button className="fni-group-chat-action" onClick={() => onStartGroupCall?.(selected.name)} aria-label="Start group call" title="Start group call"><Phone size={19}/></button>
+    </header>
+    <div className="fni-group-chat-messages">
+      {groupMessages.filter(message => message.groupId === selected.id).length === 0
+        ? <div className="fni-group-chat-empty"><div><MessageCircle size={24}/></div><b>{selected.name}</b><span>No messages yet. Start the conversation with your group.</span></div>
+        : groupMessages.filter(message => message.groupId === selected.id).map(message => <article className="fni-group-chat-bubble" key={message.id}><p>{message.text}</p><time>{new Date(message.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</time></article>)}
+    </div>
+    <form className="fni-group-chat-compose" onSubmit={event => { event.preventDefault(); sendGroupMessage(); }}>
+      <input value={groupDraft} onChange={event => setGroupDraft(event.target.value)} placeholder="Message the group..." aria-label="Message the group"/>
+      <button type="submit" disabled={!groupDraft.trim()} aria-label="Send message"><Send size={18}/></button>
+    </form>
+    <div className="fni-group-chat-local-note">Messages are stored only in this browser preview. Shared group messaging will require the FNI backend.</div>
+  </div>;
 
   if (view === 'group' && selected) return <div className="msg-workspace msg-fullscreen-workspace">
     <div className="msg-heading"><button className="msg-back" onClick={closeToList}><ArrowLeft size={17}/> All chats</button><div className="msg-group-title"><div className="msg-group-avatar"><Users size={21}/></div><div><span className="msg-eyebrow">GROUP SETTINGS</span><h2>{selected.name}</h2><p>{selected.description || 'No group description yet'}</p></div><button className="msg-secondary" onClick={() => onStartGroupCall?.(selected.name)}><Phone size={16}/> Start group call</button></div></div>
@@ -130,7 +155,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
         <div className="fni-chat-row-copy"><div className="fni-chat-row-top"><b>Saved Messages</b><time>Personal</time></div><div className="fni-chat-row-bottom"><span>{savedPreview}</span><small><Lock size={11}/> Only you</small></div></div>
       </button>}
       {tab !== 'Personal' && filtered.map(group => <div className="fni-chat-row-wrap" key={group.id}>
-        <button className="fni-chat-row" onClick={() => {setSelectedId(group.id);setView('group')}}>
+        <button className="fni-chat-row" onClick={() => {setSelectedId(group.id);setView('group-chat')}}>
           <div className="fni-chat-avatar fni-group-chat-avatar"><Users size={20}/></div>
           <div className="fni-chat-row-copy"><div className="fni-chat-row-top"><b>{group.name}</b><time>{new Date(group.createdAt).toLocaleDateString([], {day:'numeric',month:'short'})}</time></div><div className="fni-chat-row-bottom"><span>{group.description || 'Group conversation'}</span><small>{group.admins.length} admins</small></div></div>
         </button>
