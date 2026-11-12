@@ -7,15 +7,16 @@ import NotificationsWorkspace from './components/NotificationsWorkspace';
 import StoriesWorkspace from './components/StoriesWorkspace';
 import SavedMessagesWorkspace from './components/SavedMessagesWorkspace';
 import BibleBotWorkspace from './components/BibleBotWorkspace';
+import MinistryWorkspace from './components/MinistryWorkspace';
 import {
-  Bell, Bookmark, CalendarDays, ChevronDown, CircleHelp, UsersRound,
+  Bell, Bookmark, BookOpen, CalendarDays, ChevronDown, CircleHelp, UsersRound,
   Menu, MessageCircle, MoreHorizontal, Plus, Search, Settings,
   ShieldCheck, Users, Video, X, UserRound, LockKeyhole, Smartphone,
   Palette, Folder, Languages, Smile, HardDrive, Headphones, Images,
   SlidersHorizontal, ChevronRight, ArrowLeft
 } from 'lucide-react';
 
-type Section = 'chats' | 'community' | 'cells' | 'calls' | 'settings' | 'notifications';
+type Section = 'chats' | 'community' | 'ministry' | 'cells' | 'calls' | 'settings' | 'notifications';
 type SettingKind = 'toggle' | 'select' | 'action';
 type SettingOption = { label: string; description?: string; kind: SettingKind; choices?: string[]; value?: string; defaultOn?: boolean };
 type SettingCategory = { id: string; label: string; group: string; description: string; icon: typeof Settings; options: SettingOption[] };
@@ -23,6 +24,7 @@ type SettingCategory = { id: string; label: string; group: string; description: 
 const sections: { id: Section; label: string; icon: typeof MessageCircle }[] = [
   { id: 'chats', label: 'Chats', icon: MessageCircle },
   { id: 'community', label: 'Community', icon: UsersRound },
+  { id: 'ministry', label: 'FNI Ministry', icon: BookOpen },
   { id: 'cells', label: 'Cell groups', icon: Users },
   { id: 'calls', label: 'Calls & meetings', icon: Video },
 ];
@@ -251,7 +253,7 @@ function App() {
         </div>
       </header>
 
-      {section === 'calls' ? null : section === 'notifications' ? <NotificationsWorkspace onNavigate={destination => setSection(destination)} /> : section === 'settings' ? <div className="settings-page">
+      {section === 'calls' ? null : section === 'notifications' ? <NotificationsWorkspace onNavigate={destination => setSection(destination)} /> : section === 'ministry' ? <MinistryWorkspace /> : section === 'settings' ? <div className="settings-page">
         <div className="settings-intro"><div><span className="settings-kicker">YOUR FNI EXPERIENCE</span><h2>{t('Settings')}</h2><p>Manage your account, privacy, preferences and ministry experience.</p></div><div className="settings-profile"><div className="profile-avatar">F</div><div><strong>FNI Member</strong><span>Account setup pending</span></div></div></div>
         <div className="settings-layout">
           <aside className="settings-menu">
