@@ -2745,3 +2745,46 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
  .saved-chat-intro{margin-bottom:14px}
 }
 :root[data-theme="dark"] .saved-chat-identity b{color:#f4f5fa}
+
+
+/* Improve Saved Messages folder/tag contrast on light surfaces. */
+.telegram-saved .saved-folder-list>button,
+.telegram-saved .saved-folder>button:first-child {
+  color:#273246;
+  font-weight:550;
+}
+.telegram-saved .saved-folder-list button span {
+  color:#667085;
+  font-weight:500;
+}
+.telegram-saved .saved-folder-list>button svg,
+.telegram-saved .saved-folder>button:first-child svg {
+  color:#58657a;
+  flex:0 0 auto;
+}
+.telegram-saved .saved-folder-list>button.active,
+.telegram-saved .saved-folder.active>button:first-child {
+  color:#fff;
+  background:#173b8f;
+}
+.telegram-saved .saved-folder-list>button.active span,
+.telegram-saved .saved-folder-list>button.active svg,
+.telegram-saved .saved-folder.active>button:first-child svg {
+  color:#fff;
+}
+:root[data-theme="dark"] .telegram-saved .saved-folder-list>button,
+:root[data-theme="dark"] .telegram-saved .saved-folder>button:first-child {
+  color:#e4e8f1;
+}
+:root[data-theme="dark"] .telegram-saved .saved-folder-list button span {
+  color:#a7aec0;
+}
+:root[data-theme="dark"] .telegram-saved .saved-folder-list>button svg,
+:root[data-theme="dark"] .telegram-saved .saved-folder>button:first-child svg {
+  color:#b9c2d5;
+}
+:root[data-theme="dark"] .telegram-saved .saved-folder-list>button.active,
+:root[data-theme="dark"] .telegram-saved .saved-folder.active>button:first-child {
+  color:#fff;
+  background:#5278d5;
+}
