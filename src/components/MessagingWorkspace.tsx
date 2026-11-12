@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import SavedMessagesWorkspace from './SavedMessagesWorkspace';
 import { Archive, ArrowLeft, AtSign, Bookmark, Check, CheckCheck, ChevronRight, Lock, MessageCircle, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, X } from 'lucide-react';
 
@@ -40,6 +40,9 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [stickerOpen, setStickerOpen] = useState(false);
   const [mentionOpen, setMentionOpen] = useState(false);
+  const [chatKeyboardOpen, setChatKeyboardOpen] = useState(false);
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLInputElement>(null);
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [groupMode, setGroupMode] = useState<Group['mode']>('Everyone');
@@ -49,6 +52,36 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [newChatUsername, setNewChatUsername] = useState('');
   const [notice, setNotice] = useState('');
   const [pinnedChats, setPinnedChats] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('fni-pinned-chats') || '[]'); } catch { return []; } });
+  useEffect(() => {
+    if (view !== 'group-chat') return;
+    const viewport = window.visualViewport;
+    const updateViewport = () => {
+      const height = viewport?.height || window.innerHeight;
+      document.documentElement.style.setProperty('--fni-chat-visual-height', height + 'px');
+      const keyboardVisible = !!viewport && window.innerHeight - viewport.height > 120;
+      setChatKeyboardOpen(keyboardVisible);
+      if (keyboardVisible) requestAnimationFrame(() => {
+        const panel = chatMessagesRef.current;
+        if (panel) panel.scrollTop = panel.scrollHeight;
+      });
+    };
+    updateViewport();
+    viewport?.addEventListener('resize', updateViewport);
+    viewport?.addEventListener('scroll', updateViewport);
+    window.addEventListener('resize', updateViewport);
+    return () => {
+      viewport?.removeEventListener('resize', updateViewport);
+      viewport?.removeEventListener('scroll', updateViewport);
+      window.removeEventListener('resize', updateViewport);
+      document.documentElement.style.removeProperty('--fni-chat-visual-height');
+      setChatKeyboardOpen(false);
+    };
+  }, [view, selectedId]);
+  useEffect(() => {
+    if (view !== 'group-chat') return;
+    const panel = chatMessagesRef.current;
+    if (panel) panel.scrollTop = panel.scrollHeight;
+  }, [groupMessages, view, selectedId]);
   const selected = groups.find(g => g.id === selectedId);
   useEffect(() => { localStorage.setItem('fni-chat-groups', JSON.stringify(groups)); }, [groups]);
   useEffect(() => { localStorage.setItem('fni-group-chat-messages', JSON.stringify(groupMessages)); }, [groupMessages]);
@@ -127,7 +160,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
 
   if (view === 'new-chat') return <div className="msg-workspace"><div className="msg-heading"><button className="msg-back" onClick={() => setView('list')}><ArrowLeft size={17}/> Back to chats</button><span className="msg-eyebrow">PERSONAL MESSAGE</span><h2>Start a conversation</h2><p>Find a member using their public FNI username.</p></div><div className="msg-form-card"><label>Username<input value={newChatUsername} onChange={e => setNewChatUsername(e.target.value)} placeholder="@username"/></label><div className="msg-info"><MessageCircle size={17}/><span>Member search and message delivery will activate when FNI accounts and messaging services are connected. No sample conversations are shown.</span></div><button className="msg-primary" onClick={() => setNotice('Username search requires the FNI account directory and backend.')}>Find member <Search size={16}/></button></div></div>;
 
-  if (view === 'group-chat' && selected) return <div className="msg-workspace msg-fullscreen-workspace fni-group-conversation">
+  if (view === 'group-chat' && selected) return <div className={`msg-workspace msg-fullscreen-workspace fni-group-conversation${chatKeyboardOpen ? ' keyboard-visible' : ''}`}>
     <header className="fni-group-chat-header">
       <button className="saved-chat-back-button" onClick={closeToList} aria-label="Back to chats"><ArrowLeft size={21}/></button>
       <div className="msg-group-avatar"><Users size={20}/></div>
@@ -135,7 +168,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
       <button className="fni-group-chat-action" onClick={() => setView('group')} aria-label="Group settings" title="Group settings"><Settings2 size={19}/></button>
       <button className="fni-group-chat-action" onClick={() => onStartGroupCall?.(selected.name)} aria-label="Start group call" title="Start group call"><Phone size={19}/></button>
     </header>
-    <div className="fni-group-chat-messages">
+    <div className="fni-group-chat-messages" ref={chatMessagesRef}>
       {groupMessages.filter(message => message.groupId === selected.id).length === 0
         ? <div className="fni-group-chat-empty"><div><MessageCircle size={24}/></div><b>{selected.name}</b><span>No messages yet. Start the conversation with your group.</span></div>
         : groupMessages.filter(message => message.groupId === selected.id).map(message => {
@@ -162,7 +195,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
       <button type="button" className="fni-chat-compose-tool" aria-label="Insert mention" onClick={()=>{setMentionOpen(value=>!value);setEmojiOpen(false);setStickerOpen(false)}}><AtSign size={19}/></button>
       <button type="button" className="fni-chat-compose-tool" aria-label="Open emoji picker" onClick={()=>{setEmojiOpen(value=>!value);setMentionOpen(false);setStickerOpen(false)}}><Smile size={19}/></button>
       <button type="button" className="fni-chat-compose-tool" aria-label="Open FNI stickers" aria-pressed={stickerOpen} onClick={()=>{setStickerOpen(value=>!value);setEmojiOpen(false);setMentionOpen(false)}}><Sticker size={19}/></button>
-      <input value={groupDraft} onChange={event => setGroupDraft(event.target.value)} placeholder="Message the group..." aria-label="Message the group"/>
+      <input ref={chatInputRef} value={groupDraft} onChange={event => setGroupDraft(event.target.value)} onFocus={() => requestAnimationFrame(() => { const panel = chatMessagesRef.current; if (panel) panel.scrollTop = panel.scrollHeight; })} placeholder="Message the group..." aria-label="Message the group"/>
       <button type="submit" disabled={!groupDraft.trim()} aria-label="Send message"><Send size={18}/></button>
     </form>
     <div className="fni-group-chat-local-note">Preview messages stay on this device. Replies, mentions and reactions are stored locally; live delivery needs the FNI messaging backend.</div>
