@@ -53,7 +53,6 @@ export default function CallingWorkspace({ initialGroup = '', onClearInitialGrou
   const [devicePermission, setDevicePermission] = useState<'unknown' | 'granted' | 'denied'>('unknown');
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
-  const [participantSearch, setParticipantSearch] = useState('');
   const callInterval = useRef<number | undefined>(undefined);
   const activeMeeting = meetings.find(m => m.id === activeMeetingId);
 
