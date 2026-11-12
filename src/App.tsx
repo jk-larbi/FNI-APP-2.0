@@ -33,7 +33,7 @@ export default function App() {
     return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, '0')).join('');
   };
   const savePasscode = async () => {
-    if (!/^\\d{6,12}$/.test(passcodeValue)) { setPasscodeError('Use 6–12 digits for your passcode.'); return; }
+    if (!/^\d{6,12}$/.test(passcodeValue)) { setPasscodeError('Use 6–12 digits for your passcode.'); return; }
     if (passcodeValue !== passcodeConfirm) { setPasscodeError('The passcodes do not match.'); return; }
     const salt = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(byte => byte.toString(16).padStart(2, '0')).join('');
     try {
@@ -1299,6 +1299,13 @@ export default function App() {
           </form>
         </div>
       )}
+
+      {passcodeDialogOpen && <div className="modal-backdrop" role="presentation"><form className="new-chat-modal" role="dialog" aria-modal="true" aria-label="Passcode settings" onSubmit={event => { event.preventDefault(); if (passcodeEnabled) disablePasscode(); else savePasscode(); }}>
+        <div className="modal-heading"><h2>{passcodeEnabled ? 'Manage passcode' : 'Set passcode'}</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setPasscodeDialogOpen(false)}><X/></button></div>
+        {passcodeEnabled ? <><label htmlFor="fni-current-passcode">Current passcode</label><input id="fni-current-passcode" type="password" inputMode="numeric" autoComplete="current-password" maxLength={12} value={passcodeValue} onChange={event => setPasscodeValue(event.target.value.replace(/\D/g,''))} placeholder="Enter current passcode"/><button className="modal-submit" type="submit">Turn off passcode lock</button></> : <><label htmlFor="fni-new-passcode">New passcode (6–12 digits)</label><input id="fni-new-passcode" type="password" inputMode="numeric" autoComplete="new-password" maxLength={12} value={passcodeValue} onChange={event => setPasscodeValue(event.target.value.replace(/\D/g,''))} placeholder="Create passcode"/><label htmlFor="fni-confirm-passcode">Confirm passcode</label><input id="fni-confirm-passcode" type="password" inputMode="numeric" autoComplete="new-password" maxLength={12} value={passcodeConfirm} onChange={event => setPasscodeConfirm(event.target.value.replace(/\D/g,''))} placeholder="Re-enter passcode"/><button className="modal-submit" type="submit">Enable passcode lock</button></>}
+        {passcodeError && <p className="settings-footnote" role="alert">{passcodeError}</p>}<p className="settings-footnote">This passcode is stored as a salted hash in this browser. Clearing browser data removes it.</p>
+      </form></div>}
+      {appLocked && <div className="fni-lock-screen"><div className="fni-lock-card"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI"/><h2>FNI is locked</h2><p>Enter your passcode to continue</p><form onSubmit={event => { event.preventDefault(); unlockApp(); }}><input autoFocus type="password" inputMode="numeric" autoComplete="current-password" maxLength={12} value={unlockValue} onChange={event => setUnlockValue(event.target.value.replace(/\D/g,''))} placeholder="Passcode" aria-label="Passcode"/><button type="submit" disabled={!unlockValue}>Unlock</button></form>{passcodeError && <small role="alert">{passcodeError}</small>}</div></div>}
     </main>
   );
 }
