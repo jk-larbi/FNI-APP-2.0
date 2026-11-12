@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Menu, Search, Plus, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, MoreVertical, Video, PhoneCall } from 'lucide-react';
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'Settings';
-type Folder = 'All chats' | 'Personal' | 'Groups';
+type Folder = 'All chats' | 'Personal' | 'Groups' | 'Archived';
 type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
 
 export default function App() {
@@ -18,6 +18,10 @@ export default function App() {
     catch { return {}; }
   });
   const [chatOptionsOpen, setChatOptionsOpen] = useState(false);
+  const [archivedChats, setArchivedChats] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('fni-local-archived') || '[]'); }
+    catch { return []; }
+  });
   const [drafts, setDrafts] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-drafts') || '{}'); }
     catch { return {}; }
@@ -50,6 +54,9 @@ export default function App() {
     try { localStorage.setItem('fni-local-unread', JSON.stringify(unreadChats)); } catch { /* storage may be unavailable */ }
   }, [unreadChats]);
   useEffect(() => {
+    try { localStorage.setItem('fni-local-archived', JSON.stringify(archivedChats)); } catch { /* storage may be unavailable */ }
+  }, [archivedChats]);
+  useEffect(() => {
     const textOnly: Record<string, Message[]> = {};
     Object.entries(conversations).forEach(([chat, items]) => {
       textOnly[chat] = items.filter((item) => !item.mediaType);
@@ -71,7 +78,8 @@ export default function App() {
   const matchingMessages = chatSearch.trim() ? messages.filter((message) => message.text.toLowerCase().includes(chatSearch.trim().toLowerCase()) || (message.mediaName || '').toLowerCase().includes(chatSearch.trim().toLowerCase())) : messages;
   const recentChats = Object.entries(conversations)
     .filter(([chat, items]) => {
-      const matchesFolder = folder === 'All chats' || (folder === 'Personal' && chat.startsWith('@')) || (folder === 'Groups' && !chat.startsWith('@'));
+      const isArchived = archivedChats.includes(chat);
+      const matchesFolder = folder === 'Archived' ? isArchived : !isArchived && (folder === 'All chats' || (folder === 'Personal' && chat.startsWith('@')) || (folder === 'Groups' && !chat.startsWith('@'));
       return matchesFolder && (chat.toLowerCase().includes(search.toLowerCase()) || (items[items.length - 1]?.text || '').toLowerCase().includes(search.toLowerCase()));
     })
     .sort((a, b) => (b[1][b[1].length - 1]?.id || 0) - (a[1][a[1].length - 1]?.id || 0));
@@ -206,7 +214,7 @@ export default function App() {
           </label>
           {section === 'Chats' && (
             <div className="folder-tabs" role="tablist" aria-label="Chat folders">
-              {(['All chats', 'Personal', 'Groups'] as Folder[]).map((item) => (
+              {(['All chats', 'Personal', 'Groups', 'Archived'] as Folder[]).map((item) => (
                 <button key={item} role="tab" aria-selected={folder === item} className={folder === item ? 'folder-tab selected' : 'folder-tab'} onClick={() => setFolder(item)}>{item}</button>
               ))}
             </div>
@@ -226,9 +234,9 @@ export default function App() {
         ) : (
           <div className="empty-list">
             <div className="empty-icon"><MessageCircle size={27} strokeWidth={1.5} /></div>
-            <h2>{search ? 'No matches found' : section === 'Chats' ? (folder === 'Groups' ? 'No groups yet' : 'No conversations yet') : section === 'Contacts' ? 'Your contacts will appear here' : section === 'Calls' ? 'No recent calls' : 'Your settings will appear here'}</h2>
+            <h2>{search ? 'No matches found' : section === 'Chats' ? (folder === 'Groups' ? 'No groups yet' : folder === 'Archived' ? 'No archived chats' : 'No conversations yet') : section === 'Contacts' ? 'Your contacts will appear here' : section === 'Calls' ? 'No recent calls' : 'Your settings will appear here'}</h2>
             <p>{search ? 'Try another name or keyword.' : 'When you connect with people on FNI, you will find them here.'}</p>
-            {section === 'Chats' && folder !== 'Groups' && <button className="start-chat-button" onClick={() => setNewChatOpen(true)}>Start a conversation</button>}
+            {section === 'Chats' && folder !== 'Groups' && folder !== 'Archived' && <button className="start-chat-button" onClick={() => setNewChatOpen(true)}>Start a conversation</button>}
           </div>
         )}
       </section>
@@ -247,7 +255,7 @@ export default function App() {
                 <button className="icon-button" aria-label="Chat options" aria-expanded={chatOptionsOpen} onClick={() => setChatOptionsOpen((open) => !open)}><MoreVertical /></button>
               </div>
             </header>
-            {chatOptionsOpen && <div className="chat-options-menu"><button onClick={() => { setUnreadChats((current) => ({ ...current, [activeChat]: true })); setActiveChat(''); setChatOptionsOpen(false); }}>Mark as unread</button></div>}
+            {chatOptionsOpen && <div className="chat-options-menu"><button onClick={() => { setUnreadChats((current) => ({ ...current, [activeChat]: true })); setActiveChat(''); setChatOptionsOpen(false); }}>Mark as unread</button><button onClick={() => { setArchivedChats((current) => current.includes(activeChat) ? current.filter((chat) => chat !== activeChat) : [...current, activeChat]); setActiveChat(''); setChatOptionsOpen(false); setFolder(archivedChats.includes(activeChat) ? 'All chats' : 'Archived'); }}>{archivedChats.includes(activeChat) ? 'Unarchive chat' : 'Archive chat'}</button></div>}
             {chatSearchOpen && <div className="chat-search-bar"><Search size={17} /><input autoFocus value={chatSearch} onChange={(event) => setChatSearch(event.target.value)} placeholder="Search in conversation" /><span>{chatSearch.trim() ? `${matchingMessages.length} found` : ''}</span><button aria-label="Close search" onClick={() => { setChatSearchOpen(false); setChatSearch(''); }}><X size={17} /></button></div>}
             {pinnedMessageId !== null && messages.find((item) => item.id === pinnedMessageId) && (
               <button
