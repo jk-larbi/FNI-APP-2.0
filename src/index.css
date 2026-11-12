@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&display=swap');
 
-:root{font-family:'DM Sans',ui-sans-serif,system-ui,sans-serif;color:#f5f6ff;background:#090d1d;font-synthesis:none;text-rendering:optimizeLegibility;font-smooth:always}
+:root{font-family:'Inter',ui-sans-serif,system-ui,sans-serif;color:#f5f6ff;background:#090d1d;font-synthesis:none;text-rendering:optimizeLegibility;font-smooth:always}
 *{box-sizing:border-box}
 body{margin:0;min-width:320px;min-height:100vh;background:#090d1d}
 button,input{font:inherit}
