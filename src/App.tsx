@@ -717,7 +717,7 @@ export default function App() {
           <section className="chat-info-modal" role="dialog" aria-modal="true" aria-label="Chat information">
             <div className="modal-heading"><h2>Chat information</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setChatInfoOpen(false)}><X /></button></div>
             <div className="chat-info-profile"><div className="chat-info-avatar">{(groupDetails[activeChat]?.name || activeChat.replace('@','')).slice(0,1).toUpperCase()}</div><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{groupDetails[activeChat] ? 'FNI group' : 'FNI member'}</span>{groupDetails[activeChat]?.description && <p className="group-description">{groupDetails[activeChat].description}</p>}</div>
-            {groupDetails[activeChat] && (
+            {groupDetails[activeChat] && groupDetails[activeChat].createdBy === 'You' && (
               <section className="group-members-section group-privacy-settings">
                 <div className="shared-media-heading"><strong>Group permissions</strong><span>Admin controls</span></div>
                 <label className="attendance-member-option"><input type="checkbox" checked={groupDetails[activeChat].discoverable !== false} onChange={(event) => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], discoverable: event.target.checked } }))} /><span>Show this group in group search</span></label>
@@ -727,7 +727,7 @@ export default function App() {
                 <p className="group-insights-note">These controls are saved in this preview. Search discovery, invite validation and join requests will work across accounts once FNI has its backend.</p>
               </section>
             )}
-            {groupDetails[activeChat] && (
+            {groupDetails[activeChat] && groupDetails[activeChat].createdBy === 'You' && (
               <section className="group-members-section group-join-requests">
                 <div className="shared-media-heading"><strong>Join requests</strong><span>{groupJoinRequests.filter((request) => request.groupId === activeChat && request.status === 'Pending').length} pending</span></div>
                 {groupJoinRequests.filter((request) => request.groupId === activeChat && request.status === 'Pending').length ? groupJoinRequests.filter((request) => request.groupId === activeChat && request.status === 'Pending').map((request) => <div className="group-join-request-row" key={request.id}><div><strong>{request.requester}</strong><time>{request.createdAt}</time></div><button type="button" onClick={() => { setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], members: Array.from(new Set([...(current[activeChat].members || []), request.requester])) } })); setGroupJoinRequests((current) => current.map((item) => item.id === request.id ? { ...item, status: 'Approved' } : item)); }}>Approve</button><button type="button" onClick={() => setGroupJoinRequests((current) => current.map((item) => item.id === request.id ? { ...item, status: 'Declined' } : item))}>Decline</button></div>) : <p className="group-members-empty">No pending join requests.</p>}
@@ -736,7 +736,7 @@ export default function App() {
             {groupDetails[activeChat] && (
               <div className="group-members-section">
                 <div className="shared-media-heading"><strong>Members</strong><span>{groupDetails[activeChat].members?.length || 0}</span></div>
-                <form className="group-member-add" onSubmit={(event) => {
+                {groupDetails[activeChat].createdBy === 'You' && <form className="group-member-add" onSubmit={(event) => {
                   event.preventDefault();
                   const handle = groupMemberInput.trim().replace(/^@/, '');
                   if (!handle) return;
@@ -749,14 +749,14 @@ export default function App() {
                 }}>
                   <input aria-label="Add member username" value={groupMemberInput} onChange={(event) => setGroupMemberInput(event.target.value)} placeholder="Add member by @username" />
                   <button type="submit" disabled={!groupMemberInput.trim()}>Add</button>
-                </form>
+                </form>}
                 {(groupDetails[activeChat].members || []).length > 0 ? (
                   <div className="group-member-list">
                     {(groupDetails[activeChat].members || []).map((member) => (
                       <div className="group-member-row" key={member}>
                         <span className="group-member-avatar">{member.slice(1, 2).toUpperCase()}</span>
                         <div className="group-member-identity"><strong>{member}</strong>{groupDetails[activeChat].moderators?.includes(member) && <span className="group-moderator-label">Moderator</span>}</div>
-                        <button type="button" className="group-role-button" onClick={() => setGroupDetails((current) => ({
+                        {groupDetails[activeChat].createdBy === 'You' && <button type="button" className="group-role-button" onClick={() => setGroupDetails((current) => ({
                           ...current,
                           [activeChat]: {
                             ...current[activeChat],
@@ -764,15 +764,15 @@ export default function App() {
                               ? (current[activeChat].moderators || []).filter((item) => item !== member)
                               : [...(current[activeChat].moderators || []), member],
                           },
-                        }))}>{groupDetails[activeChat].moderators?.includes(member) ? 'Remove role' : 'Make moderator'}</button>
-                        <button type="button" aria-label={'Remove ' + member} onClick={() => setGroupDetails((current) => ({
+                        }))}>{groupDetails[activeChat].moderators?.includes(member) ? 'Remove role' : 'Make moderator'}</button>}
+                        {groupDetails[activeChat].createdBy === 'You' && member !== 'You' && <button type="button" aria-label={'Remove ' + member} onClick={() => setGroupDetails((current) => ({
                           ...current,
                           [activeChat]: {
                             ...current[activeChat],
                             members: (current[activeChat].members || []).filter((item) => item !== member),
                             moderators: (current[activeChat].moderators || []).filter((item) => item !== member),
                           },
-                        }))}>Remove</button>
+                        }))}>Remove</button>}
                       </div>
                     ))}
                   </div>
