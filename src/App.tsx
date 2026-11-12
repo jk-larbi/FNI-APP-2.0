@@ -29,6 +29,17 @@ export default function App() {
   const [groupGoalDescription, setGroupGoalDescription] = useState('');
   const [groupAnnouncementText, setGroupAnnouncementText] = useState('');
   const [groupAnnouncementImportant, setGroupAnnouncementImportant] = useState(false);
+  const [pollQuestion, setPollQuestion] = useState('');
+  const [pollOptionsText, setPollOptionsText] = useState('');
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskAssignee, setTaskAssignee] = useState('You');
+  const [taskDueDate, setTaskDueDate] = useState('');
+  const [resourceTitle, setResourceTitle] = useState('');
+  const [resourceUrl, setResourceUrl] = useState('');
+  const [resourceCategory, setResourceCategory] = useState('Sermon');
+  const [devotionScripture, setDevotionScripture] = useState('');
+  const [devotionFocus, setDevotionFocus] = useState('');
+  const [devotionReflection, setDevotionReflection] = useState('');
   const [attendanceDate, setAttendanceDate] = useState('');
   const [attendanceSelection, setAttendanceSelection] = useState<string[]>([]);
   const [meetingDate, setMeetingDate] = useState('');
@@ -37,7 +48,12 @@ export default function App() {
   const [meetingLink, setMeetingLink] = useState('');
   const [groupApprovalRequests, setGroupApprovalRequests] = useState<{ id: string; name: string; description: string; requestedAt: string; status: 'Pending' | 'Approved' | 'Declined' }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-requests') || '[]'); } catch { return []; } });
   const [groupApprovalLog, setGroupApprovalLog] = useState<{ id: string; groupName: string; action: 'Submitted' | 'Approved' | 'Declined'; time: string }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-log') || '[]'); } catch { return []; } });
-  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[]; announcements?: { id: number; text: string; important: boolean; createdAt: string }[]; allowMembersToJoin?: boolean; requireJoinApproval?: boolean; discoverable?: boolean; inviteCode?: string; createdBy?: string }>>(() => {
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[]; announcements?: { id: number; text: string; important: boolean; createdAt: string }[];
+    polls?: { id: number; question: string; options: string[]; votes: Record<string, string>; createdAt: string; closed?: boolean }[];
+    tasks?: { id: number; title: string; assignee: string; dueDate: string; completed: boolean; createdAt: string }[];
+    resources?: { id: number; title: string; url: string; category: string; createdAt: string }[];
+    devotionPlans?: { id: number; scripture: string; focus: string; reflection: string; createdAt: string }[];
+    allowMembersToJoin?: boolean; requireJoinApproval?: boolean; discoverable?: boolean; inviteCode?: string; createdBy?: string }>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-groups') || '{}'); }
     catch { return {}; }
   });
@@ -678,6 +694,89 @@ export default function App() {
                   </article>)}
                 </div> : <p className="group-members-empty">No announcements yet.</p>}
                 <p className="group-insights-note">Announcements are saved on this device in the preview. Member-wide delivery and push notifications will be connected with the FNI backend.</p>
+              </section>
+            )}
+            {groupDetails[activeChat] && (
+              <section className="group-feature-section">
+                <div className="shared-media-heading"><strong>Group polls</strong><span>{(groupDetails[activeChat].polls || []).length} polls</span></div>
+                <form className="group-feature-form" onSubmit={(event) => {
+                  event.preventDefault();
+                  const question = pollQuestion.trim();
+                  const options = pollOptionsText.split('\n').map((item) => item.trim()).filter(Boolean).slice(0, 6);
+                  if (!question || options.length < 2) return;
+                  const poll = { id: Date.now(), question, options, votes: {}, createdAt: new Date().toISOString() };
+                  setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], polls: [poll, ...(current[activeChat].polls || [])] } }));
+                  setPollQuestion(''); setPollOptionsText('');
+                }}>
+                  <input value={pollQuestion} onChange={(event) => setPollQuestion(event.target.value)} placeholder="Ask the group a question" maxLength={140} required />
+                  <textarea value={pollOptionsText} onChange={(event) => setPollOptionsText(event.target.value)} placeholder={'Option 1\nOption 2\nOption 3 (optional)'} rows={3} required />
+                  <button type="submit" disabled={!pollQuestion.trim() || pollOptionsText.split('\n').filter((item) => item.trim()).length < 2}>Create poll</button>
+                </form>
+                {(groupDetails[activeChat].polls || []).map((poll) => {
+                  const voteCount = Object.keys(poll.votes || {}).length;
+                  return <article className="group-feature-card" key={poll.id}>
+                    <div className="group-feature-card-head"><strong>{poll.question}</strong><span>{poll.closed ? 'Closed' : voteCount + ' votes'}</span></div>
+                    {poll.options.map((option) => <button type="button" className={'group-poll-option ' + (poll.votes?.You === option ? 'selected' : '')} key={option} disabled={poll.closed} onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], polls: (current[activeChat].polls || []).map((item) => item.id === poll.id ? { ...item, votes: { ...(item.votes || {}), You: option } } : item) } }))}><span>{option}</span><small>{Object.values(poll.votes || {}).filter((vote) => vote === option).length}</small></button>)}
+                    <div className="group-feature-actions"><time>{new Date(poll.createdAt).toLocaleDateString()}</time><button type="button" onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], polls: (current[activeChat].polls || []).map((item) => item.id === poll.id ? { ...item, closed: !item.closed } : item) } }))}>{poll.closed ? 'Reopen' : 'Close poll'}</button><button type="button" onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], polls: (current[activeChat].polls || []).filter((item) => item.id !== poll.id) } }))}>Delete</button></div>
+                  </article>;
+                })}
+                {!(groupDetails[activeChat].polls || []).length && <p className="group-members-empty">Create a poll to make group decisions together.</p>}
+              </section>
+            )}
+            {groupDetails[activeChat] && (
+              <section className="group-feature-section">
+                <div className="shared-media-heading"><strong>Group task board</strong><span>{(groupDetails[activeChat].tasks || []).filter((task) => task.completed).length}/{(groupDetails[activeChat].tasks || []).length} done</span></div>
+                <form className="group-feature-form" onSubmit={(event) => {
+                  event.preventDefault(); const title = taskTitle.trim(); if (!title) return;
+                  const task = { id: Date.now(), title, assignee: taskAssignee, dueDate: taskDueDate, completed: false, createdAt: new Date().toISOString() };
+                  setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], tasks: [task, ...(current[activeChat].tasks || [])] } }));
+                  setTaskTitle(''); setTaskDueDate('');
+                }}>
+                  <input value={taskTitle} onChange={(event) => setTaskTitle(event.target.value)} placeholder="What needs to be done?" maxLength={100} required />
+                  <div className="group-feature-form-row"><select aria-label="Assign task to" value={taskAssignee} onChange={(event) => setTaskAssignee(event.target.value)}>{(groupDetails[activeChat].members || ['You']).map((member) => <option key={member} value={member}>{member}</option>)}</select><input aria-label="Task due date" type="date" value={taskDueDate} onChange={(event) => setTaskDueDate(event.target.value)} /></div>
+                  <button type="submit" disabled={!taskTitle.trim()}>Add task</button>
+                </form>
+                {(groupDetails[activeChat].tasks || []).map((task) => <article className={'group-feature-card group-task-row ' + (task.completed ? 'task-done' : '')} key={task.id}>
+                  <label><input type="checkbox" checked={task.completed} onChange={(event) => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], tasks: (current[activeChat].tasks || []).map((item) => item.id === task.id ? { ...item, completed: event.target.checked } : item) } }))} /><span><strong>{task.title}</strong><small>{task.assignee}{task.dueDate ? ' · Due ' + new Date(task.dueDate + 'T00:00:00').toLocaleDateString() : ''}</small></span></label>
+                  <button type="button" aria-label="Remove task" onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], tasks: (current[activeChat].tasks || []).filter((item) => item.id !== task.id) } }))}>Remove</button>
+                </article>)}
+                {!(groupDetails[activeChat].tasks || []).length && <p className="group-members-empty">Plan practical group activities and assign responsibilities.</p>}
+              </section>
+            )}
+            {groupDetails[activeChat] && (
+              <section className="group-feature-section">
+                <div className="shared-media-heading"><strong>Shared resources</strong><span>{(groupDetails[activeChat].resources || []).length} links</span></div>
+                <form className="group-feature-form" onSubmit={(event) => {
+                  event.preventDefault(); const title = resourceTitle.trim(); const url = resourceUrl.trim(); if (!title || !url) return;
+                  const resource = { id: Date.now(), title, url, category: resourceCategory, createdAt: new Date().toISOString() };
+                  setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], resources: [resource, ...(current[activeChat].resources || [])] } }));
+                  setResourceTitle(''); setResourceUrl('');
+                }}>
+                  <input value={resourceTitle} onChange={(event) => setResourceTitle(event.target.value)} placeholder="Resource title" maxLength={100} required />
+                  <input type="url" value={resourceUrl} onChange={(event) => setResourceUrl(event.target.value)} placeholder="https://..." required />
+                  <div className="group-feature-form-row"><select value={resourceCategory} onChange={(event) => setResourceCategory(event.target.value)}><option>Sermon</option><option>Scripture study</option><option>Worship</option><option>Document</option><option>Other</option></select><button type="submit" disabled={!resourceTitle.trim() || !resourceUrl.trim()}>Save resource</button></div>
+                </form>
+                {(groupDetails[activeChat].resources || []).map((resource) => <article className="group-feature-card group-resource-row" key={resource.id}><div><strong>{resource.title}</strong><small>{resource.category} · {new Date(resource.createdAt).toLocaleDateString()}</small><a href={resource.url} target="_blank" rel="noreferrer">{resource.url}</a></div><button type="button" onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], resources: (current[activeChat].resources || []).filter((item) => item.id !== resource.id) } }))}>Remove</button></article>)}
+                {!(groupDetails[activeChat].resources || []).length && <p className="group-members-empty">Keep useful sermon, study and ministry links together.</p>}
+              </section>
+            )}
+            {groupDetails[activeChat] && (
+              <section className="group-feature-section">
+                <div className="shared-media-heading"><strong>Weekly devotion plan</strong><span>{(groupDetails[activeChat].devotionPlans || []).length} entries</span></div>
+                <form className="group-feature-form" onSubmit={(event) => {
+                  event.preventDefault(); const scripture = devotionScripture.trim(); const focus = devotionFocus.trim(); if (!scripture || !focus) return;
+                  const plan = { id: Date.now(), scripture, focus, reflection: devotionReflection.trim(), createdAt: new Date().toISOString() };
+                  setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], devotionPlans: [plan, ...(current[activeChat].devotionPlans || [])] } }));
+                  setDevotionScripture(''); setDevotionFocus(''); setDevotionReflection('');
+                }}>
+                  <input value={devotionScripture} onChange={(event) => setDevotionScripture(event.target.value)} placeholder="Scripture reference (e.g. Romans 12:1–2)" maxLength={80} required />
+                  <input value={devotionFocus} onChange={(event) => setDevotionFocus(event.target.value)} placeholder="This week's spiritual focus" maxLength={120} required />
+                  <textarea value={devotionReflection} onChange={(event) => setDevotionReflection(event.target.value)} placeholder="Reflection or discussion prompt (optional)" rows={2} maxLength={500} />
+                  <button type="submit" disabled={!devotionScripture.trim() || !devotionFocus.trim()}>Add devotion</button>
+                </form>
+                {(groupDetails[activeChat].devotionPlans || []).map((plan) => <article className="group-feature-card" key={plan.id}><div className="group-feature-card-head"><strong>{plan.scripture}</strong><span>{new Date(plan.createdAt).toLocaleDateString()}</span></div><p>{plan.focus}</p>{plan.reflection && <p>{plan.reflection}</p>}<div className="group-feature-actions"><span>Weekly focus</span><button type="button" onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], devotionPlans: (current[activeChat].devotionPlans || []).filter((item) => item.id !== plan.id) } }))}>Remove</button></div></article>)}
+                {!(groupDetails[activeChat].devotionPlans || []).length && <p className="group-members-empty">Set a shared scripture and spiritual focus for the week.</p>}
+                <p className="group-insights-note">These group tools save locally in this preview. Shared voting, task assignments and updates across members require the FNI backend.</p>
               </section>
             )}
             {groupDetails[activeChat] && (
