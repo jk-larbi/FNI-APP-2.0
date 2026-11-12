@@ -4,7 +4,7 @@ import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, Chevro
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'FNI Community' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups' | 'Archived';
 type AccountProfile = { name: string; username: string; bio: string; photo: string };
-type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; fileUrl?: string; fileSize?: number; attachmentKind?: 'file' | 'location' | 'contact' | 'poll' | 'meeting' | 'prayer' | 'scripture'; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
+type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; fileUrl?: string; fileSize?: number; attachmentKind?: 'file' | 'location' | 'contact' | 'poll' | 'meeting' | 'prayer' | 'scripture'; scriptureReference?: string; scriptureTranslation?: string; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
 
 function SettingToggle({ title, description, checked, onChange }: { title: string; description: string; checked: boolean; onChange: (value: boolean) => void }) {
   return <label className="settings-toggle-row"><span><strong>{title}</strong><small>{description}</small></span><input type="checkbox" checked={checked} onChange={event => onChange(event.target.checked)}/><i aria-hidden="true"/></label>;
@@ -321,6 +321,12 @@ export default function App() {
       [activeChat]: typeof value === 'function' ? value(current[activeChat] || '') : value,
     }));
   };
+  const [bibleTranslation, setBibleTranslation] = useState('kjv');
+  const [bibleLookupResult, setBibleLookupResult] = useState<{ reference: string; text: string; translation: string } | null>(null);
+  const [bibleLookupLoading, setBibleLookupLoading] = useState(false);
+  const [bibleLookupError, setBibleLookupError] = useState('');
+  const bibleCommand = draft.match(/^(?:@FNIBibleBot\s+|\/bible\s+)(.+)$/i);
+  const bibleReferenceInput = bibleCommand?.[1]?.trim() || '';
   const [draftBeforeEdit, setDraftBeforeEdit] = useState('');
   const [conversations, setConversations] = useState<Record<string, Message[]>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-conversations') || '{}'); }
@@ -595,6 +601,47 @@ export default function App() {
     setPinnedMessageId(null); setReplyTo(null); setEditingMessage(null); setOpenMessageMenu(null);
     setForwardingMessage(null); setForwardRecipient('');
   };
+  const lookupBibleVerse = async () => {
+    const reference = bibleReferenceInput.trim();
+    if (!reference) return;
+    if (!['kjv', 'web'].includes(bibleTranslation)) {
+      setBibleLookupError('This translation needs a licensed Bible text provider/API key. KJV and World English Bible are available for live lookup in this preview.');
+      setBibleLookupResult(null);
+      return;
+    }
+    setBibleLookupLoading(true);
+    setBibleLookupError('');
+    setBibleLookupResult(null);
+    try {
+      const response = await fetch('https://bible-api.com/' + encodeURIComponent(reference) + '?translation=' + bibleTranslation);
+      if (!response.ok) throw new Error('Reference not found. Check the book, chapter and verse.');
+      const data = await response.json();
+      const verseText = String(data.text || '').trim();
+      if (!verseText) throw new Error('No verse text was returned for that reference.');
+      setBibleLookupResult({ reference: String(data.reference || reference), text: verseText, translation: bibleTranslation.toUpperCase() });
+    } catch (error) {
+      setBibleLookupError(error instanceof Error ? error.message : 'Could not retrieve this verse. Check your connection and reference.');
+    } finally {
+      setBibleLookupLoading(false);
+    }
+  };
+  const sendBibleVerseToGroup = () => {
+    if (!bibleLookupResult || !activeChat) return;
+    const verseMessage: Message = {
+      id: Date.now(),
+      text: bibleLookupResult.text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      attachmentKind: 'scripture',
+      mediaName: 'FNI Bible Bot',
+      scriptureReference: bibleLookupResult.reference,
+      scriptureTranslation: bibleLookupResult.translation,
+    };
+    setMessages((current) => [...current, verseMessage]);
+    setDraft('');
+    setBibleLookupResult(null);
+    setBibleLookupError('');
+  };
+
   const sendMessage = () => {
     const value = draft.trim();
     if (!value) return;
@@ -901,6 +948,7 @@ export default function App() {
                       {message.mediaType === 'photo' && message.mediaUrl && <img className="message-media" src={message.mediaUrl} alt={message.mediaName || 'Shared photo'} />}
                       {message.mediaType === 'video' && message.mediaUrl && <video className="message-media" src={message.mediaUrl} controls playsInline />}
                       {message.attachmentKind === 'file' && message.fileUrl && <a className="document-message-card" href={message.fileUrl} download={message.mediaName || 'FNI-file'}><FileText /><span><strong>{message.mediaName || 'Document'}</strong><small>{message.fileSize ? (message.fileSize/1024/1024).toFixed(2)+' MB' : 'File attachment'} · Download</small></span><Download /></a>}
+                      {message.attachmentKind === 'scripture' && <div className="bible-verse-message"><div className="bible-verse-heading"><BookOpen size={17}/><strong>{message.scriptureReference || 'Bible verse'}</strong><span>{message.scriptureTranslation || 'KJV'}</span></div><p>{message.text}</p><small>Sent with FNI Bible Bot</small></div>}
                       {message.attachmentKind && message.attachmentKind !== 'file' && <div className={'structured-attachment-card '+message.attachmentKind}><strong>{message.mediaName || message.attachmentKind}</strong><small>{message.attachmentKind === 'poll' ? 'Poll' : message.attachmentKind === 'location' ? 'Location shared' : message.attachmentKind === 'contact' ? 'Contact card' : message.attachmentKind === 'meeting' ? 'Meeting invitation' : message.attachmentKind === 'prayer' ? 'Prayer request' : 'Scripture'}</small></div>}
                       {message.text && <div>{message.text.split(/(@[\w.]+)/g).map((part, index) => part.startsWith('@') ? <strong className="message-mention" key={index}>{part}</strong> : part)}</div>}<span className={preferences.showMessageTimestamps ? '' : 'message-meta-hidden'}>{message.edited ? 'edited · ' : ''}{message.time} <b>✓✓</b></span>
                       {message.reactions && message.reactions.length > 0 && <div className="message-reactions">{message.reactions.map((emoji) => <button key={emoji} onClick={() => addReaction(message.id, emoji)}>{emoji}</button>)}</div>}
@@ -919,6 +967,17 @@ export default function App() {
               </div>)}</div>
               <textarea value={attachmentCaption} onChange={(event)=>setAttachmentCaption(event.target.value)} placeholder="Add a caption..." rows={2}/>
               <div className="attachment-preview-footer"><span>{pendingAttachments.length} item{pendingAttachments.length===1?'':'s'} selected</span><button type="button" onClick={sendPendingAttachments}>Send</button></div>
+            </div>}
+            {bibleCommand && <div className="bible-bot-panel">
+              <div className="bible-bot-title"><BookOpen size={18}/><div><strong>FNI Bible Bot</strong><small>Find a verse and send it to this chat</small></div></div>
+              <div className="bible-bot-controls">
+                <select value={bibleTranslation} onChange={(event) => { setBibleTranslation(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} aria-label="Bible translation">
+                  <option value="kjv">KJV · King James Version</option><option value="nkjv">NKJV · New King James Version</option><option value="esv">ESV · English Standard Version</option><option value="niv">NIV · New International Version</option><option value="nlt">NLT · New Living Translation</option><option value="web">WEB · World English Bible</option>
+                </select>
+                <button type="button" onClick={lookupBibleVerse} disabled={!bibleReferenceInput || bibleLookupLoading}>{bibleLookupLoading ? 'Searching…' : 'Find verse'}</button>
+              </div>
+              {bibleLookupError && <p className="bible-bot-error">{bibleLookupError}</p>}
+              {bibleLookupResult && <div className="bible-bot-result"><div><strong>{bibleLookupResult.reference}</strong><span>{bibleLookupResult.translation}</span></div><p>{bibleLookupResult.text}</p><button type="button" onClick={sendBibleVerseToGroup}>Send verse to group</button></div>}
             </div>}
             <div className="message-composer">
               <div className="attachment-menu-wrap">
