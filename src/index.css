@@ -1660,3 +1660,18 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
  .ministry-page-title-row{align-items:flex-start}
  .ministry-page-title-row .ministry-primary-action{align-self:flex-start}
 }
+
+
+/* FNI Ministry: media, anonymous prayer and giving refinements */
+.ministry-update-emoji{display:inline-flex;align-items:center;justify-content:center;min-width:24px;min-height:24px;font-size:20px;line-height:1}
+.ministry-stats-row .ministry-update-emoji{grid-row:span 2;align-self:center}
+.ministry-form-hint{margin:0;color:var(--fni-muted);font-size:11px;line-height:1.6}
+.ministry-permission-note{display:flex;align-items:flex-start;gap:10px;margin-top:13px;padding:13px 15px;border:1px solid var(--fni-line);border-radius:10px;background:var(--fni-surface-2);color:var(--fni-muted);font-size:11px;line-height:1.65}
+.ministry-permission-note svg{flex-shrink:0;color:var(--fni-blue)}
+.ministry-giving-option-icon[aria-hidden="true"]{font-size:20px;line-height:1}
+.ministry-draft-copy p{white-space:pre-line}
+@media(max-width:760px){
+ .ministry-permission-note{font-size:10px;padding:11px 12px}
+ .ministry-stats-row>div{min-width:0}
+ .ministry-update-emoji{font-size:18px}
+}
