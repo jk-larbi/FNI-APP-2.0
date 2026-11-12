@@ -81,7 +81,12 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const toggleSelectAll = () => setSelectedChats(current => visibleChatIds.every(id => current.includes(id)) ? current.filter(id => !visibleChatIds.includes(id)) : [...new Set([...current, ...visibleChatIds])]);
   const exitSelection = () => { setSelectionMode(false); setSelectedChats([]); };
   const markSelectedRead = () => { setReadChats(current => [...new Set([...current, ...selectedChats])]); setNotice(`Marked ${selectedChats.length} chat${selectedChats.length === 1 ? '' : 's'} as read in this preview.`); exitSelection(); };
-  const archiveSelected = () => { setArchivedChats(current => [...new Set([...current, ...selectedChats])]); setNotice(`Archived ${selectedChats.length} chat${selectedChats.length === 1 ? '' : 's'}.`); exitSelection(); };
+  const archiveSelected = () => {
+    if (tab === 'Archived') setArchivedChats(current => current.filter(id => !selectedChats.includes(id)));
+    else setArchivedChats(current => [...new Set([...current, ...selectedChats])]);
+    setNotice(tab === 'Archived' ? 'Selected chats restored to your chat list.' : `Archived ${selectedChats.length} chat${selectedChats.length === 1 ? '' : 's'}.`);
+    exitSelection();
+  };
   const deleteSelected = () => {
     if (!selectedChats.length || !confirm(`Permanently delete ${selectedChats.length} selected chat${selectedChats.length === 1 ? '' : 's'} from this browser preview? This cannot be undone.`)) return;
     setGroups(current => current.filter(group => !selectedChats.includes(group.id)));
@@ -177,7 +182,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
       <span>{selectedChats.length} selected</span>
       <div className="fni-chat-bulk-actions">
         <button disabled={!selectedChats.length} onClick={markSelectedRead} title="Mark as read"><CheckCheck size={18}/><span>Read</span></button>
-        <button disabled={!selectedChats.length} onClick={archiveSelected} title="Archive"><Archive size={18}/><span>Archive</span></button>
+        <button disabled={!selectedChats.length} onClick={archiveSelected} title="Archive"><Archive size={18}/><span>{tab === 'Archived' ? 'Unarchive' : 'Archive'}</span></button>
         <button disabled={!selectedChats.length} onClick={deleteSelected} title="Delete"><Trash2 size={18}/><span>Delete</span></button>
       </div>
     </div>}
