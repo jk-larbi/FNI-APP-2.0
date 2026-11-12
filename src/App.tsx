@@ -83,8 +83,18 @@ export default function App() {
       localStorage.setItem('fni-device-lock-enabled', 'true');
       setDeviceLockEnabled(true);
       setPasscodeError('Device authentication is set up on this browser. Lock FNI and test it on this phone.');
-    } catch {
-      setPasscodeError('Could not set up device authentication. Check that this phone has a screen lock and try again.');
+    } catch (error) {
+      const errorName = error instanceof DOMException ? error.name : 'UnknownError';
+      const reason = errorName === 'NotAllowedError'
+        ? 'The request was cancelled, timed out, or this browser could not access a device passkey. On iPhone, open FNI directly in Safari and check that a device passcode and Face ID are enabled.'
+        : errorName === 'SecurityError'
+          ? 'The browser rejected this website for passkey registration. Open the HTTPS FNI site directly in Safari or Chrome, not inside another app.'
+          : errorName === 'NotSupportedError'
+            ? 'This browser or phone does not currently offer a compatible device authenticator. Use the FNI passcode lock.'
+            : errorName === 'InvalidStateError'
+              ? 'A device credential may already exist for this FNI site. Try turning device authentication off and setting it up again.'
+              : 'Device authentication could not be registered (' + errorName + '). Use the FNI passcode lock for now.';
+      setPasscodeError(reason);
     }
   };
   const unlockWithDevice = async () => {
