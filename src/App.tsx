@@ -261,13 +261,13 @@ function App() {
     </aside>
 
     <main className="main-panel" data-section={section}>
-      <header className="topbar">
+      {section !== 'chats' && <header className="topbar">
         <div className="topbar-title"><span className="eyebrow">FORERUNNERS NETWORK INTERNATIONAL</span><h1>{t(section === 'chats' ? 'Messages' : section === 'settings' ? 'Settings' : section === 'notifications' ? 'Notifications' : current.label)}</h1></div>
         <div className="topbar-actions">
           {section === 'settings' || section === 'notifications' ? <button className="icon-button" aria-label="Back to chats" onClick={() => setSection('chats')}><ArrowLeft size={19} /></button> : <><button className={section === 'calls' ? 'icon-button calls-shortcut active' : 'icon-button calls-shortcut'} aria-label="Calls and meetings" title="Calls & meetings" onClick={() => setSection('calls')}><Video size={19} /></button><button className="icon-button notification-button" aria-label="Notifications" onClick={() => setSection('notifications')}><Bell size={19} /></button></>}
           {section !== 'settings' && section !== 'notifications' && section !== 'calls' && <button className="new-button" onClick={() => comingSoon(section === 'chats' ? 'New conversation' : 'Create ' + current.label.toLowerCase())}><Plus size={17} /><span>{section === 'chats' ? 'New message' : 'Create new'}</span></button>}
         </div>
-      </header>
+      </header>}
 
       {section === 'admin' ? <AdministrationWorkspace onNavigate={destination => setSection(destination)} /> : section === 'calls' ? null : section === 'notifications' ? <NotificationsWorkspace onNavigate={destination => setSection(destination)} /> : section === 'mediahub' ? <MediaHubWorkspace /> : section === 'ministry' ? <MinistryWorkspace /> : section === 'settings' ? <div className="settings-page">
         <div className="settings-intro"><div><span className="settings-kicker">YOUR FNI EXPERIENCE</span><h2>{t('Settings')}</h2><p>Manage your account, privacy, preferences and ministry experience.</p></div><div className="settings-profile"><div className="profile-avatar">{identity.name.slice(0,1).toUpperCase()}</div><div><strong>{identity.name}</strong><span>{identity.role === 'admin' ? 'Administrator' : 'FNI Member'}</span></div><button className="fni-account-switch" onClick={signOut}><LockKeyhole size={15}/> Log out / switch account</button></div></div>
