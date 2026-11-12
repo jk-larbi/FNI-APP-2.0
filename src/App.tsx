@@ -11,6 +11,14 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [newChatOpen, setNewChatOpen] = useState(false);
+  const [newActionOpen, setNewActionOpen] = useState(false);
+  const [newGroupOpen, setNewGroupOpen] = useState(false);
+  const [groupName, setGroupName] = useState('');
+  const [groupDescription, setGroupDescription] = useState('');
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string }>>(() => {
+    try { return JSON.parse(localStorage.getItem('fni-local-groups') || '{}'); }
+    catch { return {}; }
+  });
   const [username, setUsername] = useState('');
   const [activeChat, setActiveChat] = useState('');
   const [unreadChats, setUnreadChats] = useState<Record<string, boolean>>(() => {
@@ -53,6 +61,9 @@ export default function App() {
       [activeChat]: typeof update === 'function' ? update(current[activeChat] || []) : update,
     }));
   };
+  useEffect(() => {
+    try { localStorage.setItem('fni-local-groups', JSON.stringify(groupDetails)); } catch { /* storage may be unavailable */ }
+  }, [groupDetails]);
   useEffect(() => {
     try { localStorage.setItem('fni-local-drafts', JSON.stringify(drafts)); } catch { /* storage may be unavailable */ }
   }, [drafts]);
@@ -103,6 +114,22 @@ export default function App() {
     { label: 'Calls' as const, icon: Phone },
     { label: 'Settings' as const, icon: Settings },
   ];
+
+  const createGroup = () => {
+    const name = groupName.trim();
+    if (!name) return;
+    const groupId = `group-${Date.now()}`;
+    setGroupDetails((current) => ({ ...current, [groupId]: { name, description: groupDescription.trim() } }));
+    setConversations((current) => ({ ...current, [groupId]: [] }));
+    setActiveChat(groupId);
+    setFolder('Groups');
+    setSection('Chats');
+    setNewGroupOpen(false);
+    setNewActionOpen(false);
+    setGroupName('');
+    setGroupDescription('');
+    setReplyTo(null);
+  };
 
   const startChat = () => {
     const handle = username.trim().replace(/^@/, '');
@@ -219,7 +246,7 @@ export default function App() {
           <div className="list-title-row">
             <button className="icon-button menu-button" aria-label="Open menu" onClick={() => setMenuOpen(true)}><Menu /></button>
             <div><h1>{section}</h1><p>FORERUNNERS NETWORK INTERNATIONAL</p></div>
-            <button className="icon-button new-chat-button" aria-label="New message" title="New message" onClick={() => setNewChatOpen(true)}><Plus /></button>
+            <div className="new-action-wrap"><button className="icon-button new-chat-button" aria-label="Create chat" title="Create chat or group" aria-expanded={newActionOpen} onClick={() => setNewActionOpen((open) => !open)}><Plus /></button>{newActionOpen && <div className="new-action-menu"><button onClick={() => { setNewChatOpen(true); setNewActionOpen(false); }}>New message</button><button onClick={() => { setNewGroupOpen(true); setNewActionOpen(false); }}>New group</button></div>}</div>
           </div>
           <label className="search-box">
             <Search size={18} />
@@ -238,8 +265,8 @@ export default function App() {
             {recentChats.map(([chat, items]) => {
               const latest = items[items.length - 1];
               return <button className={`recent-chat-row ${activeChat === chat ? 'selected' : ''}`} key={chat} onClick={() => { setActiveChat(chat); setUnreadChats((current) => ({ ...current, [chat]: false })); setReplyTo(null); setEditingMessage(null); setOpenMessageMenu(null); setChatOptionsOpen(false); }}>
-                <span className="recent-chat-avatar">{chat.replace('@','').slice(0,1).toUpperCase()}</span>
-                <span className="recent-chat-copy"><strong>{chat}{mutedChats.includes(chat) && <span className="muted-chat-indicator" title="Muted"> · Muted</span>}</strong><span>{search.trim() ? ([...items].reverse().find((message) => message.text.toLowerCase().includes(search.trim().toLowerCase()) || (message.mediaName || '').toLowerCase().includes(search.trim().toLowerCase()))?.text || [...items].reverse().find((message) => (message.mediaName || '').toLowerCase().includes(search.trim().toLowerCase()))?.mediaName || latest?.text || (latest?.mediaType === 'photo' ? 'Photo' : latest?.mediaType === 'video' ? 'Video' : 'No messages yet')) : (latest?.text || (latest?.mediaType === 'photo' ? 'Photo' : latest?.mediaType === 'video' ? 'Video' : 'No messages yet'))}</span></span>
+                <span className="recent-chat-avatar">{(groupDetails[chat]?.name || chat.replace('@','')).slice(0,1).toUpperCase()}</span>
+                <span className="recent-chat-copy"><strong>{groupDetails[chat]?.name || chat}{mutedChats.includes(chat) && <span className="muted-chat-indicator" title="Muted"> · Muted</span>}</strong><span>{search.trim() ? ([...items].reverse().find((message) => message.text.toLowerCase().includes(search.trim().toLowerCase()) || (message.mediaName || '').toLowerCase().includes(search.trim().toLowerCase()))?.text || [...items].reverse().find((message) => (message.mediaName || '').toLowerCase().includes(search.trim().toLowerCase()))?.mediaName || latest?.text || (latest?.mediaType === 'photo' ? 'Photo' : latest?.mediaType === 'video' ? 'Video' : 'No messages yet')) : (latest?.text || (latest?.mediaType === 'photo' ? 'Photo' : latest?.mediaType === 'video' ? 'Video' : 'No messages yet'))}</span></span>
                 <span className="recent-chat-meta"><span className="recent-chat-time">{latest?.time || ''}</span>{unreadChats[chat] && <span className="unread-chat-badge">1</span>}</span>
               </button>;
             })}
@@ -259,8 +286,8 @@ export default function App() {
           <>
             <header className="active-chat-header">
               <button className="icon-button chat-back-button" aria-label="Back to chats" onClick={() => setActiveChat('')}><ArrowLeft /></button>
-              <div className="chat-person-avatar">{activeChat.replace('@','').slice(0,1).toUpperCase()}</div>
-              <button className="chat-person-details chat-info-trigger" onClick={() => setChatInfoOpen(true)} aria-label="View chat information"><strong>{activeChat}</strong><span>FNI member</span></button>
+              <div className="chat-person-avatar">{(groupDetails[activeChat]?.name || activeChat.replace('@','')).slice(0,1).toUpperCase()}</div>
+              <button className="chat-person-details chat-info-trigger" onClick={() => setChatInfoOpen(true)} aria-label="View chat information"><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{groupDetails[activeChat] ? 'FNI group' : 'FNI member'}</span></button>
               <div className="active-chat-actions">
                 <button className="icon-button" aria-label="Search messages" title="Search messages" onClick={() => { setChatSearchOpen((open) => !open); setChatSearch(''); }}><Search /></button>
                 <button className="icon-button" aria-label="Voice call"><PhoneCall /></button>
@@ -347,7 +374,7 @@ export default function App() {
         <div className="modal-backdrop chat-info-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setChatInfoOpen(false); }}>
           <section className="chat-info-modal" role="dialog" aria-modal="true" aria-label="Chat information">
             <div className="modal-heading"><h2>Chat information</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setChatInfoOpen(false)}><X /></button></div>
-            <div className="chat-info-profile"><div className="chat-info-avatar">{activeChat.replace('@','').slice(0,1).toUpperCase()}</div><strong>{activeChat}</strong><span>FNI member</span></div>
+            <div className="chat-info-profile"><div className="chat-info-avatar">{(groupDetails[activeChat]?.name || activeChat.replace('@','')).slice(0,1).toUpperCase()}</div><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{groupDetails[activeChat] ? 'FNI group' : 'FNI member'}</span>{groupDetails[activeChat]?.description && <p className="group-description">{groupDetails[activeChat].description}</p>}</div>
             <div className="chat-info-stat"><span>Messages</span><strong>{messages.length}</strong></div>
             <div className="chat-info-stat"><span>Photos and videos</span><strong>{messages.filter((message) => !!message.mediaType).length}</strong></div>
             {messages.some((message) => !!message.mediaType && !!message.mediaUrl) && (
@@ -384,6 +411,19 @@ export default function App() {
             <input id="forward-recipient" autoFocus value={forwardRecipient} onChange={(event) => setForwardRecipient(event.target.value)} placeholder="@username" />
             <p>This is a local preview. Delivery to another FNI member will be available when messaging is connected.</p>
             <button className="modal-submit" type="submit" disabled={!forwardRecipient.trim()}>Forward message</button>
+          </form>
+        </div>
+      )}
+      {newGroupOpen && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setNewGroupOpen(false); }}>
+          <form className="new-chat-modal" onSubmit={(event) => { event.preventDefault(); createGroup(); }}>
+            <div className="modal-heading"><h2>New group</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setNewGroupOpen(false)}><X /></button></div>
+            <label htmlFor="group-name">Group name</label>
+            <input id="group-name" autoFocus maxLength={60} value={groupName} onChange={(event) => setGroupName(event.target.value)} placeholder="Enter a group name" />
+            <label htmlFor="group-description">Description <span className="optional-label">Optional</span></label>
+            <textarea id="group-description" maxLength={180} rows={3} value={groupDescription} onChange={(event) => setGroupDescription(event.target.value)} placeholder="What is this group about?" />
+            <p>Members and invitations can be added when FNI accounts are connected.</p>
+            <button className="modal-submit" type="submit" disabled={!groupName.trim()}>Create group</button>
           </form>
         </div>
       )}
