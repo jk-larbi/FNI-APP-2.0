@@ -21,6 +21,41 @@ export default function App() {
   const [profileEditorOpen, setProfileEditorOpen] = useState(false);
   const [profileDraft, setProfileDraft] = useState<AccountProfile>(accountProfile);
   const [securityInfoOpen, setSecurityInfoOpen] = useState(false);
+  const [passcodeEnabled, setPasscodeEnabled] = useState(() => localStorage.getItem('fni-passcode-enabled') === 'true');
+  const [appLocked, setAppLocked] = useState(() => localStorage.getItem('fni-passcode-enabled') === 'true');
+  const [passcodeDialogOpen, setPasscodeDialogOpen] = useState(false);
+  const [passcodeValue, setPasscodeValue] = useState('');
+  const [passcodeConfirm, setPasscodeConfirm] = useState('');
+  const [unlockValue, setUnlockValue] = useState('');
+  const [passcodeError, setPasscodeError] = useState('');
+  const hashPasscode = async (pin: string, salt: string) => {
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + pin));
+    return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+  };
+  const savePasscode = async () => {
+    if (!/^\\d{6,12}$/.test(passcodeValue)) { setPasscodeError('Use 6–12 digits for your passcode.'); return; }
+    if (passcodeValue !== passcodeConfirm) { setPasscodeError('The passcodes do not match.'); return; }
+    const salt = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(byte => byte.toString(16).padStart(2, '0')).join('');
+    try {
+      localStorage.setItem('fni-passcode-salt', salt);
+      localStorage.setItem('fni-passcode-hash', await hashPasscode(passcodeValue, salt));
+      localStorage.setItem('fni-passcode-enabled', 'true');
+      setPasscodeEnabled(true); setPasscodeDialogOpen(false); setPasscodeValue(''); setPasscodeConfirm(''); setPasscodeError('');
+    } catch { setPasscodeError('Passcode setup is unavailable in this browser.'); }
+  };
+  const unlockApp = async () => {
+    const salt = localStorage.getItem('fni-passcode-salt') || '';
+    const savedHash = localStorage.getItem('fni-passcode-hash') || '';
+    if (!salt || !savedHash) { setPasscodeError('Passcode setup is incomplete. Disable and set it up again.'); return; }
+    if (await hashPasscode(unlockValue, salt) === savedHash) { setAppLocked(false); setUnlockValue(''); setPasscodeError(''); }
+    else setPasscodeError('Incorrect passcode. Try again.');
+  };
+  const disablePasscode = async () => {
+    const salt = localStorage.getItem('fni-passcode-salt') || '';
+    if (!salt || await hashPasscode(passcodeValue, salt) !== localStorage.getItem('fni-passcode-hash')) { setPasscodeError('Enter your current passcode to turn off the lock.'); return; }
+    localStorage.removeItem('fni-passcode-salt'); localStorage.removeItem('fni-passcode-hash'); localStorage.removeItem('fni-passcode-enabled');
+    setPasscodeEnabled(false); setPasscodeDialogOpen(false); setPasscodeValue(''); setPasscodeConfirm(''); setPasscodeError('');
+  };
   const [profileSaveNotice, setProfileSaveNotice] = useState('');
   const saveAccountProfile = () => {
     const next = { ...profileDraft, name: profileDraft.name.trim() || 'FNI Member', username: profileDraft.username.trim().replace(/^@/, '') };
