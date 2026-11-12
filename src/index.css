@@ -1004,3 +1004,7 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
 .app-shell[data-theme=dark] .ac-workspace{color:#f2f3f7}
 .app-shell[data-theme=dark] .ac-panel{background:#1c202a;border-color:#343b49}
 @media(max-width:760px){.ac-workspace{padding:22px 15px 30px}.ac-panel{padding:15px}.ac-theme-modes{grid-template-columns:repeat(2,minmax(0,1fr))}.ac-range-row{grid-template-columns:1fr auto;gap:7px}.ac-range-row label{justify-content:space-between}.ac-individual-row{flex-direction:column}.ac-manual-contact{grid-template-columns:1fr}.ac-contact-item{gap:4px}.ac-contact-item>button{width:27px;height:27px}.ac-contact-tabs{margin-right:-3px}.ac-setting-row select{max-width:125px}.ac-color-grid{grid-template-columns:1fr}.ac-theme-name{grid-column:auto}.ac-wallpaper-preview{min-height:120px}}
+
+/* Conversation wallpaper layer — global default with per-group override. */
+.msg-workspace{background-image:var(--fni-chat-wallpaper-image,none);background-position:center;background-size:cover;background-attachment:local;background-repeat:no-repeat;border-radius:12px}
+.msg-workspace .msg-panel,.msg-workspace .msg-form-card,.msg-workspace .msg-heading{backdrop-filter:blur(2px)}
