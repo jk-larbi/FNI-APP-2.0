@@ -3071,3 +3071,99 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
   .fni-group-chat-compose button{width:39px;height:39px;flex-basis:39px}
   .fni-group-chat-local-note{display:none}
 }
+
+
+/* Saved Messages is a regular chat row and a regular full-height conversation. */
+@media (max-width: 760px) {
+  .msg-fullscreen-workspace:has(.saved-chat-shell) {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    max-height: 100dvh !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .msg-fullscreen-workspace .saved-chat-shell {
+    position: relative !important;
+    inset: auto !important;
+    flex: 1 1 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .msg-fullscreen-workspace .saved-chat-header {
+    flex: 0 0 calc(60px + env(safe-area-inset-top)) !important;
+    height: calc(60px + env(safe-area-inset-top)) !important;
+    min-height: calc(60px + env(safe-area-inset-top)) !important;
+    padding: env(safe-area-inset-top) 10px 0 !important;
+  }
+
+  .msg-fullscreen-workspace .saved-chat-wallpaper {
+    flex: 1 1 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 12px 10px 16px !important;
+    overscroll-behavior: contain;
+  }
+
+  .msg-fullscreen-workspace .saved-chat-compose-wrap {
+    position: relative !important;
+    z-index: 2;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    align-items: flex-end !important;
+    gap: 6px !important;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom)) !important;
+    border-top: 1px solid var(--fni-line, #e3e7f0);
+  }
+
+  .msg-fullscreen-workspace .saved-chat-attach,
+  .msg-fullscreen-workspace .saved-chat-send {
+    width: 36px !important;
+    height: 38px !important;
+    flex: 0 0 36px !important;
+  }
+
+  .msg-fullscreen-workspace .saved-chat-input-wrap {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    max-width: calc(100% - 84px) !important;
+    padding: 8px 9px !important;
+  }
+
+  .msg-fullscreen-workspace .saved-chat-input-wrap textarea {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-height: 88px !important;
+    overflow-y: auto !important;
+    overflow-wrap: anywhere;
+    font-size: 16px !important;
+  }
+
+  .msg-fullscreen-workspace .saved-chat-local-note {
+    display: none !important;
+  }
+
+  .msg-fullscreen-workspace .saved-chat-tags {
+    flex: 0 0 auto;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
