@@ -46,9 +46,13 @@ export default function App() {
   const [meetingTime, setMeetingTime] = useState('');
   const [meetingLocation, setMeetingLocation] = useState('');
   const [meetingLink, setMeetingLink] = useState('');
+  const [meetingAgendaInput, setMeetingAgendaInput] = useState('');
+  const [meetingActionTitle, setMeetingActionTitle] = useState('');
+  const [meetingActionAssignee, setMeetingActionAssignee] = useState('You');
+  const [meetingActionDueDate, setMeetingActionDueDate] = useState('');
   const [groupApprovalRequests, setGroupApprovalRequests] = useState<{ id: string; name: string; description: string; requestedAt: string; status: 'Pending' | 'Approved' | 'Declined' }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-requests') || '[]'); } catch { return []; } });
   const [groupApprovalLog, setGroupApprovalLog] = useState<{ id: string; groupName: string; action: 'Submitted' | 'Approved' | 'Declined'; time: string }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-log') || '[]'); } catch { return []; } });
-  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string; responses?: Record<string, 'Going' | 'Maybe' | 'Not going'> }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[]; announcements?: { id: number; text: string; important: boolean; createdAt: string }[];
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string; responses?: Record<string, 'Going' | 'Maybe' | 'Not going'>; agenda?: { id: number; text: string; done: boolean }[]; minutes?: string; followUps?: { id: number; title: string; assignee: string; dueDate: string; done: boolean }[] }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[]; announcements?: { id: number; text: string; important: boolean; createdAt: string }[];
     polls?: { id: number; question: string; options: string[]; votes: Record<string, string>; createdAt: string; closed?: boolean }[];
     tasks?: { id: number; title: string; assignee: string; dueDate: string; completed: boolean; createdAt: string }[];
     resources?: { id: number; title: string; url: string; category: string; createdAt: string }[];
@@ -592,9 +596,42 @@ export default function App() {
                     <small>RSVPs are stored on this device in the preview. Live member responses and reminders require the FNI backend.</small>
                   </section>;
                 })()}
+
+                {groupDetails[activeChat].meeting && (() => {
+                  const meeting = groupDetails[activeChat].meeting!;
+                  const agenda = meeting.agenda || [];
+                  const followUps = meeting.followUps || [];
+                  return <div className="group-meeting-workspace">
+                    <section className="meeting-agenda-panel">
+                      <div className="shared-media-heading"><strong>Meeting agenda</strong><span>{agenda.filter((item) => item.done).length}/{agenda.length} covered</span></div>
+                      <form className="meeting-inline-form" onSubmit={(event) => { event.preventDefault(); const value = meetingAgendaInput.trim(); if (!value) return; setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: { ...current[activeChat].meeting!, agenda: [{ id: Date.now(), text: value, done: false }, ...(current[activeChat].meeting?.agenda || [])] } })); setMeetingAgendaInput(''); }}>
+                        <input value={meetingAgendaInput} onChange={(event) => setMeetingAgendaInput(event.target.value)} placeholder="Add an agenda topic" aria-label="Agenda topic" />
+                        <button type="submit" disabled={!meetingAgendaInput.trim()}>Add</button>
+                      </form>
+                      {agenda.length ? <div className="meeting-check-list">{agenda.map((item) => <div key={item.id} className={item.done ? 'is-done' : ''}><label><input type="checkbox" checked={item.done} onChange={(event) => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: { ...current[activeChat].meeting!, agenda: (current[activeChat].meeting?.agenda || []).map((entry) => entry.id === item.id ? { ...entry, done: event.target.checked } : entry) } } }))} /><span>{item.text}</span></label><button type="button" aria-label="Remove agenda topic" onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: { ...current[activeChat].meeting!, agenda: (current[activeChat].meeting?.agenda || []).filter((entry) => entry.id !== item.id) } }))}>×</button></div>)}</div> : <p className="group-meeting-note">Add topics to guide your next group meeting.</p>}
+                    </section>
+                    <section className="meeting-minutes-panel">
+                      <div className="shared-media-heading"><strong>Meeting minutes</strong><span>Group record</span></div>
+                      <form onSubmit={(event) => { event.preventDefault(); const minutes = String(new FormData(event.currentTarget).get('meetingMinutes') || ''); setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: { ...current[activeChat].meeting!, minutes } } })); }}>
+                        <textarea name="meetingMinutes" rows={4} defaultValue={meeting.minutes || ''} placeholder="Record key discussions, decisions and prayer points..." />
+                        <button type="submit">Save meeting notes</button>
+                      </form>
+                    </section>
+                    <section className="meeting-followups-panel">
+                      <div className="shared-media-heading"><strong>Follow-up actions</strong><span>{followUps.filter((item) => item.done).length}/{followUps.length} completed</span></div>
+                      <form className="meeting-followup-form" onSubmit={(event) => { event.preventDefault(); const title = meetingActionTitle.trim(); if (!title) return; setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: { ...current[activeChat].meeting!, followUps: [{ id: Date.now(), title, assignee: meetingActionAssignee.trim() || 'You', dueDate: meetingActionDueDate, done: false }, ...(current[activeChat].meeting?.followUps || [])] } })); setMeetingActionTitle(''); setMeetingActionDueDate(''); }}>
+                        <input value={meetingActionTitle} onChange={(event) => setMeetingActionTitle(event.target.value)} placeholder="Action to follow up" aria-label="Follow-up action" required />
+                        <div><input value={meetingActionAssignee} onChange={(event) => setMeetingActionAssignee(event.target.value)} placeholder="Assign to" aria-label="Action assignee" /><input type="date" value={meetingActionDueDate} onChange={(event) => setMeetingActionDueDate(event.target.value)} aria-label="Due date" /></div>
+                        <button type="submit" disabled={!meetingActionTitle.trim()}>Add action</button>
+                      </form>
+                      {followUps.length > 0 && <div className="meeting-check-list">{followUps.map((item) => <div key={item.id} className={item.done ? 'is-done' : ''}><label><input type="checkbox" checked={item.done} onChange={(event) => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: { ...current[activeChat].meeting!, followUps: (current[activeChat].meeting?.followUps || []).map((entry) => entry.id === item.id ? { ...entry, done: event.target.checked } : entry) } } }))} /><span><strong>{item.title}</strong><small>{item.assignee}{item.dueDate ? ' · Due ' + new Date(item.dueDate + 'T00:00:00').toLocaleDateString() : ''}</small></span></label><button type="button" aria-label="Remove follow-up action" onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: { ...current[activeChat].meeting!, followUps: (current[activeChat].meeting?.followUps || []).filter((entry) => entry.id !== item.id) } }))}>×</button></div>)}</div>}
+                    </section>
+                  </div>;
+                })()}
                 {groupDetails[activeChat].meeting && (
                   <div className="group-meeting-summary">
                     <strong>{new Date(`${groupDetails[activeChat].meeting.date}T${groupDetails[activeChat].meeting.time || '00:00'}`).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</strong>
+                    <span className="meeting-countdown">{(() => { const target = new Date(groupDetails[activeChat].meeting!.date + 'T' + (groupDetails[activeChat].meeting!.time || '00:00')).getTime(); const days = Math.ceil((target - Date.now()) / 86400000); return days < 0 ? 'Meeting date has passed' : days === 0 ? 'Meeting is today' : days === 1 ? 'Meeting is tomorrow' : 'In ' + days + ' days'; })()}</span>
                     <span>{groupDetails[activeChat].meeting.time || 'Time not set'}{groupDetails[activeChat].meeting.location ? ` · ${groupDetails[activeChat].meeting.location}` : ''}</span>
                     {groupDetails[activeChat].meeting.link && <a href={groupDetails[activeChat].meeting.link} target="_blank" rel="noreferrer">Join meeting</a>}
                   </div>
