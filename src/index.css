@@ -205,3 +205,22 @@ button{cursor:pointer}
 .message-bubble:has(.message-media){padding:6px 7px 5px}
 .attachment-input{display:none}
 @media(max-width:620px){.message-media{max-width:min(72vw,340px);max-height:320px}}
+
+/* Reactions, emoji picker and @mention suggestions */
+.reaction-choices{display:flex;gap:2px;padding:3px 4px 6px;border-bottom:1px solid #edf0f3;margin-bottom:4px}
+.reaction-choices button,.message-reactions button,.emoji-picker button{border:0;background:transparent;border-radius:7px;cursor:pointer}
+.reaction-choices button{font-size:17px;padding:5px}
+.reaction-choices button:hover,.emoji-picker button:hover{background:#eef3f9}
+.message-reactions{display:flex;gap:4px;margin-top:5px}
+.message-reactions button{font-size:14px;padding:2px 6px;background:#ffffffb8;border:1px solid #d9e6df}
+.message-mention{color:#1768bd;font-weight:600}
+.composer-input-wrap{position:relative;flex:1;min-width:0;display:flex;align-items:center}
+.composer-input-wrap textarea{width:100%}
+.mention-suggestions{position:absolute;bottom:calc(100% + 12px);left:0;z-index:12;min-width:190px;padding:5px;background:#fff;border:1px solid #e5e9ef;border-radius:9px;box-shadow:0 7px 25px #15223820}
+.mention-suggestions button{display:flex;flex-direction:column;gap:3px;width:100%;text-align:left;padding:9px 10px;border:0;border-radius:6px;background:#fff;color:#286bb7;font-size:13px}
+.mention-suggestions button:hover{background:#f3f6fa}
+.mention-suggestions span{font-size:10px;color:#8792a1}
+.emoji-picker-wrap{position:relative;display:flex;align-items:center}
+.emoji-picker{position:absolute;z-index:12;right:0;bottom:calc(100% + 12px);width:220px;padding:9px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:#fff;border:1px solid #e5e9ef;border-radius:11px;box-shadow:0 7px 25px #15223820}
+.emoji-picker button{font-size:21px;padding:7px 3px}
+@media(max-width:620px){.emoji-picker{right:-48px;bottom:calc(100% + 10px)}.reaction-choices button{font-size:19px;padding:6px}}
