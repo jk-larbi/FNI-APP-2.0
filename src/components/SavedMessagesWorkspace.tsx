@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Bookmark, Search, Plus, Paperclip, Send, Image as ImageIcon, Video, Link2, FileText, Mic, Pin, Trash2, Download, ExternalLink, X, FolderPlus, MoreVertical, ArrowLeft, Smile, ChevronDown } from 'lucide-react';
+import { Bookmark, Search, Plus, Paperclip, Send, Image as ImageIcon, Video, Link2, FileText, Pin, Trash2, Download, ExternalLink, X, MoreVertical, Smile } from 'lucide-react';
 
 type SavedType = 'note' | 'image' | 'video' | 'document' | 'link' | 'audio' | 'message';
 type SavedItem = { id: string; type: SavedType; title: string; content: string; fileName?: string; mime?: string; size: number; createdAt: string; source?: string; folderId: string; pinned: boolean; };
@@ -38,7 +38,6 @@ export default function SavedMessagesWorkspace() {
   const renderAttachment=(item:SavedItem)=>item.type==='image'?<img className="saved-chat-image" src={item.content} alt={item.title}/>:item.type==='video'?<video className="saved-chat-video" src={item.content} controls/>:item.type==='audio'?<audio className="saved-chat-audio" src={item.content} controls/>:item.type==='document'?<div className="saved-chat-file"><span><FileText size={21}/></span><div><b>{item.fileName||item.title}</b><small>{formatBytes(item.size)} · File</small></div></div>:item.type==='link'?<a className="saved-chat-link" href={item.content} target="_blank" rel="noreferrer"><span><Link2 size={18}/></span><div><b>{item.title}</b><small>{item.content}</small></div><ExternalLink size={15}/></a>:null;
   return <section className="saved-chat-shell">
     <header className="saved-chat-header">
-      <button className="saved-chat-back" aria-label="Back" onClick={()=>window.dispatchEvent(new CustomEvent('fni:saved-back'))}><ArrowLeft size={19}/></button>
       <div className="saved-chat-avatar"><Bookmark size={21}/></div>
       <div className="saved-chat-identity"><b>Saved Messages</b><span>Personal chat · Only you</span></div>
       <div className="saved-chat-header-actions">
