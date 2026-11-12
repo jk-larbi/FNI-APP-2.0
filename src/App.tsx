@@ -5,6 +5,7 @@ import CallingWorkspace from './components/CallingWorkspace';
 import AppearanceContactsWorkspace from './components/AppearanceContactsWorkspace';
 import NotificationsWorkspace from './components/NotificationsWorkspace';
 import StoriesWorkspace from './components/StoriesWorkspace';
+import SavedMessagesWorkspace from './components/SavedMessagesWorkspace';
 import {
   Bell, Bookmark, CalendarDays, ChevronDown, CircleHelp, UsersRound,
   Menu, MessageCircle, MoreHorizontal, Plus, Search, Settings,
@@ -104,11 +105,8 @@ const settingCategories: SettingCategory[] = [
     { label: 'Save moments to profile', kind: 'toggle' },
     { label: 'My moments archive', kind: 'action' },
   ]},
-  { id: 'saved', label: 'Saved Items', group: 'COMMUNICATION', description: 'Keep sermons, verses, announcements and resources together.', icon: Bookmark, options: [
-    { label: 'Saved messages', kind: 'action' },
-    { label: 'Saved sermons and media', kind: 'action' },
-    { label: 'Saved scripture and prayer points', kind: 'action' },
-    { label: 'Personal notes', kind: 'action' },
+  { id: 'saved', label: 'Saved Messages & Personal Cloud', group: 'COMMUNICATION', description: 'Privately save messages, notes, links, photos and files.', icon: Bookmark, options: [
+    { label: 'Open Saved Messages & Personal Cloud', description: 'Manage your saved items, collections and personal files.', kind: 'action' },
   ]},
   { id: 'ministry', label: 'FNI Ministry Settings', group: 'MINISTRY', description: 'Manage your ministry preferences and visibility.', icon: ShieldCheck, options: [
     { label: 'Church membership', description: 'Your membership and chapter information.', kind: 'action' },
@@ -237,7 +235,7 @@ function App() {
               {settingCategories.filter(item => item.group === group).map(item => { const Icon = item.icon; return <button key={item.id} className={selectedSetting === item.id ? 'setting-nav active' : 'setting-nav'} onClick={() => setSelectedSetting(item.id)}><Icon size={17} /><span>{t(item.label)}</span><ChevronRight size={14} /></button>; })}
             </div>)}
           </aside>
-          {selectedSetting === 'notifications' ? <NotificationsWorkspace onNavigate={destination => setSection(destination)} /> : selectedSetting === 'stories' ? <StoriesWorkspace onReply={() => setNotice('Open a conversation to continue your reply.')} /> : selectedSetting === 'profile' ? <ProfileIdentity onNotice={message => { setNotice(message); window.setTimeout(() => setNotice(''), 4800); }} /> : selectedSetting === 'appearance' || selectedSetting === 'contacts' ? <AppearanceContactsWorkspace initialTab={selectedSetting === 'contacts' ? 'contacts' : 'appearance'} /> : <section className="settings-detail">
+          {selectedSetting === 'saved' ? <SavedMessagesWorkspace /> : selectedSetting === 'notifications' ? <NotificationsWorkspace onNavigate={destination => setSection(destination)} /> : selectedSetting === 'stories' ? <StoriesWorkspace onReply={() => setNotice('Open a conversation to continue your reply.')} /> : selectedSetting === 'profile' ? <ProfileIdentity onNotice={message => { setNotice(message); window.setTimeout(() => setNotice(''), 4800); }} /> : selectedSetting === 'appearance' || selectedSetting === 'contacts' ? <AppearanceContactsWorkspace initialTab={selectedSetting === 'contacts' ? 'contacts' : 'appearance'} /> : <section className="settings-detail">
             <div className="settings-detail-head"><div className="setting-detail-icon"><ActiveSettingIcon size={20} /></div><div><h3>{t(activeSetting.label)}</h3><p>{activeSetting.description}</p></div></div>
             <div className="settings-options">
               {activeSetting.options.map(option => {
