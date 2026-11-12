@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import ProfileIdentity from './components/ProfileIdentity';
 import {
   Bell, Bookmark, CalendarDays, ChevronDown, CircleHelp, Compass,
   Menu, MessageCircle, MoreHorizontal, Plus, Search, Settings,
@@ -189,7 +190,7 @@ function App() {
               {settingCategories.filter(item => item.group === group).map(item => { const Icon = item.icon; return <button key={item.id} className={selectedSetting === item.id ? 'setting-nav active' : 'setting-nav'} onClick={() => setSelectedSetting(item.id)}><Icon size={17} /><span>{item.label}</span><ChevronRight size={14} /></button>; })}
             </div>)}
           </aside>
-          <section className="settings-detail">
+          {selectedSetting === 'profile' ? <ProfileIdentity onNotice={message => { setNotice(message); window.setTimeout(() => setNotice(''), 4800); }} /> : <section className="settings-detail">
             <div className="settings-detail-head"><div className="setting-detail-icon"><ActiveSettingIcon size={20} /></div><div><h3>{activeSetting.label}</h3><p>{activeSetting.description}</p></div></div>
             <div className="settings-options">
               {activeSetting.options.map(option => {
@@ -205,7 +206,7 @@ function App() {
               })}
             </div>
             <div className="settings-footnote"><ShieldCheck size={15} /><span>These are frontend preferences for now. Account security, device sessions and cross-device sync will activate when the FNI backend is connected.</span></div>
-          </section>
+          </section>}
         </div>
       </div> : <div className="content">
         <div className="welcome-line"><div><h2>{section === 'chats' ? 'Stay connected.' : section === 'community' ? 'Find your community.' : section === 'cells' ? 'Grow together.' : 'Meet in fellowship.'}</h2><p>{section === 'chats' ? 'Conversations and updates from your FNI community.' : section === 'community' ? 'A place for fellowship, updates and shared life.' : section === 'cells' ? 'Your cell groups, leaders and small-group life.' : 'Gather online for services, prayer and meetings.'}</p></div></div>
