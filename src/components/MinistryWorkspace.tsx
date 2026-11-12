@@ -73,7 +73,7 @@ export default function MinistryWorkspace() {
   const selected = areas.find(item => item.id === area);
 
   function saveDraft() {
-    if (!title.trim() || !speaker.trim()) { setNotice('Add a message title and speaker before saving.'); return; }\n    if (messageLink.trim() && !/^https?:\\/\\//i.test(messageLink.trim())) { setNotice('Enter a valid http or https link.'); return; }
+    if (!title.trim() || !speaker.trim()) { setNotice('Add a message title and speaker before saving.'); return; }\n    if (messageLink.trim() && !/^https?:\/\//i.test(messageLink.trim())) { setNotice('Enter a valid http or https link.'); return; }
     const next = [{ id: crypto.randomUUID(), title: title.trim(), speaker: speaker.trim(), format, description: [description.trim(), messageLink.trim() ? 'Link: ' + messageLink.trim() : ''].filter(Boolean).join('\n'), createdAt: new Date().toISOString() }, ...drafts];
     setDrafts(next); storage.write('fni-ministry-sermon-drafts', next);
     setTitle(''); setSpeaker(''); setDescription(''); setMessageLink(''); setFormat('Video'); setShowDraft(false);
@@ -283,7 +283,9 @@ export default function MinistryWorkspace() {
   </div>;
 }
 
-function externalLinkFrom(value: string) { return value.match(/https?:\\/\\/[^\\s]+/i)?.[0]; }\n\nfunction BellIcon() { return <span className="ministry-update-emoji" aria-hidden="true">📢</span>; }
+function externalLinkFrom(value: string) { return value.match(/https?:\/\/[^\s]+/i)?.[0]; }
+
+function BellIcon() { return <span className="ministry-update-emoji" aria-hidden="true">📢</span>; }
 
 function ItemList({ items, emptyTitle, emptyText, onRemove }: { items: LocalItem[]; emptyTitle: string; emptyText: string; onRemove: (id: string) => void }) {
   if (!items.length) return <div className="ministry-empty"><div><FileText size={22}/></div><strong>{emptyTitle}</strong><p>{emptyText}</p></div>;
