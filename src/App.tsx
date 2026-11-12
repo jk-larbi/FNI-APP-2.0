@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, MoreVertical, Video, PhoneCall, UserRound, LockKeyhole, BellRing, Palette, Database, Smartphone, Globe2, MessageSquare, HeartHandshake, CircleHelp, ChevronRight, ShieldCheck, Volume2, Moon, Sun, Monitor, Download, Eye, BookOpen, HandHeart, CalendarDays, Image, KeyRound } from 'lucide-react';
 
-type Section = 'Chats' | 'Contacts' | 'Calls' | 'Settings';
+type Section = 'Chats' | 'Contacts' | 'Calls' | 'FNI Community' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups' | 'Archived';
 type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
 
@@ -46,7 +46,7 @@ export default function App() {
   const language = String(preferences.language || 'Automatic') === 'Automatic' ? detectedLanguage : String(preferences.language);
   const translations: Record<string, Record<string, string>> = {
     French: {
-      Chats: 'Discussions', Contacts: 'Contacts', Calls: 'Appels', Settings: 'Paramètres',
+      Chats: 'Discussions', Contacts: 'Contacts', Calls: 'Appels', 'FNI Community': 'Communauté FNI', Settings: 'Paramètres',
       'All chats': 'Toutes les discussions', Personal: 'Personnels', Groups: 'Groupes', Archived: 'Archivés',
       Account: 'Compte', 'Privacy and Security': 'Confidentialité et sécurité', 'Notifications and Sounds': 'Notifications et sons',
       Appearance: 'Apparence', 'Chat Settings': 'Paramètres des discussions', 'Data and Storage': 'Données et stockage',
@@ -58,7 +58,7 @@ export default function App() {
       'English is the default interface language.': 'L’anglais est la langue par défaut de l’interface.'
     },
     Twi: {
-      Chats: 'Nkɔmmɔbɔ', Contacts: 'Nkurɔfo', Calls: 'Frɛ', Settings: 'Nhyehyɛe',
+      Chats: 'Nkɔmmɔbɔ', Contacts: 'Nkurɔfo', Calls: 'Frɛ', 'FNI Community': 'FNI Kuw', Settings: 'Nhyehyɛe',
       'All chats': 'Nkɔmmɔbɔ nyinaa', Personal: 'Ankorankoro', Groups: 'Akuo', Archived: 'Wɔakora so',
       Account: 'Akontaabu', 'Privacy and Security': 'Kokoam nsɛm ne ahobammɔ', 'Notifications and Sounds': 'Amanneɛbɔ ne nnyigyei',
       Appearance: 'Nhwɛbea', 'Chat Settings': 'Nkɔmmɔbɔ nhyehyɛe', 'Data and Storage': 'Data ne nneɛma a wɔakora so',
@@ -285,6 +285,7 @@ export default function App() {
     { label: 'Chats' as const, icon: MessageCircle },
     { label: 'Contacts' as const, icon: Users },
     { label: 'Calls' as const, icon: Phone },
+    { label: 'FNI Community' as const, icon: HeartHandshake },
     { label: 'Settings' as const, icon: Settings },
   ];
 
@@ -467,6 +468,20 @@ export default function App() {
                 <span className="recent-chat-meta"><span className="recent-chat-time">{latest?.time || ''}</span>{unreadChats[chat] && <span className="unread-chat-badge">1</span>}</span>
               </button>;
             })}
+          </div>
+        ) : section === 'FNI Community' ? (
+          <div className="telegram-settings fni-community-page">
+            <div className="settings-section">
+              <h3>Forerunners Network International</h3>
+              <p className="settings-footnote">Your ministry and community space. Explore FNI groups, gatherings and spiritual resources.</p>
+              <div className="settings-info-row"><Users/><span><strong>Cell groups</strong><small>Create groups, discover groups and manage your group conversations</small></span><button type="button" onClick={() => { setSection('Chats'); setFolder('Groups'); setActiveChat(''); }}>Open groups</button></div>
+              <div className="settings-info-row"><CalendarDays/><span><strong>Meetings and events</strong><small>Find group meetings, event details and attendance updates</small></span><button type="button" onClick={() => { setSection('Chats'); setFolder('Groups'); setActiveChat(''); }}>View groups</button></div>
+              <div className="settings-info-row"><BookOpen/><span><strong>Sermons and spiritual resources</strong><small>Sermon notes, scriptures and devotion plans</small></span><em>FNI workspace</em></div>
+              <div className="settings-info-row"><HandHeart/><span><strong>Prayer and care</strong><small>Prayer requests and group prayer rooms</small></span><em>FNI workspace</em></div>
+              <div className="settings-info-row"><HeartHandshake/><span><strong>Giving and support</strong><small>Future secure giving options</small></span><em>Planned</em></div>
+              <div className="settings-info-row"><Bell/><span><strong>Ministry announcements</strong><small>Church-wide updates and event notices</small></span><em>Planned</em></div>
+              <p className="settings-footnote">Community tools are currently a frontend preview. Shared membership, live updates and secure giving will require the FNI backend.</p>
+            </div>
           </div>
         ) : section === 'Settings' ? (
           <div className="telegram-settings">
