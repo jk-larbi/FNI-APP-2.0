@@ -305,6 +305,19 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   if (view === 'new-chat') return <div className="msg-workspace"><div className="msg-heading"><button className="msg-back" onClick={() => setView('list')}><ArrowLeft size={17}/> Back to chats</button><span className="msg-eyebrow">PERSONAL MESSAGE</span><h2>Start a conversation</h2><p>Add a member by their public FNI username.</p></div><div className="msg-form-card"><label>Username<input value={newChatUsername} onChange={e => setNewChatUsername(e.target.value)} placeholder="@username"/></label><div className="msg-info"><MessageCircle size={17}/><span>This adds the username to your Personal chat list on this device. Verifying FNI accounts and delivering messages will require the member directory and messaging backend.</span></div><button className="msg-primary" onClick={() => { const username = newChatUsername.trim().replace(/^@/, ''); if (!username) { setNotice('Enter a member username first.'); return; } const existing = personalChats.find(chat => chat.username.toLowerCase() === username.toLowerCase()); if (existing) { setNotice('@' + username + ' is already in your Personal chats.'); setNewChatUsername(''); setTab('Personal'); setView('list'); return; } setPersonalChats(current => [{ id: 'personal-' + crypto.randomUUID(), username, createdAt: new Date().toISOString() }, ...current]); setNewChatUsername(''); setTab('Personal'); setView('list'); setNotice('@' + username + ' was added to your Personal list on this device.'); }}>Add to Personal chats <ChevronRight size={16}/></button></div></div>;
 
   if (view === 'group-chat' && selected) return <div className={`msg-workspace msg-fullscreen-workspace fni-group-conversation${chatKeyboardOpen ? ' keyboard-visible' : ''}`}>
+    <aside className="fni-desktop-chat-list" aria-label="Chats">
+      <div className="fni-desktop-chat-list-head"><b>Chats</b><span>Forerunners Network International</span></div>
+      <div className="fni-desktop-chat-list-search"><Search size={15}/><span>Search conversations</span></div>
+      <div className="fni-desktop-chat-list-items">
+        {groups.map(group => <button type="button" key={group.id} className={group.id === selected.id ? 'active' : ''} onClick={() => { setSelectedId(group.id); setView('group-chat'); }}>
+          <span className="fni-desktop-chat-list-avatar"><Users size={17}/></span><span className="fni-desktop-chat-list-copy"><b>{group.name}</b><small>{groupMessages.filter(message => message.groupId === group.id).slice(-1)[0]?.text || group.description || 'Group conversation'}</small></span>
+        </button>)}
+        {personalChats.map(chat => <button type="button" key={chat.id} onClick={() => setNotice('Direct messaging with @' + chat.username + ' will open when FNI member accounts and messaging are connected.')}>
+          <span className="fni-desktop-chat-list-avatar personal">{chat.username.slice(0,1).toUpperCase()}</span><span className="fni-desktop-chat-list-copy"><b>@{chat.username}</b><small>{chat.lastMessage || 'Start a conversation'}</small></span>
+        </button>)}
+        {!groups.length && !personalChats.length && <p className="fni-desktop-chat-list-empty">Your conversations will appear here.</p>}
+      </div>
+    </aside>
     <header className="fni-group-chat-header">
       <button className="saved-chat-back-button" onClick={closeToList} aria-label="Back to chats"><ArrowLeft size={21}/></button>
       <div className="msg-group-avatar"><Users size={20}/></div>
