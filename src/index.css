@@ -334,3 +334,20 @@ button{cursor:pointer}
 .group-member-identity strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .group-moderator-label{font-size:11px;color:#2878d0;font-weight:600}
 .group-member-row .group-role-button{background:#edf4fc;color:#286db4;padding:7px 9px}
+
+
+/* Local group meeting scheduling */
+.group-meeting-section{padding:14px 0;border-top:1px solid var(--border-color,#e8eaf0)}
+.group-meeting-summary{display:flex;flex-direction:column;gap:6px;padding:12px;margin:10px 0 13px;border-radius:9px;background:#f2f6fb}
+.group-meeting-summary strong{font-size:13px;color:#26364b}
+.group-meeting-summary span{font-size:12px;color:#6f7c8d}
+.group-meeting-summary a{font-size:12px;color:#2878d0;text-decoration:none;font-weight:600}
+.group-meeting-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.group-meeting-form label{display:flex;flex-direction:column;gap:6px;min-width:0;color:#657184;font-size:11px}
+.group-meeting-form label:nth-child(n+3){grid-column:1/-1}
+.group-meeting-form input{width:100%;min-width:0;height:39px;padding:0 10px;border:1px solid #dfe3ea;border-radius:8px;background:transparent;color:inherit;font:inherit;font-size:12px;outline:none}
+.group-meeting-form input:focus{border-color:#3390ec;box-shadow:0 0 0 2px #3390ec18}
+.group-meeting-form>button{min-height:39px;border:0;border-radius:8px;background:#2878d0;color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.group-meeting-form>button:disabled{opacity:.45;cursor:not-allowed}
+.group-meeting-form>button.group-meeting-cancel{background:transparent;color:#c44c4c;border:1px solid #eadede}
+.group-meeting-note{margin:10px 0 0;color:#929aa5;font-size:10px;line-height:1.5}
