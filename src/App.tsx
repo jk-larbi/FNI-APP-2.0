@@ -223,7 +223,8 @@ function App() {
         <div className="bottom-note"><Bookmark size={15} /><span>FNI is a private space for fellowship, growth and service.</span></div>
       </div>}
       <nav className="mobile-nav" aria-label="Mobile navigation">
-        {sections.map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'mobile-nav-item active' : 'mobile-nav-item'} onClick={() => setSection(item.id)}><Icon size={19} /><span>{item.label === 'Cell groups' ? 'Cells' : item.label}</span></button>; })}
+        {sections.map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'mobile-nav-item active' : 'mobile-nav-item'} onClick={() => { setSection(item.id); setMenuOpen(false); }}><Icon size={19} /><span>{item.label === 'Cell groups' ? 'Cells' : item.label}</span></button>; })}
+        <button className={section === 'settings' ? 'mobile-nav-item active' : 'mobile-nav-item'} onClick={openSettings} aria-current={section === 'settings' ? 'page' : undefined}><Settings size={19} /><span>Settings</span></button>
       </nav>
       {notice && <div className="toast" role="status">{notice}<button aria-label="Dismiss" onClick={() => setNotice('')}><X size={15} /></button></div>}
     </main>
