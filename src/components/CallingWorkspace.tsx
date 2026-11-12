@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowLeft, AudioLines, Bell, CalendarClock, Camera, CameraOff, Check, CheckCheck,
-  ChevronDown, Clipboard, Copy, Headphones, History, Link2, Lock, Mic, MicOff,
-  MonitorUp, Phone, PhoneCall, PhoneIncoming, PhoneMissed, PhoneOff, Plus, Search,
-  Settings2, ShieldCheck, Speaker, Users, Video, VideoOff, Volume2, X
+  ArrowLeft, AudioLines, CalendarClock, Camera, CameraOff, ChevronDown, Copy,
+  Headphones, History, Link2, Lock, Mic, MicOff, MonitorUp, Phone, PhoneCall,
+  PhoneIncoming, PhoneMissed, PhoneOff, Plus, Settings2, ShieldCheck, Speaker,
+  Users, Video, Volume2, X
 } from 'lucide-react';
 
 type CallKind = 'Voice' | 'Video' | 'Group voice' | 'Group video';
