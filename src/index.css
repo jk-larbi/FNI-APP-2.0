@@ -4743,3 +4743,56 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
     padding-bottom: 0 !important;
   }
 }
+
+
+/* Keep the per-message overflow action in a dedicated, always-visible rail.
+   Earlier inline tool rows were squeezed beside the bubble on narrow phones. */
+.fni-group-conversation .fni-group-chat-entry{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  padding-right:42px!important;
+  overflow:visible!important;
+}
+.fni-group-conversation .fni-group-chat-entry .fni-chat-message-tools{
+  position:absolute!important;
+  right:2px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  z-index:4!important;
+  display:flex!important;
+  width:36px!important;
+  min-width:36px!important;
+  height:40px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+.fni-group-conversation .fni-group-chat-entry .fni-chat-message-tools>button:not(.fni-message-more-button){
+  display:none!important;
+}
+.fni-group-conversation .fni-group-chat-entry .fni-chat-message-tools .fni-message-more-button{
+  display:grid!important;
+  width:36px!important;
+  min-width:36px!important;
+  height:36px!important;
+  min-height:36px!important;
+  padding:0!important;
+  border:1px solid var(--fni-line,#dfe4ee)!important;
+  border-radius:50%!important;
+  background:var(--fni-surface,#fff)!important;
+  color:var(--fni-text,#253149)!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+.fni-group-conversation .fni-group-chat-entry .fni-chat-message-tools .fni-message-more-button svg{
+  display:block!important;
+  width:19px!important;
+  height:19px!important;
+}
+@media(max-width:760px){
+  .fni-group-conversation .fni-group-chat-entry{padding-right:42px!important}
+  .fni-group-conversation .fni-group-chat-entry .fni-chat-message-tools{right:1px!important}
+}
