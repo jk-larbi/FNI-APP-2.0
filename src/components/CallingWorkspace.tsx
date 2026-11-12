@@ -50,6 +50,10 @@ export default function CallingWorkspace({ initialGroup = '', onClearInitialGrou
   const [meetingReminders, setMeetingReminders] = useState<number[]>([60, 15]);
   const [manualAttendanceName, setManualAttendanceName] = useState('');
   const [recordingConsent, setRecordingConsent] = useState(false);
+  const [meetingRecording, setMeetingRecording] = useState(false);
+  const [meetingRecordingUrl, setMeetingRecordingUrl] = useState('');
+  const recordingStreamRef = useRef<MediaStream | null>(null);
+  const meetingRecorderRef = useRef<MediaRecorder | null>(null);
   const [joinCode, setJoinCode] = useState('');
   const [activeMeetingId, setActiveMeetingId] = useState('');
   const [waitingRoom, setWaitingRoom] = useState(true);
@@ -132,6 +136,39 @@ export default function CallingWorkspace({ initialGroup = '', onClearInitialGrou
     const room: Meeting = { id: crypto.randomUUID(), title: meetingTitle.trim(), description: meetingDescription.trim(), startsAt: meetingDate, code: makeCode(), createdAt: new Date().toISOString(), status: 'Scheduled', waitingRoom, reminders: [...meetingReminders], attendance: [] };
     setMeetings(items => [room, ...items]); setMeetingTitle(''); setMeetingDescription(''); setMeetingDate(''); setMeetingReminders([60,15]); setShowCreate(false); setCallNotice('Meeting room and reminder preferences saved on this device. Automatic push reminders require the FNI notification backend.');
   };
+  const startMeetingRecording = async () => {
+    if (!recordingConsent) { setCallNotice('Confirm that everyone has been informed and has consented before recording.'); return; }
+    if (!navigator.mediaDevices?.getDisplayMedia || typeof MediaRecorder === 'undefined') { setCallNotice('Screen recording is not supported by this browser. Try a current desktop Chrome or Edge browser.'); return; }
+    try {
+      if (meetingRecordingUrl) { URL.revokeObjectURL(meetingRecordingUrl); setMeetingRecordingUrl(''); }
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      recordingStreamRef.current = stream;
+      const mimeType = ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(type => MediaRecorder.isTypeSupported(type));
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      meetingRecorderRef.current = recorder;
+      const chunks: BlobPart[] = [];
+      recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+      recorder.onerror = () => setCallNotice('The meeting recording encountered a browser error.');
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
+        if (blob.size) { const url = URL.createObjectURL(blob); setMeetingRecordingUrl(url); setCallNotice('Recording finished. Download it to keep a copy on this device.'); }
+        stream.getTracks().forEach(track => track.stop());
+        recordingStreamRef.current = null; meetingRecorderRef.current = null; setMeetingRecording(false);
+      };
+      stream.getVideoTracks()[0]?.addEventListener('ended', () => { if (recorder.state === 'recording') recorder.stop(); });
+      recorder.start(1000); setMeetingRecording(true); setCallNotice('Recording started. Your browser is capturing the screen or tab you selected and any shared tab audio.');
+    } catch (error) {
+      const message = error instanceof DOMException && error.name === 'NotAllowedError' ? 'Screen sharing was cancelled. Allow screen capture to start recording.' : 'Could not start recording. Check your browser screen-capture permissions.';
+      setCallNotice(message);
+    }
+  };
+  const stopMeetingRecording = () => { if (meetingRecorderRef.current?.state === 'recording') meetingRecorderRef.current.stop(); };
+  useEffect(() => () => {
+    if (meetingRecorderRef.current?.state === 'recording') meetingRecorderRef.current.stop();
+    recordingStreamRef.current?.getTracks().forEach(track => track.stop());
+    if (meetingRecordingUrl) URL.revokeObjectURL(meetingRecordingUrl);
+  }, [meetingRecordingUrl]);
+
   const enterMeeting = (meeting: Meeting) => {
     setMeetings(items => items.map(item => item.id === meeting.id ? { ...item, attendance: item.attendance?.some(person => person.name === 'You') ? item.attendance : [...(item.attendance || []), { id: crypto.randomUUID(), name: 'You', status: 'Present', joinedAt: new Date().toISOString() }] } : item));
     setRecordingConsent(false); setManualAttendanceName(''); setActiveMeetingId(meeting.id); setTab('rooms'); setCallNotice('You joined this meeting preview. This device check-in is saved locally; other participants need the FNI backend.');
@@ -157,7 +194,7 @@ export default function CallingWorkspace({ initialGroup = '', onClearInitialGrou
   if (callActive && callMinimized) return <div className="calling-workspace mini-call-view"><div className="mini-call-card"><div className="mini-call-avatar">{callKind.startsWith('Group')?<Users size={18}/>:<Phone size={18}/>}</div><div className="mini-call-copy"><b>{callTarget}</b><span>{callKind} · {formatDuration(duration)} · Preview</span></div><button className="call-secondary" onClick={() => setCallMinimized(false)}>Return to call</button><button className="call-end-button" onClick={() => endCall()}><PhoneOff size={16}/> End</button></div><p>Mini-call preview stays visible inside Calls & meetings. System-wide picture-in-picture and background calling require native support.</p></div>;
 
   if (callActive) return <div className="calling-workspace call-active-view">
-    <div className="call-stage-top"><button className="call-back" onClick={() => setCallNotice('End the preview call before returning to the calling dashboard.')}><ArrowLeft size={17}/> Calling</button><div className="call-stage-top-actions"><button className="call-secondary" onClick={() => setCallMinimized(true)}>Minimize</button><span className="call-preview-pill">FRONTEND PREVIEW</span></div></div>
+    <div className="call-stage-top"><button className="call-back" onClick={() => setCallMinimized(true)}><ArrowLeft size={17}/> Back to Calls</button><div className="call-stage-top-actions"><button className="call-secondary" onClick={() => setCallMinimized(true)}>Minimize</button><span className="call-preview-pill">FRONTEND PREVIEW</span></div></div>
     <div className={callKind.toLowerCase().includes('video') ? 'call-stage video-stage' : 'call-stage voice-stage'}>
       {callKind.toLowerCase().includes('video') && cameraOn ? <div className="call-video-placeholder"><Camera size={36}/><span>Your camera preview will appear when live media is connected.</span></div> : <div className="call-person-avatar">{callKind.startsWith('Group') ? <Users size={36}/> : (callTarget.trim()[0] || 'F').toUpperCase()}</div>}
       <div className="call-person-details"><h2>{callTarget}</h2><p>{callKind} · Preview call</p><strong>{formatDuration(duration)}</strong></div>
@@ -184,7 +221,7 @@ export default function CallingWorkspace({ initialGroup = '', onClearInitialGrou
     <section className="meeting-tools-panel">
       <div className="meeting-tools-heading"><div><h3>Meeting tools</h3><p>Recording, attendance, reminders and ministry resources</p></div></div>
       <div className="meeting-tools-grid">
-        <div className="meeting-tool-card"><div className="meeting-tool-title"><Video size={17}/><b>Meeting recording</b></div><p>Before recording, tell everyone and obtain consent. Recording storage and capture will be enabled with the live meeting service.</p><label className="call-check"><input type="checkbox" checked={recordingConsent} onChange={e=>setRecordingConsent(e.target.checked)}/> I confirm participants have been informed and consented</label><button className="call-secondary" disabled={!recordingConsent} onClick={()=>setCallNotice('Recording consent is confirmed in this preview. Actual audio/video recording and secure replay storage require the FNI media backend.')}>Prepare recording</button></div>
+        <div className="meeting-tool-card"><div className="meeting-tool-title"><Video size={17}/><b>Meeting recording</b></div><p>Capture the meeting screen or browser tab you select, plus tab audio if the browser provides it. This records the local preview only; it does not record remote participants because live meeting media is not connected.</p><label className="call-check"><input type="checkbox" checked={recordingConsent} onChange={e=>setRecordingConsent(e.target.checked)} disabled={meetingRecording}/> I confirm everyone has been informed and has consented</label>{meetingRecording?<button className="call-end-button" onClick={stopMeetingRecording}><PhoneOff size={15}/> Stop recording</button>:<button className="call-secondary" disabled={!recordingConsent} onClick={()=>{void startMeetingRecording()}}><Video size={15}/> Start screen recording</button>}{meetingRecordingUrl&&<a className="call-secondary" href={meetingRecordingUrl} download={'FNI-meeting-'+activeMeeting.code+'.webm'}><DownloadRecordingIcon/> Download recording</a>}<small>Recording stays on this device until you download it. Browser support varies.</small></div>
         <div className="meeting-tool-card"><div className="meeting-tool-title"><Users size={17}/><b>Attendance register</b></div><div className="meeting-attendance-summary"><strong>{(activeMeeting.attendance||[]).filter(person=>person.status==='Present'||person.status==='Late').length}</strong><span>checked in on this device</span></div><div className="meeting-attendance-list">{(activeMeeting.attendance||[]).map(person=><div key={person.id}><span><b>{person.name}</b><small>{person.joinedAt?'Joined '+new Date(person.joinedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'Added by host'}</small></span><select aria-label={'Attendance status for '+person.name} value={person.status} onChange={e=>updateMeeting(activeMeeting.id,{attendance:(activeMeeting.attendance||[]).map(entry=>entry.id===person.id?{...entry,status:e.target.value as AttendanceEntry['status']}:entry)})}><option>Present</option><option>Late</option><option>Excused</option><option>Left early</option></select></div>)}</div><div className="meeting-attendance-add"><input value={manualAttendanceName} onChange={e=>setManualAttendanceName(e.target.value)} placeholder="Add attendee manually"/><button className="call-secondary" onClick={()=>{const name=manualAttendanceName.trim();if(!name)return;updateMeeting(activeMeeting.id,{attendance:[...(activeMeeting.attendance||[]),{id:crypto.randomUUID(),name,status:'Present'}]});setManualAttendanceName('')}}>Add</button></div><p>Automatic join/leave timestamps for every member, attendance duration and cross-device reports require the meeting backend. Hosts can review and correct this local register.</p></div>
         <div className="meeting-tool-card"><div className="meeting-tool-title"><CalendarClock size={17}/><b>Reminder schedule</b></div><p>Selected reminders for this room:</p><div className="meeting-reminder-chips">{(activeMeeting.reminders||[]).length?(activeMeeting.reminders||[]).sort((a,b)=>b-a).map(value=><span key={value}>{value===1440?'24 hours':value===60?'1 hour':value+' minutes'} before</span>):<span>No reminders selected</span>}</div><small>Preferences are saved locally. Automatic notifications need push delivery and scheduled backend jobs.</small></div>
         <div className="meeting-tool-card"><div className="meeting-tool-title"><MessageCircleIcon/><b>Bible Assistant</b></div><p>Use the FNI Bible Assistant for scripture lookup, passage context, quizzes and reading support during preparation.</p><button className="call-secondary" onClick={()=>setCallNotice('Open Bible Assistant from the FNI ministry menu. A direct in-room assistant connection will be added with the backend.')}>Open Bible Assistant</button></div>
@@ -214,5 +251,7 @@ export default function CallingWorkspace({ initialGroup = '', onClearInitialGrou
     {callNotice && <div className="call-notice" role="status">{callNotice}<button onClick={() => setCallNotice('')}><X size={14}/></button></div>}
   </div>;
 }
+
+function DownloadRecordingIcon() { return <ArrowLeft size={15} style={{ transform: 'rotate(180deg)' }} />; }
 
 function MessageCircleIcon() { return <AudioLines size={16}/>; }
