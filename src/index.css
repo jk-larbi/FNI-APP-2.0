@@ -920,3 +920,17 @@ button{cursor:pointer}
 @media(prefers-reduced-motion:reduce){
  .app-shell[data-theme] *, .app-shell[data-theme] *:before, .app-shell[data-theme] *:after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+
+/* Functional chat preference presentation */
+.app-shell[data-chat-density="compact"] .recent-chat-row{min-height:58px;padding-top:7px;padding-bottom:7px}
+.app-shell[data-chat-density="compact"] .recent-chat-avatar{width:39px;height:39px}
+.app-shell[data-chat-density="compact"] .recent-chat-copy{gap:2px}
+.app-shell[data-message-size="small"] .message-bubble{font-size:12px}
+.app-shell[data-message-size="normal"] .message-bubble{font-size:14px}
+.app-shell[data-message-size="large"] .message-bubble{font-size:16px;line-height:1.5}
+.app-shell[data-message-size="large"] .message-bubble span{font-size:10px}
+.chat-settings-panel .settings-section h3:first-child{margin-top:17px}
+.chat-settings-panel .settings-info-row button{padding:7px 10px;border:1px solid #d9e4f2;border-radius:7px;background:transparent}
+.app-shell[data-theme="dark"] .chat-settings-panel .settings-info-row button{border-color:#40536a;color:#70b5f8}
+.app-shell[data-theme="dark"][data-chat-density="compact"] .recent-chat-row{border-color:#29323d}
