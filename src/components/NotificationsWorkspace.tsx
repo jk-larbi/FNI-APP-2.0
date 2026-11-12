@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Bell, BellOff, CheckCheck, ChevronRight, Clock3, MessageCircle, Phone, ShieldCheck, Users, Video, Volume2, X, Trash2, AtSign, Settings2, Moon, Sparkles } from 'lucide-react';
+import { Bell, BellOff, CheckCheck, ChevronRight, MessageCircle, Phone, ShieldCheck, Users, Video, Volume2, X, Trash2, Settings2, Moon, Sparkles } from 'lucide-react';
 
 type NoticeCategory = 'personal' | 'groups' | 'calls' | 'meetings' | 'contacts' | 'security' | 'admin';
 type NoticeItem = { id: string; category: NoticeCategory; title: string; body: string; createdAt: string; read: boolean; destination: string };
