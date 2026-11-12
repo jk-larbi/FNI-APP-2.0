@@ -148,7 +148,7 @@ export default function MinistryWorkspace() {
         </button>; })}
         {filteredAreas.length === 0 && <div className="ministry-no-results">No ministry areas match “{search}”. Try another search.</div>}
       </div>
-      <div className="ministry-governance"><ShieldCheck size={17}/><div><strong>Ministry oversight</strong><p>Sir provides overall oversight. Approved ministry leaders can publish sermons and spiritual resources within their assigned permissions.</p></div></div>
+      <div className="ministry-governance"><ShieldCheck size={17}/><div><strong>Ministry oversight</strong><p>Sir provides overall oversight. The media team manages photos and video highlights; Sir, the admin and appointed leaders manage sermons, audio and written messages. Published ministry content is intended for all FNI members.</p></div></div>
     </> : <>
       <button className="ministry-back" onClick={() => { setArea('home'); setFormOpen(false); }}><ArrowLeft size={16}/> All Ministry</button>
       <div className="ministry-page-heading">
@@ -161,7 +161,7 @@ export default function MinistryWorkspace() {
       {area === 'media' && <>
         <div className="ministry-media-feature"><div className="ministry-media-art"><div className="ministry-media-emblem"><ImagesIcon size={30}/></div><span>FNI MEDIA LIBRARY</span></div><div className="ministry-media-copy"><span className="ministry-kicker">PHOTOS & VIDEO HIGHLIGHTS</span><h3>Moments from FNI</h3><p>Approved ministry photographs and video highlights, curated by the FNI media team.</p></div></div>
         <div className="ministry-permission-note"><ShieldCheck size={17}/><span>Media upload and management are reserved for authorised media-team accounts. Account-level role enforcement and shared publishing are not connected in this preview.</span></div>
-        <div className="ministry-section-heading"><div><span className="ministry-kicker">MEDIA WORKSPACE</span><h3>Media submissions</h3><p>Prepare a photo or video link for the media team.</p></div></div>
+        <div className="ministry-section-heading"><div><span className="ministry-kicker">MEDIA WORKSPACE</span><h3>Media submissions</h3><p>Prepare a photo or video submission for the media team to review.</p></div></div>
         {mediaDrafts.length ? <ItemList items={mediaDrafts} emptyTitle="No media submissions" emptyText="Add a photo or video link." onRemove={removeAreaItem}/> : <div className="ministry-empty"><div><ImagesIcon size={22}/></div><strong>No media added</strong><p>Media submissions will appear here on this device.</p></div>}
         {formOpen && <EntryForm title="Add media link" submitLabel="Save media draft" onCancel={() => setFormOpen(false)} onSave={saveAreaItem}>
           <label>Media title<input value={formTitle} onChange={e => setFormTitle(e.target.value)} placeholder="Give this photo or video a title"/></label>
