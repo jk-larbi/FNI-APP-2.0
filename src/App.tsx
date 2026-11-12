@@ -79,7 +79,7 @@ export default function App() {
   const recentChats = Object.entries(conversations)
     .filter(([chat, items]) => {
       const isArchived = archivedChats.includes(chat);
-      const matchesFolder = folder === 'Archived' ? isArchived : !isArchived && (folder === 'All chats' || (folder === 'Personal' && chat.startsWith('@')) || (folder === 'Groups' && !chat.startsWith('@'));
+      const matchesFolder = folder === 'Archived' ? isArchived : !isArchived && (folder === 'All chats' || (folder === 'Personal' && chat.startsWith('@')) || (folder === 'Groups' && !chat.startsWith('@')));
       return matchesFolder && (chat.toLowerCase().includes(search.toLowerCase()) || (items[items.length - 1]?.text || '').toLowerCase().includes(search.toLowerCase()));
     })
     .sort((a, b) => (b[1][b[1].length - 1]?.id || 0) - (a[1][a[1].length - 1]?.id || 0));
