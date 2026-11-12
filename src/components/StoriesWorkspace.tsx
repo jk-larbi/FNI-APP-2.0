@@ -10,7 +10,7 @@ export default function StoriesWorkspace({onReply}:{onReply?:()=>void}){
  const [composer,setComposer]=useState(false),[viewer,setViewer]=useState<string|null>(null),[draft,setDraft]=useState(''),[caption,setCaption]=useState(''),[kind,setKind]=useState<'text'|'image'|'video'>('text'),[media,setMedia]=useState(''),[audience,setAudience]=useState('My Contacts'),[replies,setReplies]=useState(true),[share,setShare]=useState(false),[privacy,setPrivacy]=useState(false),[archive,setArchive]=useState(false),[paused,setPaused]=useState(false),[reply,setReply]=useState(''),[notice,setNotice]=useState('');
  const fileRef=useRef<HTMLInputElement>(null);
  useEffect(()=>{localStorage.setItem(KEY,JSON.stringify(stories.map(s=>({...s,media:s.kind==='text'?undefined:s.media}))));},[stories]);
- const mine=stories.filter(s=>s.mine),others=stories.filter(s=>!s.mine);
+ const mine=stories.filter(s=>s.mine),others=stories.filter(s=>!s.mine);\n const recentUpdates=others.filter(s=>!s.viewers.includes('You'));\n const viewedUpdates=others.filter(s=>s.viewers.includes('You'));
  const current=stories.find(s=>s.id===viewer);
  const ownerStories=useMemo(()=>current?stories.filter(s=>s.owner===current.owner&&s.expiresAt>Date.now()):[],[stories,current]);
  const [storyIndex,setStoryIndex]=useState(0);
@@ -27,10 +27,16 @@ export default function StoriesWorkspace({onReply}:{onReply?:()=>void}){
  return <section className="fni-stories">
   <div className="fni-stories-head"><div><span className="settings-kicker">FNI STATUS</span><h3>Updates</h3><p>Share a moment with your FNI community.</p></div><button className="stories-privacy-button" onClick={()=>setPrivacy(v=>!v)}><ShieldCheck size={15}/> Privacy</button></div>
   {privacy&&<div className="stories-privacy-panel"><div><strong>Default story audience</strong><span>Choose who can see new stories. This is a local preview setting.</span></div><select value={audience} onChange={e=>setAudience(e.target.value)}><option>Everyone</option><option>My Contacts</option><option>Close Friends</option><option>Selected Users</option><option>Hide From</option></select><label><input type="checkbox" checked={replies} onChange={e=>setReplies(e.target.checked)}/> Allow replies</label><label><input type="checkbox" checked={share} onChange={e=>setShare(e.target.checked)}/> Allow sharing</label></div>}
-  <div className="fni-story-rail"><button className="fni-story-create" onClick={()=>setComposer(true)}><span className="fni-story-avatar own"><Plus size={22}/></span><strong>My Story</strong><small>{mine.length?'Add another':'Share an update'}</small></button>
-   {others.map((s,i)=><button key={s.id} className={'fni-story-person '+(s.viewers.includes('You')?'seen':'unseen')} onClick={()=>openStory(s)}><span className="fni-story-avatar" style={{background:s.background}}>{s.avatar}</span><strong>{s.owner}</strong><small>{new Date(s.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</small></button>)}
-   {mine.map(s=><button key={s.id} className="fni-story-person mine" onClick={()=>openStory(s)}><span className="fni-story-avatar own"><span>{s.kind==='text'?<Type size={18}/>:<ImageIcon size={18}/>}</span></span><strong>Your update</strong><small>{s.expiresAt>Date.now()?'Active':'Expired'}</small></button>)}
-   {!others.length&&!mine.length&&<div className="fni-story-hint">No stories yet. Start by sharing your first moment.</div>}
+  <div className="fni-status-list">
+   <button className="fni-status-own" onClick={()=>setComposer(true)}>
+    <span className="fni-status-avatar own"><span className="fni-status-letter">F</span><i><Plus size={13}/></i></span>
+    <span className="fni-status-copy"><strong>My status</strong><small>{mine.length?'Tap to add another update':'Tap to add status update'}</small></span>
+    <span className="fni-status-add"><Plus size={18}/></span>
+   </button>
+   {recentUpdates.length>0&&<><div className="fni-status-label">Recent updates</div>{recentUpdates.map(s=><button key={s.id} className="fni-status-row" onClick={()=>openStory(s)}><span className="fni-status-avatar unseen" style={{background:s.background}}>{s.avatar}</span><span className="fni-status-copy"><strong>{s.owner}</strong><small>{new Date(s.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</small></span></button>)}</>}
+   {viewedUpdates.length>0&&<><div className="fni-status-label viewed-label">Viewed updates</div>{viewedUpdates.map(s=><button key={s.id} className="fni-status-row" onClick={()=>openStory(s)}><span className="fni-status-avatar seen" style={{background:s.background}}>{s.avatar}</span><span className="fni-status-copy"><strong>{s.owner}</strong><small>{new Date(s.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</small></span></button>)}</>}
+   {mine.map(s=><button key={s.id} className="fni-status-row own-update" onClick={()=>openStory(s)}><span className="fni-status-avatar own"><span>{s.kind==='text'?<Type size={17}/>:<ImageIcon size={17}/>}</span></span><span className="fni-status-copy"><strong>Your update</strong><small>{s.expiresAt>Date.now()?'Active':'Expired'}</small></span></button>)}
+   {!others.length&&!mine.length&&<div className="fni-story-hint">No updates yet. Share your first status with the FNI community.</div>}
   </div>
   {archive&&<div className="stories-archive"><div><strong>Story archive</strong><span>Stories you create appear here until their 24-hour expiry.</span></div>{mine.length?mine.map(s=><div key={s.id} className="story-archive-row"><span>{s.text||s.caption||s.kind+' story'}</span><small>{new Date(s.createdAt).toLocaleString()}</small><button onClick={()=>removeStory(s.id)}><Trash2 size={14}/></button></div>):<p>No archived stories on this device.</p>}</div>}
   <div className="stories-bottom"><button onClick={()=>setArchive(v=>!v)}><Archive size={14}/>{archive?'Hide archive':'My story archive'}</button><span><Clock3 size={13}/> Stories disappear after 24 hours</span></div>
