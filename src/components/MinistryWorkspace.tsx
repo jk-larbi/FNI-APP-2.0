@@ -73,7 +73,8 @@ export default function MinistryWorkspace() {
   const selected = areas.find(item => item.id === area);
 
   function saveDraft() {
-    if (!title.trim() || !speaker.trim()) { setNotice('Add a message title and speaker before saving.'); return; }\n    if (messageLink.trim() && !/^https?:\/\//i.test(messageLink.trim())) { setNotice('Enter a valid http or https link.'); return; }
+    if (!title.trim() || !speaker.trim()) { setNotice('Add a message title and speaker before saving.'); return; }
+    if (messageLink.trim() && !/^https?:\/\//i.test(messageLink.trim())) { setNotice('Enter a valid http or https link.'); return; }
     const next = [{ id: crypto.randomUUID(), title: title.trim(), speaker: speaker.trim(), format, description: [description.trim(), messageLink.trim() ? 'Link: ' + messageLink.trim() : ''].filter(Boolean).join('\n'), createdAt: new Date().toISOString() }, ...drafts];
     setDrafts(next); storage.write('fni-ministry-sermon-drafts', next);
     setTitle(''); setSpeaker(''); setDescription(''); setMessageLink(''); setFormat('Video'); setShowDraft(false);
