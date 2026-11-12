@@ -51,7 +51,7 @@ const settingCategories: SettingCategory[] = [
     { label: 'Notification priority', kind: 'select', choices: ['Normal', 'Important', 'Urgent'], value: 'Normal' },
   ]},
   { id: 'appearance', label: 'Appearance & Themes', group: 'PREFERENCES', description: 'Personalise the FNI interface while keeping its identity recognisable.', icon: Palette, options: [
-    { label: 'Theme', kind: 'select', choices: ['System default', 'Dark', 'Light'], value: 'Dark' },
+    { label: 'Theme', kind: 'select', choices: ['System default', 'Dark', 'Light'], value: 'Light' },
     { label: 'Accent style', kind: 'select', choices: ['FNI Royal Blue & Gold', 'Royal Blue', 'Deep Purple'], value: 'FNI Royal Blue & Gold' },
     { label: 'Larger text', description: 'Increase text size throughout the app.', kind: 'toggle' },
     { label: 'Reduce animations', description: 'Use fewer interface animations.', kind: 'toggle' },
@@ -152,8 +152,8 @@ function App() {
   const [actionDraft, setActionDraft] = useState('');
   const [folderNames, setFolderNames] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('fni-chat-folders') || '[]'); } catch { return []; } });
   const [blockedMembers, setBlockedMembers] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('fni-blocked-members') || '[]'); } catch { return []; } });
-  const themeChoice = choices['appearance:Theme'] ?? 'Dark';
-  const appTheme = themeChoice === 'System default' ? 'dark' : themeChoice.toLowerCase();
+  const themeChoice = choices['appearance:Theme'] ?? 'Light';
+  const appTheme = themeChoice === 'System default' ? 'light' : themeChoice.toLowerCase();
   const language = choices['language:App language'] ?? 'English';
 
   useEffect(() => { localStorage.setItem('fni-settings-toggles', JSON.stringify(toggles)); }, [toggles]);
