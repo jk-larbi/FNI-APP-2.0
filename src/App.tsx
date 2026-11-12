@@ -13,6 +13,29 @@ export default function App() {
   const [section, setSection] = useState<Section>('Chats');
   const [settingsCategory, setSettingsCategory] = useState('Account');
   const [settingsMobileDetail, setSettingsMobileDetail] = useState(false);
+  const [accountProfile, setAccountProfile] = useState(() => {
+    try { return { name: 'FNI Member', username: '', bio: '', photo: '', ...JSON.parse(localStorage.getItem('fni-account-profile') || '{}') }; }
+    catch { return { name: 'FNI Member', username: '', bio: '', photo: '' }; }
+  });
+  const [profileEditorOpen, setProfileEditorOpen] = useState(false);
+  const [profileDraft, setProfileDraft] = useState(accountProfile);
+  const [securityInfoOpen, setSecurityInfoOpen] = useState(false);
+  const [profileSaveNotice, setProfileSaveNotice] = useState('');
+  const saveAccountProfile = () => {
+    const next = { ...profileDraft, name: profileDraft.name.trim() || 'FNI Member', username: profileDraft.username.trim().replace(/^@/, '') };
+    setAccountProfile(next);
+    try { localStorage.setItem('fni-account-profile', JSON.stringify(next)); setProfileSaveNotice('Profile details saved on this device.'); }
+    catch { setProfileSaveNotice('Could not save profile details. The selected photo may be too large.'); }
+    setProfileEditorOpen(false);
+  };
+  const chooseProfilePhoto = (file?: File) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    if (file.size > 2 * 1024 * 1024) { setProfileSaveNotice('Choose an image smaller than 2 MB.'); return; }
+    const reader = new FileReader();
+    reader.onload = () => setProfileDraft((current) => ({ ...current, photo: String(reader.result || '') }));
+    reader.readAsDataURL(file);
+  };
+
   const [storageReport, setStorageReport] = useState<{ localBytes: number; originUsage?: number; originQuota?: number } | null>(null);
   const inspectStorage = async () => {
     let localBytes = 0;
@@ -520,10 +543,11 @@ export default function App() {
                 <div className="settings-content-heading"><button type="button" className="settings-mobile-back" onClick={() => setSettingsMobileDetail(false)}><ArrowLeft size={17}/></button><div><h2>{t(settingsCategory)}</h2><p>{t('Manage your FNI app preferences')}</p></div></div>
                 {settingsCategory === 'Account' && <div className="settings-section">
                   <h3>Account information</h3>
-                  <div className="settings-info-row"><UserRound/><span><strong>Profile details</strong><small>Name, username, bio and profile photo</small></span><em>Coming with account setup</em></div>
-                  <div className="settings-info-row"><KeyRound/><span><strong>Phone number and email</strong><small>Manage sign-in and recovery methods</small></span><em>Coming with account setup</em></div>
-                  <div className="settings-info-row"><ShieldCheck/><span><strong>Two-step verification</strong><small>Add an extra layer of account protection</small></span><em>Backend required</em></div>
-                  <p className="settings-footnote">Your FNI profile, sign-in methods and security credentials will be connected when account services are added.</p>
+                  <div className="settings-info-row account-profile-row"><div className="account-profile-avatar">{accountProfile.photo ? <img src={accountProfile.photo} alt="Profile"/> : <span>{(accountProfile.name || 'F').slice(0,1).toUpperCase()}</span>}</div><span><strong>Profile details</strong><small>{accountProfile.name}{accountProfile.username ? ' · @' + accountProfile.username : ''}{accountProfile.bio ? ' · ' + accountProfile.bio : ''}</small></span><button type="button" onClick={() => { setProfileDraft(accountProfile); setProfileEditorOpen(true); }}>Edit</button></div>
+                  <div className="settings-info-row"><KeyRound/><span><strong>Phone number and email</strong><small>Manage sign-in and recovery methods</small></span><em>Account setup required</em></div>
+                  <div className="settings-info-row"><ShieldCheck/><span><strong>Two-step verification</strong><small>Add an extra layer of account protection</small></span><button type="button" onClick={() => setSecurityInfoOpen(true)}>Learn more</button></div>
+                  {profileSaveNotice && <p className="settings-footnote">{profileSaveNotice}</p>}
+                  <p className="settings-footnote">Profile edits are saved only in this browser preview. Phone/email sign-in and real two-step verification will be enabled with secure FNI account services.</p>
                 </div>}
                 {settingsCategory === 'Privacy and Security' && <div className="settings-section">
                   <h3>Privacy</h3>
@@ -712,6 +736,28 @@ export default function App() {
         )}
       </section>
 
+      {profileEditorOpen && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setProfileEditorOpen(false); }}>
+          <form className="new-chat-modal account-profile-editor" role="dialog" aria-modal="true" aria-label="Edit profile" onSubmit={(event) => { event.preventDefault(); saveAccountProfile(); }}>
+            <div className="modal-heading"><h2>Edit profile</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setProfileEditorOpen(false)}><X/></button></div>
+            <div className="account-photo-picker"><div className="account-profile-avatar large">{profileDraft.photo ? <img src={profileDraft.photo} alt="Profile preview"/> : <span>{(profileDraft.name || 'F').slice(0,1).toUpperCase()}</span>}</div><label className="account-photo-button">Change photo<input type="file" accept="image/*" onChange={(event) => chooseProfilePhoto(event.target.files?.[0])}/></label><small>Image up to 2 MB. Stored on this device.</small></div>
+            <label className="account-field">Name<input value={profileDraft.name} maxLength={60} onChange={(event) => setProfileDraft((current) => ({...current,name:event.target.value}))} placeholder="Your name"/></label>
+            <label className="account-field">Username<input value={profileDraft.username} maxLength={32} onChange={(event) => setProfileDraft((current) => ({...current,username:event.target.value.replace(/[^a-zA-Z0-9_]/g,'')}))} placeholder="Choose a username"/></label>
+            <label className="account-field">Bio<textarea value={profileDraft.bio} maxLength={160} rows={3} onChange={(event) => setProfileDraft((current) => ({...current,bio:event.target.value}))} placeholder="A little about you"/></label>
+            <div className="account-editor-actions"><button type="button" onClick={() => setProfileEditorOpen(false)}>Cancel</button><button type="submit">Save changes</button></div>
+          </form>
+        </div>
+      )}
+      {securityInfoOpen && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSecurityInfoOpen(false); }}>
+          <section className="new-chat-modal account-security-info" role="dialog" aria-modal="true" aria-label="Two-step verification">
+            <div className="modal-heading"><h2>Two-step verification</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setSecurityInfoOpen(false)}><X/></button></div>
+            <p>Two-step verification will require an additional password or verification step when signing in to your FNI account.</p>
+            <p className="settings-footnote">It cannot be securely activated in this browser-only preview. FNI must first have account authentication, secure credential storage, recovery flows and server-side verification.</p>
+            <div className="account-editor-actions"><button type="button" onClick={() => setSecurityInfoOpen(false)}>Close</button></div>
+          </section>
+        </div>
+      )}
       {chatInfoOpen && activeChat && (
         <div className="modal-backdrop chat-info-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setChatInfoOpen(false); }}>
           <section className="chat-info-modal" role="dialog" aria-modal="true" aria-label="Chat information">
