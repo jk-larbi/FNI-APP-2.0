@@ -3881,3 +3881,23 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
   .fni-group-chat-entry{touch-action:pan-y;cursor:default}
   .fni-group-chat-entry p,.fni-group-chat-entry .fni-chat-reply-preview{ -webkit-user-select:none;user-select:none}
 }
+
+/* Always-visible per-message overflow control: reliable alternative to long press. */
+.fni-chat-message-tools{opacity:1!important}
+.fni-chat-message-tools .fni-message-more-button{
+  width:30px;height:30px;min-width:30px;display:grid;place-items:center;
+  border:1px solid var(--fni-line,#dfe4ee);border-radius:50%;
+  background:var(--fni-surface,#fff);color:var(--fni-muted,#58647b);
+  box-shadow:0 1px 3px #17213a12;
+}
+.fni-chat-message-tools .fni-message-more-button:hover,
+.fni-chat-message-tools .fni-message-more-button:focus-visible{
+  background:var(--fni-hover,#edf2fc);color:var(--fni-blue,#173b8f);outline:none;
+}
+@media(max-width:760px){
+  .fni-chat-message-tools{gap:4px;opacity:1!important}
+  .fni-chat-message-tools .fni-message-more-button{width:34px;height:34px;min-width:34px}
+}
+:root[data-theme="dark"] .fni-chat-message-tools .fni-message-more-button{
+  background:var(--fni-surface,#222634);border-color:var(--fni-line,#41485a);color:var(--fni-muted,#b7bfd0)
+}
