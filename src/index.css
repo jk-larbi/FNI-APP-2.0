@@ -249,3 +249,15 @@ button{cursor:pointer}
 .chat-search-bar>button{width:32px;height:32px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:#7d8795}
 .chat-search-bar>button:hover{background:#f0f2f5}
 @media(max-width:620px){.chat-search-bar{min-height:46px;padding:0 11px}}
+
+
+/* Telegram-style recent conversation rows */
+.recent-chat-list{flex:1;min-height:0;overflow-y:auto;background:#fff}
+.recent-chat-row{width:100%;min-height:72px;display:flex;align-items:center;gap:12px;padding:10px 14px;border:0;border-bottom:1px solid #f0f1f3;background:#fff;text-align:left;color:#263445}
+.recent-chat-row:hover,.recent-chat-row.selected{background:#f2f6fb}
+.recent-chat-avatar{width:48px;height:48px;flex:none;display:grid;place-items:center;border-radius:50%;background:#dce8f8;color:#2870bf;font-size:17px;font-weight:600}
+.recent-chat-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.recent-chat-copy strong{font-size:14px;font-weight:600;color:#222}
+.recent-chat-copy>span{font-size:12px;color:#8a929e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recent-chat-time{align-self:flex-start;padding-top:3px;font-size:10px;color:#9aa1aa;white-space:nowrap}
+@media(max-width:620px){.recent-chat-row{min-height:68px;padding:9px 13px;gap:11px}.recent-chat-avatar{width:46px;height:46px}}
