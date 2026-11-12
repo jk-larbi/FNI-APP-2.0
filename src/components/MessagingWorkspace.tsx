@@ -58,6 +58,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     const updateViewport = () => {
       const height = viewport?.height || window.innerHeight;
       document.documentElement.style.setProperty('--fni-chat-visual-height', height + 'px');
+      document.documentElement.style.setProperty('--fni-chat-visual-offset', (viewport?.offsetTop || 0) + 'px');
       const keyboardVisible = !!viewport && window.innerHeight - viewport.height > 120;
       setChatKeyboardOpen(keyboardVisible);
       if (keyboardVisible) requestAnimationFrame(() => {
@@ -74,6 +75,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
       viewport?.removeEventListener('scroll', updateViewport);
       window.removeEventListener('resize', updateViewport);
       document.documentElement.style.removeProperty('--fni-chat-visual-height');
+      document.documentElement.style.removeProperty('--fni-chat-visual-offset');
       setChatKeyboardOpen(false);
     };
   }, [view, selectedId]);
