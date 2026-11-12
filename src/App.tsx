@@ -12,6 +12,7 @@ function SettingToggle({ title, description, checked, onChange }: { title: strin
 export default function App() {
   const [section, setSection] = useState<Section>('Chats');
   const [settingsCategory, setSettingsCategory] = useState('Account');
+  const [settingsMobileDetail, setSettingsMobileDetail] = useState(false);
   const [preferences, setPreferences] = useState(() => {
     try {
       return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, ...JSON.parse(localStorage.getItem('fni-settings') || '{}') };
@@ -412,7 +413,7 @@ export default function App() {
               <div><strong>FNI Member</strong><span>@fni_member · Forerunners Network International</span><small>Profile editing and account verification will be available when FNI accounts are connected.</small></div>
               <button type="button" aria-label="Edit profile" onClick={() => setSettingsCategory('Account')}><ChevronRight size={18}/></button>
             </div>
-            <div className="settings-layout">
+            <div className={`settings-layout ${settingsMobileDetail ? 'mobile-detail-open' : ''}`}>
               <nav className="settings-category-list" aria-label="Settings categories">
                 {[
                   { name: 'Account', icon: UserRound, detail: 'Profile and account' },
@@ -425,10 +426,10 @@ export default function App() {
                   { name: 'Language', icon: Globe2, detail: 'App language' },
                   { name: 'FNI Community', icon: HeartHandshake, detail: 'Ministry and community' },
                   { name: 'Help', icon: CircleHelp, detail: 'Support and information' },
-                ].map(({name, icon: Icon, detail}) => <button type="button" key={name} className={settingsCategory === name ? 'settings-category active' : 'settings-category'} onClick={() => setSettingsCategory(name)}><Icon size={18}/><span><strong>{name}</strong><small>{detail}</small></span><ChevronRight size={16}/></button>)}
+                ].map(({name, icon: Icon, detail}) => <button type="button" key={name} className={settingsCategory === name ? 'settings-category active' : 'settings-category'} onClick={() => { setSettingsCategory(name); setSettingsMobileDetail(true); }}><Icon size={18}/><span><strong>{name}</strong><small>{detail}</small></span><ChevronRight size={16}/></button>)}
               </nav>
               <div className="settings-content">
-                <div className="settings-content-heading"><button type="button" className="settings-mobile-back" onClick={() => setSettingsCategory('Account')}><ArrowLeft size={17}/></button><div><h2>{settingsCategory}</h2><p>Manage your FNI app preferences</p></div></div>
+                <div className="settings-content-heading"><button type="button" className="settings-mobile-back" onClick={() => setSettingsMobileDetail(false)}><ArrowLeft size={17}/></button><div><h2>{settingsCategory}</h2><p>Manage your FNI app preferences</p></div></div>
                 {settingsCategory === 'Account' && <div className="settings-section">
                   <h3>Account information</h3>
                   <div className="settings-info-row"><UserRound/><span><strong>Profile details</strong><small>Name, username, bio and profile photo</small></span><em>Coming with account setup</em></div>
