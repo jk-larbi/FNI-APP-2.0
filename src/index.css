@@ -2843,3 +2843,29 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
  .fni-chat-row-bottom span{font-size:12px}
  .fni-chat-tabs{padding-bottom:10px}
 }
+
+
+/* WhatsApp-inspired status rail at the top of the FNI conversation list */
+.fni-stories-compact{width:100%;margin:0 0 14px;padding:0;background:transparent;border:0;box-shadow:none}
+.fni-whatsapp-status-strip{display:flex;align-items:flex-start;gap:18px;overflow-x:auto;padding:5px 2px 12px;scrollbar-width:none;border-bottom:1px solid var(--border,#e3e7f0)}
+.fni-whatsapp-status-strip::-webkit-scrollbar{display:none}
+.fni-wa-my-status,.fni-wa-story-person{width:64px;min-width:64px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0;background:transparent;color:var(--text-primary,#192033)}
+.fni-wa-my-status strong,.fni-wa-story-person strong{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;font-weight:550}
+.fni-wa-story-ring{position:relative;width:56px;height:56px;flex:0 0 56px;padding:3px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#25a56a,#25a56a 75%,#c7d0d9 75%); }
+.fni-wa-story-ring.seen{background:#b8c0ca}
+.fni-wa-story-ring.own{background:#cbd2dc}
+.fni-wa-story-avatar{width:100%;height:100%;border:2px solid var(--surface,#fff);border-radius:50%;display:grid;place-items:center;background:#173b8f;color:#fff;font-size:18px;font-weight:650}
+.fni-wa-story-ring i{position:absolute;right:-1px;bottom:0;width:21px;height:21px;border:2px solid var(--surface,#fff);border-radius:50%;display:grid;place-items:center;background:#25a56a;color:white;font-style:normal}
+.fni-wa-story-person .fni-wa-story-avatar{font-size:17px}
+:root[data-theme="dark"] .fni-whatsapp-status-strip{border-color:#383e50}
+:root[data-theme="dark"] .fni-wa-my-status,:root[data-theme="dark"] .fni-wa-story-person{color:#f4f5fa}
+:root[data-theme="dark"] .fni-wa-story-avatar{border-color:#222634}
+:root[data-theme="dark"] .fni-wa-story-ring i{border-color:#222634}
+.fni-stories-compact .stories-bottom,.fni-stories-compact .stories-archive{display:none}
+.fni-stories-compact .story-modal-backdrop,.fni-stories-compact .story-viewer-backdrop{z-index:100}
+@media(max-width:760px){
+ .fni-stories-compact{margin:0 0 12px}
+ .fni-whatsapp-status-strip{gap:15px;padding:3px 0 11px}
+ .fni-wa-my-status,.fni-wa-story-person{width:60px;min-width:60px}
+ .fni-wa-story-ring{width:54px;height:54px;flex-basis:54px}
+}
