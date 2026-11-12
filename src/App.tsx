@@ -19,6 +19,7 @@ export default function App() {
   });
   const [chatOptionsOpen, setChatOptionsOpen] = useState(false);
   const [chatInfoOpen, setChatInfoOpen] = useState(false);
+  const [sharedMediaPreview, setSharedMediaPreview] = useState<Message | null>(null);
   const [mutedChats, setMutedChats] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-muted') || '[]'); }
     catch { return []; }
@@ -345,10 +346,29 @@ export default function App() {
             <div className="chat-info-profile"><div className="chat-info-avatar">{activeChat.replace('@','').slice(0,1).toUpperCase()}</div><strong>{activeChat}</strong><span>FNI member</span></div>
             <div className="chat-info-stat"><span>Messages</span><strong>{messages.length}</strong></div>
             <div className="chat-info-stat"><span>Photos and videos</span><strong>{messages.filter((message) => !!message.mediaType).length}</strong></div>
+            {messages.some((message) => !!message.mediaType && !!message.mediaUrl) && (
+              <div className="shared-media-section">
+                <div className="shared-media-heading"><strong>Shared media</strong><span>{messages.filter((message) => !!message.mediaType).length}</span></div>
+                <div className="shared-media-grid">
+                  {messages.filter((message) => !!message.mediaType && !!message.mediaUrl).map((message) => (
+                    <button key={message.id} className="shared-media-thumb" onClick={() => setSharedMediaPreview(message)} aria-label={'Open shared ' + message.mediaType}>
+                      {message.mediaType === 'photo' ? <img src={message.mediaUrl} alt={message.mediaName || 'Shared photo'} /> : <><video src={message.mediaUrl} muted playsInline preload="metadata" /><span className="shared-video-mark">VIDEO</span></>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="chat-info-stat"><span>Notifications</span><strong>{mutedChats.includes(activeChat) ? 'Muted' : 'On'}</strong></div>
             <div className="chat-info-actions"><button onClick={() => { setMutedChats((current) => current.includes(activeChat) ? current.filter((chat) => chat !== activeChat) : [...current, activeChat]); }}>{mutedChats.includes(activeChat) ? 'Unmute notifications' : 'Mute notifications'}</button><button onClick={() => setChatInfoOpen(false)}>Done</button></div>
             <p className="chat-info-note">This preview shows information available on this device. Member profiles will appear when FNI accounts are connected.</p>
           </section>
+        </div>
+      )}
+      {sharedMediaPreview && (
+        <div className="shared-media-lightbox" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSharedMediaPreview(null); }}>
+          <button className="shared-media-close" aria-label="Close media preview" onClick={() => setSharedMediaPreview(null)}><X /></button>
+          {sharedMediaPreview.mediaType === 'photo' ? <img src={sharedMediaPreview.mediaUrl} alt={sharedMediaPreview.mediaName || 'Shared photo'} /> : <video src={sharedMediaPreview.mediaUrl} controls autoPlay playsInline />}
+          <span>{sharedMediaPreview.mediaName || (sharedMediaPreview.mediaType === 'video' ? 'Shared video' : 'Shared photo')}</span>
         </div>
       )}
       {forwardingMessage && (
