@@ -22,9 +22,9 @@ function formatDuration(seconds: number) {
 }
 function makeCode() { return Array.from(crypto.getRandomValues(new Uint8Array(6)), n => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[n % 32]).join('').match(/.{1,3}/g)?.join('-') ?? 'FNI-ROOM'; }
 
-type Props = { initialGroup?: string; onClearInitialGroup?: () => void };
+type Props = { initialGroup?: string; onClearInitialGroup?: () => void; isVisible?: boolean; onNavigateToCalls?: () => void };
 
-export default function CallingWorkspace({ initialGroup = '', onClearInitialGroup }: Props) {
+export default function CallingWorkspace({ initialGroup = '', onClearInitialGroup, isVisible = true, onNavigateToCalls }: Props) {
   const [tab, setTab] = useState<'calls' | 'rooms' | 'privacy'>('calls');
   const [callKind, setCallKind] = useState<CallKind>('Voice');
   const [callTarget, setCallTarget] = useState('');
@@ -141,6 +141,9 @@ export default function CallingWorkspace({ initialGroup = '', onClearInitialGrou
     if (!meeting) { setCallNotice('That room is not available in this browser. Joining shared rooms requires FNI accounts and backend services.'); return; }
     setShowJoin(false); setJoinCode(''); enterMeeting(meeting);
   };
+
+  if (!isVisible && !callActive) return null;
+  if (!isVisible && callActive) return <div className="fni-floating-call"><div className="mini-call-avatar">{callKind.startsWith('Group')?<Users size={18}/>:<Phone size={18}/>}</div><div className="mini-call-copy"><b>{callTarget}</b><span>{callKind} · {formatDuration(duration)} · Call in progress</span></div><button className="call-secondary" onClick={onNavigateToCalls}>Return to call</button><button className="call-end-button" onClick={() => endCall()} aria-label="End call"><PhoneOff size={16}/></button></div>;
 
   if (incomingPreview) return <div className="calling-workspace incoming-call-view">
     <div className="incoming-call-card"><span className="call-kicker">INCOMING CALL · UI PREVIEW</span><div className="call-person-avatar">{(callTarget.trim()[0] || 'F').toUpperCase()}</div><h2>{callTarget.trim() || 'FNI member'}</h2><p>Incoming voice call preview</p><div className="incoming-call-actions"><button className="call-end-button" onClick={() => {setHistory(items => [{id:crypto.randomUUID(),title:callTarget.trim() || 'FNI member',kind:'Voice',date:new Date().toISOString(),duration:0,outcome:'Missed'},...items]);setIncomingPreview(false);setCallNotice('Incoming-call preview declined and recorded as missed on this device.')}}><PhoneOff size={18}/> Decline</button><button className="call-primary" onClick={() => startCall('Voice',callTarget)}><Phone size={18}/> Accept</button></div><small>This is a local interface test, not a real incoming call.</small></div>
