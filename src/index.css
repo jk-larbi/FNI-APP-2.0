@@ -3868,3 +3868,16 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
   :root[data-theme="dark"] .calling-workspace,:root[data-theme="dark"] .ac-workspace,
   :root[data-theme="dark"] .biblebot-workspace{color:var(--fni-text)!important}
 }
+
+/* Suppress browser text-selection/callout so FNI can own message long-press. */
+.fni-group-chat-entry,.fni-group-chat-entry *{
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.fni-group-chat-entry{ -webkit-tap-highlight-color:transparent; }
+.fni-group-chat-entry img{-webkit-user-drag:none;user-drag:none}
+@media(max-width:760px){
+  .fni-group-chat-entry{touch-action:pan-y;cursor:default}
+  .fni-group-chat-entry p,.fni-group-chat-entry .fni-chat-reply-preview{ -webkit-user-select:none;user-select:none}
+}
