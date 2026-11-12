@@ -486,11 +486,11 @@ export default function App() {
           </div>
           <button className="icon-button drawer-close" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X /></button>
         </div>
-        <div className="profile-summary">
-          <div className="profile-avatar">F</div>
-          <div className="profile-copy"><strong>{t('FNI Member')}</strong><span><i /> {t('Online')}</span></div>
+        <button type="button" className="profile-summary" onClick={() => { setSection('Settings'); setSettingsCategory('Account'); setSettingsMobileDetail(true); setMenuOpen(false); }} aria-label="Open your profile">
+          <div className="profile-avatar">{accountProfile.photo ? <img src={accountProfile.photo} alt="Your profile"/> : <span>{(accountProfile.name || 'F').slice(0,1).toUpperCase()}</span>}</div>
+          <div className="profile-copy"><strong>{accountProfile.name || 'FNI Member'}</strong><span><i /> {t('Online')}{accountProfile.username ? ' · @' + accountProfile.username : ''}</span></div>
           <ChevronDown size={17} />
-        </div>
+        </button>
         <nav className="main-navigation" aria-label="Main navigation">
           {navigation.map(({ label, icon: Icon }) => (
             <button key={label} className={section === label ? 'nav-item active' : 'nav-item'} onClick={() => { setSection(label); setActiveChat(''); setMenuOpen(false); }}>
@@ -556,8 +556,8 @@ export default function App() {
         ) : section === 'Settings' ? (
           <div className="telegram-settings">
             <div className="settings-profile-card">
-              <div className="settings-profile-avatar">F</div>
-              <div><strong>FNI Member</strong><span>@fni_member · Forerunners Network International</span><small>Profile editing and account verification will be available when FNI accounts are connected.</small></div>
+              <div className="settings-profile-avatar">{accountProfile.photo ? <img src={accountProfile.photo} alt="Your profile"/> : <span>{(accountProfile.name || 'F').slice(0,1).toUpperCase()}</span>}</div>
+              <div><strong>{accountProfile.name || 'FNI Member'}</strong><span>{accountProfile.username ? '@' + accountProfile.username + ' · ' : ''}Forerunners Network International</span><small>{accountProfile.bio || 'Your FNI profile'}</small></div>
               <button type="button" aria-label="Edit profile" onClick={() => setSettingsCategory('Account')}><ChevronRight size={18}/></button>
             </div>
             <div className={`settings-layout ${settingsMobileDetail ? 'mobile-detail-open' : ''}`}>
