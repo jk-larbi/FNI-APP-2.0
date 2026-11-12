@@ -3643,3 +3643,228 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
  .fni-message-selection-bar{padding-bottom:max(9px,env(safe-area-inset-bottom))}
  .fni-chat-message-media{max-width:min(76vw,330px);max-height:42vh}
 }
+
+
+/* FNI contrast and theme consistency pass — shared semantic tokens. */
+:root[data-theme="light"]{
+  color-scheme:light;
+  --fni-bg:#f5f7fc;--fni-surface:#ffffff;--fni-surface-2:#eef1f8;
+  --fni-elevated:#ffffff;--fni-text:#192033;--fni-muted:#58647b;
+  --fni-line:#dfe4ee;--fni-blue:#173b8f;--fni-purple:#39216b;
+  --fni-gold:#9a7416;--fni-hover:#edf2fc;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --fni-bg:#171a24;--fni-surface:#222634;--fni-surface-2:#2b3040;
+  --fni-elevated:#343b49;--fni-text:#f4f5fa;--fni-muted:#b7bfd0;
+  --fni-line:#41485a;--fni-blue:#9db7ff;--fni-purple:#b5a5ef;
+  --fni-gold:#e6c46b;--fni-hover:#303b59;
+}
+:root[data-theme="light"] body,:root[data-theme="dark"] body,
+:root[data-theme="light"] #root,:root[data-theme="dark"] #root{
+  background:var(--fni-bg)!important;color:var(--fni-text)!important;
+}
+:root[data-theme="light"] .app-shell,:root[data-theme="dark"] .app-shell,
+:root[data-theme="light"] .main-panel,:root[data-theme="dark"] .main-panel{
+  background:var(--fni-bg)!important;color:var(--fni-text)!important;
+}
+:root[data-theme="light"] input,:root[data-theme="light"] textarea,:root[data-theme="light"] select,
+:root[data-theme="dark"] input,:root[data-theme="dark"] textarea,:root[data-theme="dark"] select{
+  color:var(--fni-text);
+}
+:root[data-theme="light"] input::placeholder,:root[data-theme="light"] textarea::placeholder,
+:root[data-theme="dark"] input::placeholder,:root[data-theme="dark"] textarea::placeholder{
+  color:var(--fni-muted)!important;opacity:1;
+}
+/* Shared content text: prevent legacy fixed pale/dark colours from disappearing. */
+:root[data-theme="light"] .msg-workspace,:root[data-theme="dark"] .msg-workspace,
+:root[data-theme="light"] .saved-chat-shell,:root[data-theme="dark"] .saved-chat-shell,
+:root[data-theme="light"] .fni-admin-workspace,:root[data-theme="dark"] .fni-admin-workspace,
+:root[data-theme="light"] .notifications-workspace,:root[data-theme="dark"] .notifications-workspace,
+:root[data-theme="light"] .ministry-workspace,:root[data-theme="dark"] .ministry-workspace,
+:root[data-theme="light"] .media-hub-page,:root[data-theme="dark"] .media-hub-page,
+:root[data-theme="light"] .calling-workspace,:root[data-theme="dark"] .calling-workspace,
+:root[data-theme="light"] .ac-workspace,:root[data-theme="dark"] .ac-workspace,
+:root[data-theme="light"] .biblebot-workspace,:root[data-theme="dark"] .biblebot-workspace{
+  color:var(--fni-text);
+}
+:root[data-theme="light"] .msg-heading h2,:root[data-theme="light"] .msg-panel-title h3,
+:root[data-theme="light"] .msg-group-title h2,:root[data-theme="light"] .msg-form-card>label,
+:root[data-theme="light"] .msg-setting,:root[data-theme="light"] .msg-check,
+:root[data-theme="light"] .msg-permission,:root[data-theme="light"] .msg-admin-head b,
+:root[data-theme="light"] .msg-role-row b,:root[data-theme="light"] .msg-list-row,
+:root[data-theme="light"] .saved-chat-identity b,:root[data-theme="light"] .saved-chat-text,
+:root[data-theme="light"] .saved-chat-note-title,
+:root[data-theme="dark"] .msg-heading h2,:root[data-theme="dark"] .msg-panel-title h3,
+:root[data-theme="dark"] .msg-group-title h2,:root[data-theme="dark"] .msg-form-card>label,
+:root[data-theme="dark"] .msg-setting,:root[data-theme="dark"] .msg-check,
+:root[data-theme="dark"] .msg-permission,:root[data-theme="dark"] .msg-admin-head b,
+:root[data-theme="dark"] .msg-role-row b,:root[data-theme="dark"] .msg-list-row,
+:root[data-theme="dark"] .saved-chat-identity b,:root[data-theme="dark"] .saved-chat-text,
+:root[data-theme="dark"] .saved-chat-note-title{
+  color:var(--fni-text)!important;
+}
+:root[data-theme="light"] .msg-heading p,:root[data-theme="light"] .msg-group-copy span,
+:root[data-theme="light"] .msg-empty span,:root[data-theme="light"] .msg-panel-title p,
+:root[data-theme="light"] .msg-role-row span,:root[data-theme="light"] .msg-hint,
+:root[data-theme="light"] .msg-footer-note,:root[data-theme="light"] .msg-info,
+:root[data-theme="light"] .saved-chat-identity span,:root[data-theme="light"] .saved-chat-local-note,
+:root[data-theme="dark"] .msg-heading p,:root[data-theme="dark"] .msg-group-copy span,
+:root[data-theme="dark"] .msg-empty span,:root[data-theme="dark"] .msg-panel-title p,
+:root[data-theme="dark"] .msg-role-row span,:root[data-theme="dark"] .msg-hint,
+:root[data-theme="dark"] .msg-footer-note,:root[data-theme="dark"] .msg-info,
+:root[data-theme="dark"] .saved-chat-identity span,:root[data-theme="dark"] .saved-chat-local-note{
+  color:var(--fni-muted)!important;
+}
+:root[data-theme="light"] .msg-panel,:root[data-theme="light"] .msg-form-card,
+:root[data-theme="light"] .msg-group-card,:root[data-theme="light"] .msg-empty,
+:root[data-theme="light"] .msg-admin-card,:root[data-theme="light"] .msg-footer-note,
+:root[data-theme="dark"] .msg-panel,:root[data-theme="dark"] .msg-form-card,
+:root[data-theme="dark"] .msg-group-card,:root[data-theme="dark"] .msg-empty,
+:root[data-theme="dark"] .msg-admin-card,:root[data-theme="dark"] .msg-footer-note{
+  background:var(--fni-surface)!important;border-color:var(--fni-line)!important;
+}
+:root[data-theme="light"] .msg-form-card input,:root[data-theme="light"] .msg-form-card textarea,
+:root[data-theme="light"] .msg-form-card select,:root[data-theme="light"] .msg-setting select,
+:root[data-theme="light"] .msg-inline-add input,
+:root[data-theme="dark"] .msg-form-card input,:root[data-theme="dark"] .msg-form-card textarea,
+:root[data-theme="dark"] .msg-form-card select,:root[data-theme="dark"] .msg-setting select,
+:root[data-theme="dark"] .msg-inline-add input{
+  background:var(--fni-surface-2)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important;
+}
+:root[data-theme="light"] .msg-secondary,:root[data-theme="dark"] .msg-secondary,
+:root[data-theme="light"] .setting-action,:root[data-theme="dark"] .setting-action{
+  background:var(--fni-surface-2)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important;
+}
+:root[data-theme="dark"] .fni-chat-home-header h2,
+:root[data-theme="dark"] .fni-chat-row-top b,
+:root[data-theme="dark"] .fni-chat-list-empty>b,
+:root[data-theme="dark"] .fni-chat-search input,
+:root[data-theme="dark"] .fni-wa-my-status,
+:root[data-theme="dark"] .fni-wa-story-person{color:var(--fni-text)!important}
+:root[data-theme="dark"] .fni-chat-row-bottom span,
+:root[data-theme="dark"] .fni-chat-row-top time,
+:root[data-theme="dark"] .fni-chat-row-bottom small,
+:root[data-theme="dark"] .fni-chat-list-empty span{color:var(--fni-muted)!important}
+:root[data-theme="dark"] .fni-chat-row-wrap{border-color:var(--fni-line)!important}
+:root[data-theme="dark"] .fni-chat-row:hover{background:var(--fni-hover)!important}
+:root[data-theme="dark"] .fni-chat-search,:root[data-theme="dark"] .fni-chat-list,
+:root[data-theme="dark"] .fni-chat-home-actions button,:root[data-theme="dark"] .fni-chat-bulk-bar{
+  background:var(--fni-surface)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important;
+}
+:root[data-theme="dark"] .fni-chat-tabs button,:root[data-theme="dark"] .fni-chat-edit-toggle,
+:root[data-theme="dark"] .fni-chat-bulk-actions button{background:var(--fni-surface-2)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important}
+:root[data-theme="dark"] .fni-chat-tabs button.active{background:#31518f!important;color:#fff!important}
+:root[data-theme="dark"] .fni-chat-avatar{background:#30384e!important;color:#c6d5ff!important}
+:root[data-theme="dark"] .fni-saved-avatar{background:#5278d5!important;color:#fff!important}
+:root[data-theme="dark"] .fni-group-chat-avatar{background:#3a3152!important;color:#d0c0fa!important}
+:root[data-theme="dark"] .fni-stories,:root[data-theme="dark"] .fni-whatsapp-status-strip{background:var(--fni-surface)!important;border-color:var(--fni-line)!important}
+:root[data-theme="dark"] .fni-stories-head h2,:root[data-theme="dark"] .fni-stories-head button,
+:root[data-theme="dark"] .fni-wa-my-status strong,:root[data-theme="dark"] .fni-wa-story-person strong{color:var(--fni-text)!important}
+:root[data-theme="dark"] .fni-wa-story-ring{border-color:var(--fni-surface)!important}
+:root[data-theme="dark"] .fni-group-conversation{background:var(--fni-bg)!important;color:var(--fni-text)!important}
+:root[data-theme="dark"] .fni-group-chat-header,:root[data-theme="dark"] .fni-group-chat-compose,
+:root[data-theme="dark"] .fni-group-chat-local-note,:root[data-theme="dark"] .fni-ios-emoji-panel,
+:root[data-theme="dark"] .fni-sticker-panel,:root[data-theme="dark"] .fni-chat-mention-panel{
+  background:var(--fni-surface)!important;border-color:var(--fni-line)!important;color:var(--fni-text)!important;
+}
+:root[data-theme="dark"] .fni-group-chat-identity b,:root[data-theme="dark"] .fni-group-chat-identity span,
+:root[data-theme="dark"] .fni-chat-mention-panel span,:root[data-theme="dark"] .fni-sticker-panel-heading b,
+:root[data-theme="dark"] .fni-sticker-panel-heading span{color:var(--fni-text)!important}
+:root[data-theme="dark"] .fni-group-chat-messages{background-color:#171e2b!important;background-image:radial-gradient(rgba(220,230,245,.045) .8px,transparent .8px)!important}
+:root[data-theme="dark"] .fni-group-chat-bubble{background:#244b42!important;border-color:#386555!important;color:#f4f8f5!important}
+:root[data-theme="dark"] .fni-group-chat-bubble p{color:#f4f8f5!important}
+:root[data-theme="dark"] .fni-group-chat-compose input{background:var(--fni-surface-2)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important}
+:root[data-theme="dark"] .fni-chat-compose-tool,:root[data-theme="dark"] .fni-chat-replying>button{color:#c2cbe0!important}
+:root[data-theme="dark"] .fni-chat-reply-preview{background:#30463f!important;color:#f4f8f5!important}
+:root[data-theme="dark"] .fni-chat-reply-preview b{color:#c6d5ff!important}
+:root[data-theme="dark"] .fni-chat-mention-panel button{background:#303b59!important;color:#d5e0ff!important}
+:root[data-theme="dark"] .fni-sticker-tile{background:var(--fni-surface-2)!important;border-color:var(--fni-line)!important}
+:root[data-theme="dark"] .fni-sticker-tile small{color:var(--fni-muted)!important}
+:root[data-theme="dark"] .saved-chat-wallpaper{background-color:#171e2b!important}
+:root[data-theme="dark"] .saved-chat-bubble{background:#244b42!important;border-color:#386555!important;color:#f4f8f5!important}
+:root[data-theme="dark"] .saved-chat-text{color:#f4f8f5!important}
+:root[data-theme="dark"] .saved-chat-meta{color:#c1d8cb!important}
+:root[data-theme="dark"] .saved-chat-intro{background:#2b3040!important;border-color:#41485a!important}
+:root[data-theme="dark"] .saved-chat-intro b{color:var(--fni-text)!important}
+:root[data-theme="dark"] .saved-chat-intro span{color:var(--fni-muted)!important}
+:root[data-theme="dark"] .saved-chat-file,:root[data-theme="dark"] .saved-chat-link{background:#315447!important;color:#fff!important}
+:root[data-theme="dark"] .saved-chat-file small,:root[data-theme="dark"] .saved-chat-link small{color:#d2dfd7!important}
+:root[data-theme="dark"] .saved-chat-input-wrap,:root[data-theme="dark"] .saved-chat-tag-create input{
+  background:var(--fni-surface-2)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important;
+}
+:root[data-theme="dark"] .saved-chat-tags button{background:var(--fni-surface-2)!important;color:var(--fni-text)!important}
+:root[data-theme="dark"] .saved-chat-tags button.active{background:#31518f!important;color:#fff!important}
+:root[data-theme="dark"] .saved-chat-attach-menu{background:var(--fni-surface)!important;border-color:var(--fni-line)!important}
+:root[data-theme="dark"] .saved-chat-attach-menu button{color:var(--fni-text)!important}
+:root[data-theme="dark"] .saved-chat-attach-menu button:hover{background:var(--fni-hover)!important}
+:root[data-theme="dark"] .mobile-more-sheet{background:var(--fni-surface)!important;color:var(--fni-text)!important}
+:root[data-theme="dark"] .mobile-more-profile strong,:root[data-theme="dark"] .mobile-more-profile span,
+:root[data-theme="dark"] .mobile-more-sheet>p{color:var(--fni-muted)!important}
+:root[data-theme="dark"] .mobile-more-profile>button,:root[data-theme="dark"] .mobile-more-grid button{
+  background:var(--fni-surface-2)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important;
+}
+:root[data-theme="dark"] .mobile-more-handle{background:#626b7e!important}
+:root[data-theme="dark"] .fni-message-context-menu{background:var(--fni-surface)!important;border-color:var(--fni-line)!important}
+:root[data-theme="dark"] .fni-message-context-menu button{color:var(--fni-text)!important}
+:root[data-theme="dark"] .fni-message-context-menu button svg{color:var(--fni-muted)!important}
+:root[data-theme="dark"] .fni-message-context-menu button:hover{background:var(--fni-hover)!important}
+
+/* The phone layout used fixed white surfaces; make those surfaces theme-aware. */
+@media(max-width:760px){
+  :root[data-theme="light"] .main-panel[data-section="chats"]>.fni-stories,
+  :root[data-theme="light"] .main-panel[data-section="chats"]>.msg-workspace.fni-chat-home{
+    background:var(--fni-surface)!important;color:var(--fni-text)!important;
+  }
+  :root[data-theme="dark"] .main-panel[data-section="chats"]>.fni-stories,
+  :root[data-theme="dark"] .main-panel[data-section="chats"]>.msg-workspace.fni-chat-home{
+    background:var(--fni-bg)!important;color:var(--fni-text)!important;
+  }
+  :root[data-theme="dark"] .main-panel[data-section="chats"]>.fni-stories{border-color:var(--fni-line)!important}
+  :root[data-theme="dark"] .fni-chat-home-title h2{color:var(--fni-text)!important}
+  :root[data-theme="dark"] .fni-chat-home-title .msg-eyebrow{color:#c4cce0!important}
+  :root[data-theme="dark"] .fni-chat-search{background:var(--fni-surface-2)!important;color:var(--fni-muted)!important}
+  :root[data-theme="dark"] .fni-chat-search input{color:var(--fni-text)!important}
+  :root[data-theme="dark"] .fni-chat-search input::placeholder{color:var(--fni-muted)!important}
+  :root[data-theme="dark"] .fni-chat-tabs{border-color:var(--fni-line)!important}
+  :root[data-theme="dark"] .fni-chat-tabs button{background:var(--fni-surface-2)!important;color:var(--fni-text)!important}
+  :root[data-theme="dark"] .fni-chat-tabs button.active{background:#31518f!important;color:#fff!important}
+  :root[data-theme="dark"] .fni-chat-row-top b{color:var(--fni-text)!important}
+  :root[data-theme="dark"] .fni-chat-row-top time,:root[data-theme="dark"] .fni-chat-row-bottom span{color:var(--fni-muted)!important}
+  :root[data-theme="dark"] .fni-chat-row-wrap{border-color:var(--fni-line)!important}
+  :root[data-theme="dark"] .fni-chat-list{background:var(--fni-surface)!important}
+  :root[data-theme="dark"] .fni-group-conversation .fni-group-chat-header,
+  :root[data-theme="dark"] .fni-group-conversation .fni-group-chat-compose,
+  :root[data-theme="dark"] .fni-group-conversation .fni-ios-emoji-panel,
+  :root[data-theme="dark"] .fni-group-conversation .fni-sticker-panel,
+  :root[data-theme="dark"] .fni-group-conversation .fni-chat-mention-panel{
+    background:var(--fni-surface)!important;border-color:var(--fni-line)!important;color:var(--fni-text)!important;
+  }
+  :root[data-theme="dark"] .fni-group-conversation .fni-group-chat-identity b{color:var(--fni-text)!important}
+  :root[data-theme="dark"] .fni-group-conversation .fni-group-chat-identity span{color:var(--fni-muted)!important}
+  :root[data-theme="dark"] .fni-group-conversation .fni-group-chat-action,
+  :root[data-theme="dark"] .fni-group-conversation .saved-chat-back-button,
+  :root[data-theme="dark"] .fni-group-conversation .fni-chat-compose-tool{color:#c6d5ff!important}
+  :root[data-theme="dark"] .fni-group-conversation .fni-group-chat-messages{background-color:#171e2b!important}
+  :root[data-theme="dark"] .fni-group-conversation .fni-group-chat-bubble{background:#244b42!important;color:#f4f8f5!important;border-color:#386555!important}
+  :root[data-theme="dark"] .fni-group-conversation .fni-group-chat-bubble p{color:#f4f8f5!important}
+  :root[data-theme="dark"] .fni-group-conversation .fni-group-chat-compose input{background:var(--fni-surface-2)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important}
+  :root[data-theme="dark"] .fni-group-conversation .fni-chat-message-meta{color:#c1d8cb!important}
+  :root[data-theme="dark"] .settings-menu{border-color:var(--fni-line)!important}
+  :root[data-theme="dark"] .setting-nav{background:var(--fni-surface-2)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important}
+  :root[data-theme="dark"] .setting-nav.active{background:#31518f!important;color:#fff!important;border-color:#5278d5!important}
+  :root[data-theme="dark"] .settings-detail{background:var(--fni-surface)!important;border-color:var(--fni-line)!important}
+  :root[data-theme="dark"] .settings-intro h2,:root[data-theme="dark"] .settings-detail-head h3,
+  :root[data-theme="dark"] .setting-option-copy strong{color:var(--fni-text)!important}
+  :root[data-theme="dark"] .settings-intro p,:root[data-theme="dark"] .settings-detail-head p,
+  :root[data-theme="dark"] .setting-option-copy span{color:var(--fni-muted)!important}
+  :root[data-theme="dark"] .setting-option select{background:var(--fni-surface-2)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important}
+  :root[data-theme="dark"] .settings-footnote{background:var(--fni-surface-2)!important;color:var(--fni-muted)!important;border-color:var(--fni-line)!important}
+  :root[data-theme="dark"] .mobile-nav{background:var(--fni-surface)!important;border-color:var(--fni-line)!important}
+  :root[data-theme="dark"] .mobile-nav-item{color:var(--fni-muted)!important}
+  :root[data-theme="dark"] .mobile-nav-item.active{color:#e6c46b!important}
+  :root[data-theme="dark"] .fni-admin-workspace,:root[data-theme="dark"] .notifications-workspace,
+  :root[data-theme="dark"] .ministry-workspace,:root[data-theme="dark"] .media-hub-page,
+  :root[data-theme="dark"] .calling-workspace,:root[data-theme="dark"] .ac-workspace,
+  :root[data-theme="dark"] .biblebot-workspace{color:var(--fni-text)!important}
+}
