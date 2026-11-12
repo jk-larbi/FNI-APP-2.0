@@ -16,7 +16,11 @@ export default function App() {
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [groupMemberInput, setGroupMemberInput] = useState('');
-  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[] }>>(() => {
+  const [meetingDate, setMeetingDate] = useState('');
+  const [meetingTime, setMeetingTime] = useState('');
+  const [meetingLocation, setMeetingLocation] = useState('');
+  const [meetingLink, setMeetingLink] = useState('');
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string } }>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-groups') || '{}'); }
     catch { return {}; }
   });
@@ -288,7 +292,7 @@ export default function App() {
             <header className="active-chat-header">
               <button className="icon-button chat-back-button" aria-label="Back to chats" onClick={() => setActiveChat('')}><ArrowLeft /></button>
               <div className="chat-person-avatar">{(groupDetails[activeChat]?.name || activeChat.replace('@','')).slice(0,1).toUpperCase()}</div>
-              <button className="chat-person-details chat-info-trigger" onClick={() => setChatInfoOpen(true)} aria-label="View chat information"><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{groupDetails[activeChat] ? 'FNI group' : 'FNI member'}</span></button>
+              <button className="chat-person-details chat-info-trigger" onClick={() => { const meeting = groupDetails[activeChat]?.meeting; setMeetingDate(meeting?.date || ''); setMeetingTime(meeting?.time || ''); setMeetingLocation(meeting?.location || ''); setMeetingLink(meeting?.link || ''); setChatInfoOpen(true); }} aria-label="View chat information"><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{groupDetails[activeChat] ? 'FNI group' : 'FNI member'}</span></button>
               <div className="active-chat-actions">
                 <button className="icon-button" aria-label="Search messages" title="Search messages" onClick={() => { setChatSearchOpen((open) => !open); setChatSearch(''); }}><Search /></button>
                 <button className="icon-button" aria-label="Voice call"><PhoneCall /></button>
@@ -421,6 +425,31 @@ export default function App() {
                   </div>
                 ) : <p className="group-members-empty">No members added yet. Add FNI usernames to organise this group preview.</p>}
               </div>
+            )}
+            {groupDetails[activeChat] && (
+              <section className="group-meeting-section">
+                <div className="shared-media-heading"><strong>Group meeting</strong><span>{groupDetails[activeChat].meeting ? 'Scheduled' : 'Not scheduled'}</span></div>
+                {groupDetails[activeChat].meeting && (
+                  <div className="group-meeting-summary">
+                    <strong>{new Date(`${groupDetails[activeChat].meeting.date}T${groupDetails[activeChat].meeting.time || '00:00'}`).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</strong>
+                    <span>{groupDetails[activeChat].meeting.time || 'Time not set'}{groupDetails[activeChat].meeting.location ? ` · ${groupDetails[activeChat].meeting.location}` : ''}</span>
+                    {groupDetails[activeChat].meeting.link && <a href={groupDetails[activeChat].meeting.link} target="_blank" rel="noreferrer">Join meeting</a>}
+                  </div>
+                )}
+                <form className="group-meeting-form" onSubmit={(event) => {
+                  event.preventDefault();
+                  if (!meetingDate || !meetingTime) return;
+                  setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: { date: meetingDate, time: meetingTime, location: meetingLocation.trim(), link: meetingLink.trim() } } }));
+                }}>
+                  <label>Meeting date<input type="date" value={meetingDate} onChange={(event) => setMeetingDate(event.target.value)} required /></label>
+                  <label>Start time<input type="time" value={meetingTime} onChange={(event) => setMeetingTime(event.target.value)} required /></label>
+                  <label>Location <span className="optional-label">Optional</span><input value={meetingLocation} onChange={(event) => setMeetingLocation(event.target.value)} placeholder="e.g. UCC campus or online" /></label>
+                  <label>Meeting link <span className="optional-label">Optional</span><input type="url" value={meetingLink} onChange={(event) => setMeetingLink(event.target.value)} placeholder="https://..." /></label>
+                  <button type="submit" disabled={!meetingDate || !meetingTime}>{groupDetails[activeChat].meeting ? 'Update meeting' : 'Schedule meeting'}</button>
+                  {groupDetails[activeChat].meeting && <button type="button" className="group-meeting-cancel" onClick={() => { setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: undefined } })); setMeetingDate(''); setMeetingTime(''); setMeetingLocation(''); setMeetingLink(''); }}>Remove meeting</button>}
+                </form>
+                <p className="group-meeting-note">Meeting details are saved on this device only. Member notifications and live meeting rooms require the FNI backend.</p>
+              </section>
             )}
             <div className="chat-info-stat"><span>Messages</span><strong>{messages.length}</strong></div>
             <div className="chat-info-stat"><span>Photos and videos</span><strong>{messages.filter((message) => !!message.mediaType).length}</strong></div>
