@@ -3,6 +3,7 @@ import ProfileIdentity from './components/ProfileIdentity';
 import MessagingWorkspace from './components/MessagingWorkspace';
 import CallingWorkspace from './components/CallingWorkspace';
 import AppearanceContactsWorkspace from './components/AppearanceContactsWorkspace';
+import NotificationsWorkspace from './components/NotificationsWorkspace';
 import {
   Bell, Bookmark, CalendarDays, ChevronDown, CircleHelp, Compass,
   Menu, MessageCircle, MoreHorizontal, Plus, Search, Settings,
@@ -11,7 +12,7 @@ import {
   SlidersHorizontal, ChevronRight, ArrowLeft
 } from 'lucide-react';
 
-type Section = 'chats' | 'community' | 'cells' | 'calls' | 'settings';
+type Section = 'chats' | 'community' | 'cells' | 'calls' | 'settings' | 'notifications';
 type SettingKind = 'toggle' | 'select' | 'action';
 type SettingOption = { label: string; description?: string; kind: SettingKind; choices?: string[]; value?: string; defaultOn?: boolean };
 type SettingCategory = { id: string; label: string; group: string; description: string; icon: typeof Settings; options: SettingOption[] };
@@ -204,7 +205,7 @@ function App() {
       </div>
       {menuOpen && <div className="account-menu">
         <button onClick={openSettings}><Settings size={16} /> Settings</button>
-        <button onClick={() => comingSoon('Notifications')}><Bell size={16} /> Notifications</button>
+        <button onClick={() => { setSection('notifications'); setMenuOpen(false); }}><Bell size={16} /> Notifications</button>
         <button onClick={() => comingSoon('Help centre')}><CircleHelp size={16} /> Help centre</button>
       </div>}
       <div className="sidebar-label">YOUR SPACE</div>
@@ -220,14 +221,14 @@ function App() {
 
     <main className="main-panel">
       <header className="topbar">
-        <div className="topbar-title"><span className="eyebrow">FORERUNNERS NETWORK INTERNATIONAL</span><h1>{t(section === 'chats' ? 'Messages' : section === 'settings' ? 'Settings' : current.label)}</h1></div>
+        <div className="topbar-title"><span className="eyebrow">FORERUNNERS NETWORK INTERNATIONAL</span><h1>{t(section === 'chats' ? 'Messages' : section === 'settings' ? 'Settings' : section === 'notifications' ? 'Notifications' : current.label)}</h1></div>
         <div className="topbar-actions">
-          {section === 'settings' ? <button className="icon-button" aria-label="Back to chats" onClick={() => setSection('chats')}><ArrowLeft size={19} /></button> : <button className="icon-button notification-button" aria-label="Notifications" onClick={() => comingSoon('Notifications')}><Bell size={19} /></button>}
-          {section !== 'settings' && section !== 'calls' && <button className="new-button" onClick={() => comingSoon(section === 'chats' ? 'New conversation' : 'Create ' + current.label.toLowerCase())}><Plus size={17} /><span>{section === 'chats' ? 'New message' : 'Create new'}</span></button>}
+          {section === 'settings' || section === 'notifications' ? <button className="icon-button" aria-label="Back to chats" onClick={() => setSection('chats')}><ArrowLeft size={19} /></button> : <button className="icon-button notification-button" aria-label="Notifications" onClick={() => setSection('notifications')}><Bell size={19} /></button>}
+          {section !== 'settings' && section !== 'notifications' && section !== 'calls' && <button className="new-button" onClick={() => comingSoon(section === 'chats' ? 'New conversation' : 'Create ' + current.label.toLowerCase())}><Plus size={17} /><span>{section === 'chats' ? 'New message' : 'Create new'}</span></button>}
         </div>
       </header>
 
-      {section === 'calls' ? null : section === 'settings' ? <div className="settings-page">
+      {section === 'calls' ? null : section === 'notifications' ? <NotificationsWorkspace /> : section === 'settings' ? <div className="settings-page">
         <div className="settings-intro"><div><span className="settings-kicker">YOUR FNI EXPERIENCE</span><h2>{t('Settings')}</h2><p>Manage your account, privacy, preferences and ministry experience.</p></div><div className="settings-profile"><div className="profile-avatar">F</div><div><strong>FNI Member</strong><span>Account setup pending</span></div></div></div>
         <div className="settings-layout">
           <aside className="settings-menu">
@@ -235,7 +236,7 @@ function App() {
               {settingCategories.filter(item => item.group === group).map(item => { const Icon = item.icon; return <button key={item.id} className={selectedSetting === item.id ? 'setting-nav active' : 'setting-nav'} onClick={() => setSelectedSetting(item.id)}><Icon size={17} /><span>{t(item.label)}</span><ChevronRight size={14} /></button>; })}
             </div>)}
           </aside>
-          {selectedSetting === 'profile' ? <ProfileIdentity onNotice={message => { setNotice(message); window.setTimeout(() => setNotice(''), 4800); }} /> : selectedSetting === 'appearance' || selectedSetting === 'contacts' ? <AppearanceContactsWorkspace initialTab={selectedSetting === 'contacts' ? 'contacts' : 'appearance'} /> : <section className="settings-detail">
+          {selectedSetting === 'notifications' ? <NotificationsWorkspace /> : selectedSetting === 'profile' ? <ProfileIdentity onNotice={message => { setNotice(message); window.setTimeout(() => setNotice(''), 4800); }} /> : selectedSetting === 'appearance' || selectedSetting === 'contacts' ? <AppearanceContactsWorkspace initialTab={selectedSetting === 'contacts' ? 'contacts' : 'appearance'} /> : <section className="settings-detail">
             <div className="settings-detail-head"><div className="setting-detail-icon"><ActiveSettingIcon size={20} /></div><div><h3>{t(activeSetting.label)}</h3><p>{activeSetting.description}</p></div></div>
             <div className="settings-options">
               {activeSetting.options.map(option => {
