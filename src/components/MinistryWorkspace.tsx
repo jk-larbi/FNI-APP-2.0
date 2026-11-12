@@ -48,7 +48,7 @@ export default function MinistryWorkspace() {
   const [events, setEvents] = useState<LocalItem[]>(() => storage.read('fni-ministry-event-drafts', []));
   const [resources, setResources] = useState<LocalItem[]>(() => storage.read('fni-ministry-resource-notes', []));
   const [topics, setTopics] = useState<LocalItem[]>(() => storage.read('fni-ministry-forum-topics', []));
-  const [prayers, setPrayers] = useState<LocalItem[]>(() => storage.read('fni-ministry-prayer-items', []));
+  const [prayers, setPrayers] = useState<LocalItem[]>(() => { const saved=storage.read<LocalItem[]>('fni-ministry-prayer-items', []); const legacy=storage.read<LocalItem[]>('fni-ministry-prayer-wall', []).map(item=>({...item,category:'Prayer request',status:item.status||'Confidential'})); const merged=[...saved,...legacy.filter(item=>!saved.some(existing=>existing.id===item.id))]; if(legacy.length) storage.write('fni-ministry-prayer-items',merged); return merged; });
   const [checkins, setCheckins] = useState<LocalItem[]>(() => storage.read('fni-ministry-checkins', []));
   const [intentions, setIntentions] = useState<LocalItem[]>(() => storage.read('fni-ministry-giving-intentions', []));
   const [showDraft, setShowDraft] = useState(false);
@@ -109,8 +109,8 @@ export default function MinistryWorkspace() {
       item = makeItem(formTitle, formBody, formCategory || 'General'); const next = [item, ...topics]; setTopics(next); storage.write('fni-ministry-forum-topics', next);
     } else if (area === 'prayer') {
       const category = prayerTab === 'Requests' ? 'Prayer request' : 'Testimony';
-      item = makeItem(formTitle.trim() || (prayerTab === 'Requests' ? 'Prayer request' : 'Testimony'), formBody, category, prayerTab === 'Requests' ? prayerVisibility : 'Awaiting review');
-      item.body = [formBody.trim(), prayerTab === 'Requests' ? 'Category: ' + prayerCategory : 'Sharing: Pending member approval'].join('\\n');
+      if (prayerTab === 'Testimonies' && mediaLink.trim() && !/^https?:\\/\\//i.test(mediaLink.trim())) { setNotice('Enter a valid http or https media link.'); return; }
+      item = makeItem(formTitle.trim() || (prayerTab === 'Requests' ? 'Prayer request' : 'Testimony'), [formBody.trim(), prayerTab === 'Requests' ? 'Category: ' + prayerCategory + ' · ' + prayerVisibility : 'Sharing: Pending member approval', mediaLink.trim() ? 'Attachment link: ' + mediaLink.trim() : ''].filter(Boolean).join('\\n'), category, prayerTab === 'Requests' ? 'Submitted · ' + prayerVisibility : 'Awaiting review');
       const next = [item, ...prayers]; setPrayers(next); storage.write('fni-ministry-prayer-items', next);
     } else if (area === 'checkin') {
       item = makeItem(formTitle, formBody, 'Personal attendance', 'Saved locally');
