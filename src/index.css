@@ -5820,3 +5820,31 @@ body{color:var(--fni-text)}
   .fni-group-chat-header{padding-top:env(safe-area-inset-top)!important}
   .fni-group-chat-messages{min-height:0;overflow-y:auto}
 }
+
+/* Personal conversations share the Telegram-style desktop and mobile shell */
+@media(min-width:761px){
+ .fni-personal-conversation{display:grid!important;grid-template-columns:minmax(280px,350px) minmax(0,1fr)!important;grid-template-rows:60px minmax(0,1fr) auto auto!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}
+ .fni-personal-chat-header{grid-column:2!important;grid-row:1!important}
+ .fni-personal-chat-messages{grid-column:2!important;grid-row:2!important}
+ .fni-personal-compose{grid-column:2!important;grid-row:3!important}
+ .fni-personal-local-note{grid-column:2!important;grid-row:4!important}
+}
+.fni-personal-avatar-large{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:var(--fni-blue);color:white;font-weight:700}
+.fni-personal-chat-messages{display:flex;flex-direction:column;align-items:flex-end;gap:8px;padding:18px 5%;overflow-y:auto;background:var(--fni-bg)}
+.fni-personal-message{max-width:min(72%,560px);padding:9px 12px 6px;border-radius:12px 12px 3px 12px;background:#dce9ff;color:#1c2b48;box-shadow:var(--fni-shadow);overflow-wrap:anywhere}
+:root[data-theme="dark"] .fni-personal-message{background:#2b4773;color:#f5f7fc}
+.fni-personal-message time{display:block;margin-top:4px;text-align:right;font-size:9px;color:#65748c}
+.fni-personal-compose{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--fni-surface);border-top:1px solid var(--fni-line)}
+.fni-personal-compose input{flex:1;min-width:0;height:42px;padding:0 14px;border:0;outline:0;border-radius:22px;background:var(--fni-bg);color:var(--fni-text);font-size:13px}
+.fni-personal-compose button{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:50%;background:transparent;color:var(--fni-muted)}
+.fni-personal-compose button[type="submit"]{background:var(--fni-blue);color:#fff}
+.fni-personal-compose button:disabled{opacity:.35}
+.fni-personal-local-note{padding:5px 12px;text-align:center;background:var(--fni-surface);color:var(--fni-muted);font-size:9px;border-top:1px solid var(--fni-line)}
+@media(max-width:760px){
+ .fni-personal-conversation{display:flex!important;flex-direction:column!important}
+ .fni-personal-chat-header{flex:0 0 58px!important}
+ .fni-personal-chat-messages{flex:1;min-height:0;padding:14px 12px}
+ .fni-personal-compose{flex:0 0 auto;padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+ .fni-personal-local-note{flex:0 0 auto;padding:5px 8px;font-size:8px}
+ .fni-personal-message{max-width:86%}
+}
