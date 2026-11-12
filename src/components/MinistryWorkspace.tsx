@@ -86,11 +86,11 @@ export default function MinistryWorkspace() {
   }
 
   function saveAreaItem() {
-    if (!formTitle.trim()) { setNotice('Add a title before saving.'); return; }
+    if (area !== 'prayerwall' && !formTitle.trim()) { setNotice('Add a title before saving.'); return; }
     let item: LocalItem;
     if (area === 'media') {
       if (!mediaLink.trim()) { setNotice('Add a media link before saving.'); return; }
-      if (!/^https?:\\/\\//i.test(mediaLink.trim())) { setNotice('Enter a valid http or https media link.'); return; }
+      if (!/^https?:\/\//i.test(mediaLink.trim())) { setNotice('Enter a valid http or https media link.'); return; }
       item = makeItem(formTitle, [formBody, 'Media link: ' + mediaLink.trim()].filter(Boolean).join('\n'), mediaKind, 'Media draft');
       const next = [item, ...mediaDrafts]; setMediaDrafts(next); storage.write('fni-ministry-media-drafts', next);
     } else if (area === 'events') {
