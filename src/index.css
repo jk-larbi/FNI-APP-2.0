@@ -370,3 +370,23 @@ button{cursor:pointer}
 .group-prayer-actions button.prayer-delete{background:transparent;color:#c44c4c}
 .group-prayer-card.prayer-answered{background:#f5faf7}
 .group-prayer-card.prayer-answered .group-prayer-card-top{color:#38845e}
+
+
+/* Group attendance register */
+.group-attendance-section{padding:14px 0;border-top:1px solid var(--border-color,#e8eaf0)}
+.group-attendance-form{display:grid;gap:10px;margin:10px 0 14px}
+.group-attendance-form>label{display:grid;gap:6px;color:var(--text,#344054);font-size:11px;font-weight:600}
+.group-attendance-form>label input{min-height:37px;padding:7px 9px;border:1px solid #dfe3ea;border-radius:7px;background:transparent;color:inherit;font:inherit}
+.attendance-select-title{font-size:11px;color:var(--text,#344054)}
+.attendance-member-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;max-height:150px;overflow-y:auto}
+.attendance-member-option{display:flex;align-items:center;gap:7px;min-width:0;padding:8px;border:1px solid var(--border-color,#e7eaf0);border-radius:7px;font-size:11px;color:var(--text,#344054);overflow-wrap:anywhere}
+.attendance-member-option input{accent-color:#2878d0}
+.group-attendance-form>button{justify-self:start;min-height:36px;padding:0 13px;border:0;border-radius:8px;background:#2878d0;color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.group-attendance-form>button:disabled{opacity:.45;cursor:not-allowed}
+.attendance-history-list{display:grid;gap:8px;max-height:250px;overflow-y:auto}
+.attendance-history-card{padding:10px 11px;border:1px solid var(--border-color,#e7eaf0);border-radius:8px;background:var(--surface,#fff)}
+.attendance-history-card>div{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.attendance-history-card>div strong{font-size:11px;color:var(--text,#344054)}
+.attendance-history-card>div span{font-size:10px;color:#2878d0;white-space:nowrap}
+.attendance-history-card p{margin:7px 0;color:#788391;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+.attendance-history-card>button{padding:5px 8px;border:0;border-radius:6px;background:#edf4fc;color:#286db4;font:inherit;font-size:10px;cursor:pointer}
