@@ -4,7 +4,7 @@ import {
   ArrowLeft, BookOpen, CalendarDays, CheckCircle2, ChevronRight, CircleDollarSign,
   FileText, HandHeart, Headphones, MessageSquareText, PlayCircle, Plus, Radio,
   ScanLine, Search, ShieldCheck, UsersRound, X, Bookmark,
-  Heart, LockKeyhole, CalendarCheck, Wallet, Sparkles, Trash2, Images as ImagesIcon
+  Heart, LockKeyhole, CalendarCheck, Wallet, Sparkles, Trash2, Gift, Images as ImagesIcon
 } from 'lucide-react';
 
 type MinistryArea = 'home' | 'media' | 'sermons' | 'events' | 'resources' | 'forums' | 'prayerwall' | 'prayer' | 'checkin' | 'giving';
@@ -266,7 +266,7 @@ export default function MinistryWorkspace() {
 
       {area === 'giving' && <>
         <div className="ministry-giving-banner"><div className="ministry-giving-mark"><Wallet size={26}/></div><span className="ministry-kicker">GENEROSITY & STEWARDSHIP</span><h3>Give with a joyful heart.</h3><p>Prepare your giving intention. Secure payments will be enabled only after an approved payment provider is connected.</p></div>
-        <div className="ministry-giving-options"><div><span className="ministry-giving-option-icon"><Heart size={17}/></span><strong>Tithes</strong><small>Faithful giving</small></div><div><span className="ministry-giving-option-icon"><HandHeart size={17}/></span><strong>Offerings</strong><small>Worship through giving</small></div><div><span className="ministry-giving-option-icon" aria-hidden="true">🎁</span><strong>Special gifts</strong><small>Support ministry work</small></div></div>
+        <div className="ministry-giving-options"><div><span className="ministry-giving-option-icon"><Heart size={17}/></span><strong>Tithes</strong><small>Faithful giving</small></div><div><span className="ministry-giving-option-icon"><HandHeart size={17}/></span><strong>Offerings</strong><small>Worship through giving</small></div><div><span className="ministry-giving-option-icon" aria-hidden="true"><Gift size={17}/></span><strong>Special gifts</strong><small>Support ministry work</small></div></div>
         <div className="ministry-payment-methods"><strong>Available payment methods (planned)</strong><span>VISA</span><span>Mastercard</span><span>Mobile Money</span></div>
         <div className="ministry-section-heading"><div><span className="ministry-kicker">MY GIVING</span><h3>Giving intentions</h3><p>Choose a giving purpose and prepare an amount before secure checkout is connected.</p></div><button className="ministry-primary-action" onClick={openAreaForm}><Plus size={15}/> New intention</button></div>
         <ItemList items={intentions} emptyTitle="No giving intentions" emptyText="Prepare a personal giving note. This will not process a payment." onRemove={removeAreaItem}/>
