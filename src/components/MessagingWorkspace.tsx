@@ -45,6 +45,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTriggered = useRef(false);
+  const longPressOrigin = useRef<{ x: number; y: number } | null>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
   const [groupName, setGroupName] = useState('');
@@ -234,10 +235,24 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
             className={`fni-group-chat-entry${selectedMessages.includes(message.id) ? ' is-message-selected' : ''}`}
             key={message.id}
             onContextMenu={event => { event.preventDefault(); openMessageMenu(message, event.clientX, event.clientY); }}
-            onTouchStart={event => { longPressTriggered.current = false; const touch = event.touches[0]; clearLongPress(); longPressTimer.current = setTimeout(() => { longPressTriggered.current = true; openMessageMenu(message, touch.clientX, touch.clientY); }, 480); }}
-            onTouchMove={clearLongPress}
-            onTouchEnd={clearLongPress}
-            onTouchCancel={clearLongPress}
+            onTouchStart={event => {
+              longPressTriggered.current = false;
+              const touch = event.touches[0];
+              longPressOrigin.current = { x: touch.clientX, y: touch.clientY };
+              clearLongPress();
+              longPressTimer.current = setTimeout(() => {
+                longPressTriggered.current = true;
+                if (navigator.vibrate) navigator.vibrate(12);
+                openMessageMenu(message, touch.clientX, touch.clientY);
+              }, 550);
+            }}
+            onTouchMove={event => {
+              const touch = event.touches[0];
+              const origin = longPressOrigin.current;
+              if (origin && Math.hypot(touch.clientX - origin.x, touch.clientY - origin.y) > 14) clearLongPress();
+            }}
+            onTouchEnd={() => { clearLongPress(); longPressOrigin.current = null; }}
+            onTouchCancel={() => { clearLongPress(); longPressOrigin.current = null; }}
             onClick={event => { if (longPressTriggered.current) { event.preventDefault(); longPressTriggered.current = false; } }}
           >
             <div className={`fni-group-chat-bubble${message.sticker ? ' fni-group-chat-sticker-bubble' : ''}`}>
