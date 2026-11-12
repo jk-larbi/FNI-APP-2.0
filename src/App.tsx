@@ -15,7 +15,8 @@ export default function App() {
   const [newGroupOpen, setNewGroupOpen] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
-  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string }>>(() => {
+  const [groupMemberInput, setGroupMemberInput] = useState('');
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[] }>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-groups') || '{}'); }
     catch { return {}; }
   });
@@ -119,7 +120,7 @@ export default function App() {
     const name = groupName.trim();
     if (!name) return;
     const groupId = `group-${Date.now()}`;
-    setGroupDetails((current) => ({ ...current, [groupId]: { name, description: groupDescription.trim() } }));
+    setGroupDetails((current) => ({ ...current, [groupId]: { name, description: groupDescription.trim(), members: [] } }));
     setConversations((current) => ({ ...current, [groupId]: [] }));
     setActiveChat(groupId);
     setFolder('Groups');
@@ -375,6 +376,39 @@ export default function App() {
           <section className="chat-info-modal" role="dialog" aria-modal="true" aria-label="Chat information">
             <div className="modal-heading"><h2>Chat information</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setChatInfoOpen(false)}><X /></button></div>
             <div className="chat-info-profile"><div className="chat-info-avatar">{(groupDetails[activeChat]?.name || activeChat.replace('@','')).slice(0,1).toUpperCase()}</div><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{groupDetails[activeChat] ? 'FNI group' : 'FNI member'}</span>{groupDetails[activeChat]?.description && <p className="group-description">{groupDetails[activeChat].description}</p>}</div>
+            {groupDetails[activeChat] && (
+              <div className="group-members-section">
+                <div className="shared-media-heading"><strong>Members</strong><span>{groupDetails[activeChat].members?.length || 0}</span></div>
+                <form className="group-member-add" onSubmit={(event) => {
+                  event.preventDefault();
+                  const handle = groupMemberInput.trim().replace(/^@/, '');
+                  if (!handle) return;
+                  const member = '@' + handle;
+                  setGroupDetails((current) => ({
+                    ...current,
+                    [activeChat]: { ...current[activeChat], members: Array.from(new Set([...(current[activeChat].members || []), member])) },
+                  }));
+                  setGroupMemberInput('');
+                }}>
+                  <input aria-label="Add member username" value={groupMemberInput} onChange={(event) => setGroupMemberInput(event.target.value)} placeholder="Add member by @username" />
+                  <button type="submit" disabled={!groupMemberInput.trim()}>Add</button>
+                </form>
+                {(groupDetails[activeChat].members || []).length > 0 ? (
+                  <div className="group-member-list">
+                    {(groupDetails[activeChat].members || []).map((member) => (
+                      <div className="group-member-row" key={member}>
+                        <span className="group-member-avatar">{member.slice(1, 2).toUpperCase()}</span>
+                        <strong>{member}</strong>
+                        <button type="button" aria-label={'Remove ' + member} onClick={() => setGroupDetails((current) => ({
+                          ...current,
+                          [activeChat]: { ...current[activeChat], members: (current[activeChat].members || []).filter((item) => item !== member) },
+                        }))}>Remove</button>
+                      </div>
+                    ))}
+                  </div>
+                ) : <p className="group-members-empty">No members added yet. Add FNI usernames to organise this group preview.</p>}
+              </div>
+            )}
             <div className="chat-info-stat"><span>Messages</span><strong>{messages.length}</strong></div>
             <div className="chat-info-stat"><span>Photos and videos</span><strong>{messages.filter((message) => !!message.mediaType).length}</strong></div>
             {messages.some((message) => !!message.mediaType && !!message.mediaUrl) && (
