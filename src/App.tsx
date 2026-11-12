@@ -322,11 +322,12 @@ export default function App() {
     }));
   };
   const [bibleTranslation, setBibleTranslation] = useState('kjv');
+  const [bibleBotOpen, setBibleBotOpen] = useState(false);
+  const [bibleReferenceInput, setBibleReferenceInput] = useState('');
   const [bibleLookupResult, setBibleLookupResult] = useState<{ reference: string; text: string; translation: string } | null>(null);
   const [bibleLookupLoading, setBibleLookupLoading] = useState(false);
   const [bibleLookupError, setBibleLookupError] = useState('');
   const bibleCommand = draft.match(/^(?:@FNIBibleBot\s+|\/bible\s+)(.+)$/i);
-  const bibleReferenceInput = bibleCommand?.[1]?.trim() || '';
   const [draftBeforeEdit, setDraftBeforeEdit] = useState('');
   const [conversations, setConversations] = useState<Record<string, Message[]>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-conversations') || '{}'); }
@@ -968,13 +969,14 @@ export default function App() {
               <textarea value={attachmentCaption} onChange={(event)=>setAttachmentCaption(event.target.value)} placeholder="Add a caption..." rows={2}/>
               <div className="attachment-preview-footer"><span>{pendingAttachments.length} item{pendingAttachments.length===1?'':'s'} selected</span><button type="button" onClick={sendPendingAttachments}>Send</button></div>
             </div>}
-            {bibleCommand && <div className="bible-bot-panel">
-              <div className="bible-bot-title"><BookOpen size={18}/><div><strong>FNI Bible Bot</strong><small>Find a verse and send it to this chat</small></div></div>
+            {(bibleBotOpen || bibleCommand) && <div className="bible-bot-panel">
+              <div className="bible-bot-title"><BookOpen size={18}/><div><strong>FNI Bible Bot</strong><small>Find a verse and send it to this chat</small></div><button type="button" className="icon-button" aria-label="Close Bible Bot" onClick={() => { setBibleBotOpen(false); setBibleLookupResult(null); setBibleLookupError(''); }}><X size={16}/></button></div>
               <div className="bible-bot-controls">
+                <input type="text" value={bibleReferenceInput} onChange={(event) => { setBibleReferenceInput(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); lookupBibleVerse(); } }} placeholder="Enter a reference, e.g. John 3:16" aria-label="Bible scripture reference" />
                 <select value={bibleTranslation} onChange={(event) => { setBibleTranslation(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} aria-label="Bible translation">
                   <option value="kjv">KJV · King James Version</option><option value="nkjv">NKJV · New King James Version</option><option value="esv">ESV · English Standard Version</option><option value="niv">NIV · New International Version</option><option value="nlt">NLT · New Living Translation</option><option value="web">WEB · World English Bible</option>
                 </select>
-                <button type="button" onClick={lookupBibleVerse} disabled={!bibleReferenceInput || bibleLookupLoading}>{bibleLookupLoading ? 'Searching…' : 'Find verse'}</button>
+                <button type="button" onClick={lookupBibleVerse} disabled={!bibleReferenceInput.trim() || bibleLookupLoading}>{bibleLookupLoading ? 'Searching…' : 'Find verse'}</button>
               </div>
               {bibleLookupError && <p className="bible-bot-error">{bibleLookupError}</p>}
               {bibleLookupResult && <div className="bible-bot-result"><div><strong>{bibleLookupResult.reference}</strong><span>{bibleLookupResult.translation}</span></div><p>{bibleLookupResult.text}</p><button type="button" onClick={sendBibleVerseToGroup}>Send verse to group</button></div>}
@@ -991,7 +993,7 @@ export default function App() {
                   <button type="button" onClick={createLocalPoll}><BarChart3 /><span>Poll<small>Create a question</small></span></button>
                   <button type="button" onClick={() => { const title=window.prompt('Meeting title'); if(title?.trim()) sendAttachmentText('meeting','FNI Meeting',title.trim()+'\nMeeting invitation draft — online meeting details can be added when FNI meetings are connected.'); }}><CalendarPlus /><span>Meeting<small>Share a meeting invitation</small></span></button>
                   <button type="button" onClick={() => { const prayer=window.prompt('Write a prayer request'); if(prayer?.trim()) sendAttachmentText('prayer','Prayer request',prayer.trim()); setAttachmentMenuOpen(false); }}><HandHeart /><span>Prayer<small>Share a prayer request</small></span></button>
-                  <button type="button" onClick={() => { const verse=window.prompt('Enter a Bible reference or verse'); if(verse?.trim()) sendAttachmentText('scripture','Scripture',verse.trim()); setAttachmentMenuOpen(false); }}><BookOpen /><span>Scripture<small>Share a Bible verse</small></span></button>
+                  <button type="button" onClick={() => { setBibleBotOpen(true); setBibleReferenceInput(''); setBibleLookupResult(null); setBibleLookupError(''); setAttachmentMenuOpen(false); }}><BookOpen /><span>Scripture<small>Find and share a Bible verse</small></span></button>
                 </div>}
               </div>
               <input ref={attachmentInput} className="attachment-input" type="file" accept="image/*,video/*" multiple onChange={(event) => { if(event.target.files) queueAttachments(event.target.files); event.target.value = ''; }} />
