@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, MoreVertical, Video, PhoneCall, UserRound, LockKeyhole, BellRing, Palette, Database, Smartphone, Globe2, MessageSquare, HeartHandshake, CircleHelp, ChevronRight, ShieldCheck, Volume2, Moon, Sun, Monitor, Download, Eye, BookOpen, HandHeart, CalendarDays, Image, KeyRound } from 'lucide-react';
+import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, Sticker, MoreVertical, Video, PhoneCall, UserRound, LockKeyhole, BellRing, Palette, Database, Smartphone, Globe2, MessageSquare, HeartHandshake, CircleHelp, ChevronRight, ShieldCheck, Volume2, Moon, Sun, Monitor, Download, Eye, BookOpen, HandHeart, CalendarDays, Image, KeyRound } from 'lucide-react';
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'FNI Community' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups' | 'Archived';
@@ -357,6 +357,7 @@ export default function App() {
   const [pinnedMessageId, setPinnedMessageId] = useState<number | null>(null);
   const [openMessageMenu, setOpenMessageMenu] = useState<number | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [stickerOpen, setStickerOpen] = useState(false);
   const [mentionOpen, setMentionOpen] = useState(false);
   const [forwardingMessage, setForwardingMessage] = useState<Message | null>(null);
   const [forwardRecipient, setForwardRecipient] = useState('');
@@ -829,11 +830,16 @@ export default function App() {
               <button className="composer-icon" aria-label="Attach photo or video" title="Attach photo or video" onClick={() => attachmentInput.current?.click()}><Paperclip /></button>
               <input ref={attachmentInput} className="attachment-input" type="file" accept="image/*,video/*" onChange={(event) => { attachMedia(event.target.files?.[0]); event.target.value = ''; }} />
               <div className="composer-input-wrap">
-                <textarea value={draft} onChange={(event) => { setDraft(event.target.value); const tail = event.target.value.split(/\s/).pop() || ''; setMentionOpen(Boolean(preferences.mentionSuggestions) && tail.startsWith('@') && tail.length > 0); }} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && preferences.enterToSend) { event.preventDefault(); sendMessage(); } if (event.key === 'Escape') { setMentionOpen(false); setEmojiOpen(false); } }} placeholder="Message" rows={1} />
+                <textarea value={draft} onChange={(event) => { setDraft(event.target.value); const tail = event.target.value.split(/\s/).pop() || ''; setMentionOpen(Boolean(preferences.mentionSuggestions) && tail.startsWith('@') && tail.length > 0); }} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && preferences.enterToSend) { event.preventDefault(); sendMessage(); } if (event.key === 'Escape') { setMentionOpen(false); setEmojiOpen(false); setStickerOpen(false); } }} placeholder="Message" rows={1} />
                 {mentionOpen && activeChat && <div className="mention-suggestions">{(groupDetails[activeChat]?.members || [activeChat]).filter(member => member.toLowerCase().includes((draft.split(/\s/).pop() || '').slice(1).toLowerCase())).map(member => <button type="button" key={member} onClick={() => { setDraft((current) => current.replace(/@[\w.]*$/, `@${member.replace(/^@/, '')} `)); setMentionOpen(false); }}>{member}<span>{groupDetails[activeChat] ? 'Member of this group' : 'Chat contact'}</span></button>)}</div>}
               </div>
-              <div className="emoji-picker-wrap"><button className="composer-icon emoji-button" aria-label="Emoji" onClick={() => setEmojiOpen((open) => !open)}><Smile /></button>
-                {emojiOpen && <div className="emoji-picker">{['😀','😂','🥹','😍','😊','🙏','❤️','👍','🔥','🎉','😢','😮','👏','✨','💯','🤝','🙌','💙','🤣','😉'].map((emoji) => <button key={emoji} onClick={() => addEmoji(emoji)}>{emoji}</button>)}</div>}
+              <div className="emoji-picker-wrap">
+                <button type="button" className="composer-icon emoji-button" aria-label="Emoji" title="Emoji" onClick={() => { setStickerOpen(false); setEmojiOpen((open) => !open); }}><Smile /></button>
+                {emojiOpen && <div className="emoji-picker">{['😀','😂','🥹','😍','😊','🙏','❤️','👍','🔥','🎉','😢','😮','👏','✨','💯','🤝','🙌','💙','🤣','😉'].map((emoji) => <button type="button" key={emoji} onClick={() => addEmoji(emoji)}>{emoji}</button>)}</div>}
+              </div>
+              <div className="emoji-picker-wrap sticker-picker-wrap">
+                <button type="button" className="composer-icon sticker-button" aria-label="Stickers" title="Stickers" onClick={() => { setEmojiOpen(false); setStickerOpen((open) => !open); }}><Sticker /></button>
+                {stickerOpen && <div className="sticker-picker" aria-label="Sticker picker">{['🙏','❤️','🙌','👏','😊','😂','🔥','💙','✨','🎉','🤝','🥹'].map((sticker) => <button type="button" key={sticker} aria-label={sticker + ' sticker'} onClick={() => { setDraft((current) => current + (current && !current.endsWith(' ') ? ' ' : '') + sticker); setStickerOpen(false); }}>{sticker}</button>)}</div>}
               </div>
               <button className="send-button" aria-label={editingMessage ? 'Save edited message' : 'Send message'} onClick={sendMessage} disabled={!draft.trim()}><Send size={19} /></button>
             </div>
