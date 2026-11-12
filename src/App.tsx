@@ -23,7 +23,11 @@ export default function App() {
   const [mentionOpen, setMentionOpen] = useState(false);
   const [forwardingMessage, setForwardingMessage] = useState<Message | null>(null);
   const [forwardRecipient, setForwardRecipient] = useState('');
+  const [chatSearchOpen, setChatSearchOpen] = useState(false);
+  const [chatSearch, setChatSearch] = useState('');
   const attachmentInput = useRef<HTMLInputElement>(null);
+
+  const matchingMessages = chatSearch.trim() ? messages.filter((message) => message.text.toLowerCase().includes(chatSearch.trim().toLowerCase()) || (message.mediaName || '').toLowerCase().includes(chatSearch.trim().toLowerCase())) : messages;
 
   const navigation = [
     { label: 'Chats' as const, icon: MessageCircle },
@@ -174,11 +178,13 @@ export default function App() {
               <div className="chat-person-avatar">{activeChat.replace('@','').slice(0,1).toUpperCase()}</div>
               <div className="chat-person-details"><strong>{activeChat}</strong><span>FNI member</span></div>
               <div className="active-chat-actions">
+                <button className="icon-button" aria-label="Search messages" title="Search messages" onClick={() => { setChatSearchOpen((open) => !open); setChatSearch(''); }}><Search /></button>
                 <button className="icon-button" aria-label="Voice call"><PhoneCall /></button>
                 <button className="icon-button" aria-label="Video call"><Video /></button>
                 <button className="icon-button" aria-label="More options"><MoreVertical /></button>
               </div>
             </header>
+            {chatSearchOpen && <div className="chat-search-bar"><Search size={17} /><input autoFocus value={chatSearch} onChange={(event) => setChatSearch(event.target.value)} placeholder="Search in conversation" /><span>{chatSearch.trim() ? `${matchingMessages.length} found` : ''}</span><button aria-label="Close search" onClick={() => { setChatSearchOpen(false); setChatSearch(''); }}><X size={17} /></button></div>}
             {pinnedMessageId !== null && messages.find((item) => item.id === pinnedMessageId) && (
               <button
                 className="pinned-message-banner"
@@ -196,7 +202,7 @@ export default function App() {
             <div className="message-history">
               {messages.length === 0 ? (
                 <div className="first-message-note"><span>Conversation started</span><p>Send a message to begin.</p></div>
-              ) : messages.map((message) => (
+              ) : matchingMessages.length === 0 ? <div className="first-message-note"><span>No messages found</span><p>Try another search term.</p></div> : matchingMessages.map((message) => (
                 <div className="message-row outgoing" id={`message-${message.id}`} key={message.id}>
                   <div className="message-action-wrap">
                     <button className="message-more-button" aria-label="Message actions" onClick={() => setOpenMessageMenu(openMessageMenu === message.id ? null : message.id)}><MoreVertical size={17} /></button>
