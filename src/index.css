@@ -3925,3 +3925,47 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
 :root:not([data-theme="dark"]) .fni-chat-context-menu button{color:#253149}
 :root:not([data-theme="dark"]) .fni-chat-context-menu button:hover,:root:not([data-theme="dark"]) .fni-chat-context-menu button:focus-visible{background:#f1f4fa}
 :root:not([data-theme="dark"]) .fni-chat-context-menu button svg{color:#66748c}
+
+
+/* ── Telegram-style compose bar ── */
+.saved-chat-compose-right{display:flex;align-items:center;gap:2px;flex:0 0 auto}
+.saved-chat-compose-right button{width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--fni-muted,#687187);cursor:pointer}
+.saved-chat-compose-right button:hover{color:var(--fni-blue,#173b8f)}
+
+/* ── Media picker panel ── */
+.saved-chat-media-picker{position:absolute;left:0;right:0;bottom:60px;z-index:20;display:flex;flex-direction:column;background:#1c1e2a;border-top:1px solid #2d3142;border-radius:16px 16px 0 0;max-height:55vh;overflow:hidden;animation:fni-picker-slide .22s ease-out}
+@keyframes fni-picker-slide{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.saved-chat-media-picker-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px}
+.saved-chat-media-picker-close{width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:#f4f5fa;cursor:pointer}
+.saved-chat-media-picker-close:hover{background:#2b3048}
+.saved-chat-media-picker-recents{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:#f4f5fa;font-size:15px;font-weight:600;cursor:pointer;margin:0 auto}
+.saved-chat-media-picker-recents svg{color:#9ba4b8}
+
+.saved-chat-media-picker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:4px;overflow-y:auto;flex:1;min-height:120px}
+.saved-chat-media-thumb{position:relative;aspect-ratio:1;border:0;border-radius:4px;background:#2b3048;color:#9ba4b8;cursor:pointer;overflow:hidden;display:grid;place-items:center}
+.saved-chat-media-thumb:hover{opacity:.85}
+.saved-chat-media-thumb-camera{background:#353a52}
+.saved-chat-media-thumb-placeholder{background:#252838;border:1px dashed #3a3f55}
+.saved-chat-media-thumb-overlay{position:absolute;inset:0;background:linear-gradient(transparent 60%,#000a)}
+.saved-chat-media-duration{position:absolute;bottom:6px;left:8px;color:#fff;font-size:11px;font-weight:600;text-shadow:0 1px 3px #0008}
+.saved-chat-media-thumb-select{position:absolute;top:6px;right:6px;width:22px;height:22px;border:2px solid #fff8;border-radius:50%;background:transparent}
+
+.saved-chat-media-picker-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px;color:#9ba4b8;text-align:center;font-size:13px}
+.saved-chat-media-picker-empty button{padding:8px 18px;border:1px solid #4a5070;border-radius:8px;background:transparent;color:#f4f5fa;font-size:12px;cursor:pointer}
+
+.saved-chat-media-picker-tabs{display:flex;border-top:1px solid #2d3142;background:#1c1e2a;padding:6px 0 calc(6px + env(safe-area-inset-bottom));flex:0 0 auto}
+.saved-chat-media-picker-tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border:0;border-radius:8px;background:transparent;color:#9ba4b8;font-size:10px;font-weight:600;cursor:pointer}
+.saved-chat-media-picker-tabs button.active{color:#7c6eef}
+.saved-chat-media-picker-tabs button:hover{background:#2b3048}
+
+/* ── Light theme overrides for media picker ── */
+:root:not([data-theme="dark"]) .saved-chat-media-picker{background:#fff;border-top-color:#e3e7f0}
+:root:not([data-theme="dark"]) .saved-chat-media-picker-close{color:#253149}
+:root:not([data-theme="dark"]) .saved-chat-media-picker-recents{color:#253149}
+:root:not([data-theme="dark"]) .saved-chat-media-picker-recents svg{color:#66748c}
+:root:not([data-theme="dark"]) .saved-chat-media-thumb{background:#f1f4fa}
+:root:not([data-theme="dark"]) .saved-chat-media-thumb-camera{background:#e5e9f0}
+:root:not([data-theme="dark"]) .saved-chat-media-thumb-placeholder{background:#f8f9fc;border-color:#d5dae6}
+:root:not([data-theme="dark"]) .saved-chat-media-picker-tabs{background:#fff;border-top-color:#e3e7f0}
+:root:not([data-theme="dark"]) .saved-chat-media-picker-tabs button{color:#66748c}
+:root:not([data-theme="dark"]) .saved-chat-media-picker-tabs button.active{color:#173b8f}

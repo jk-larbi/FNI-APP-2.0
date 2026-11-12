@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Bookmark, Search, Plus, Paperclip, Send, Image as ImageIcon, Video, Link2, FileText, Pin, Trash2, Download, ExternalLink, X, MoreVertical, Smile } from 'lucide-react';
+import { ArrowLeft, Bookmark, Search, Plus, Paperclip, Send, Image as ImageIcon, Video, Link2, FileText, Pin, Trash2, Download, ExternalLink, X, MoreVertical, Smile, Camera, MapPin, BarChart3, CheckSquare, Music, ChevronDown, Sticker } from 'lucide-react';
 
 type SavedType = 'note' | 'image' | 'video' | 'document' | 'link' | 'audio' | 'message';
 type SavedItem = { id: string; type: SavedType; title: string; content: string; fileName?: string; mime?: string; size: number; createdAt: string; source?: string; folderId: string; pinned: boolean; };
@@ -21,6 +21,9 @@ export default function SavedMessagesWorkspace({ onBack }: { onBack?: () => void
   const [folderOpen,setFolderOpen] = useState(false);
   const [newFolder,setNewFolder] = useState('');
   const [notice,setNotice] = useState('');
+  const [mediaPickerOpen,setMediaPickerOpen] = useState(false);
+  const [mediaPickerTab,setMediaPickerTab] = useState<'gallery'|'file'|'location'|'poll'|'checklist'|'audio'>('gallery');
+  const [recentMedia,setRecentMedia] = useState<{url:string;type:'image'|'video';duration?:string}[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
@@ -57,12 +60,28 @@ export default function SavedMessagesWorkspace({ onBack }: { onBack?: () => void
       {visible.map((item,index)=>{const previous=visible[index-1];const showDay=!previous||dayLabel(previous.createdAt)!==dayLabel(item.createdAt);return <div className="saved-chat-entry" key={item.id}>{showDay&&<div className="saved-chat-day"><span>{dayLabel(item.createdAt)}</span></div>}<article className="saved-chat-bubble">{item.type==='message'||item.type==='note'?<p className="saved-chat-text">{item.content}</p>:<>{renderAttachment(item)}{item.type==='note'&&item.title!=='Saved message'&&<b className="saved-chat-note-title">{item.title}</b>}</>}<div className="saved-chat-meta">{item.pinned&&<Pin size={12}/>}<time>{new Date(item.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</time><span className="saved-chat-check">✓✓</span><div className="saved-chat-message-actions"><button title={item.pinned?'Unpin':'Pin'} onClick={()=>setItems(v=>v.map(i=>i.id===item.id?{...i,pinned:!i.pinned}:i))}><Pin size={13}/></button>{item.content.startsWith('data:')&&<button title="Download" onClick={()=>downloadItem(item)}><Download size={13}/></button>}<button title="Delete" onClick={()=>removeItem(item.id)}><Trash2 size={13}/></button></div></div></article></div>})}
       {!visible.length&&<div className="saved-chat-no-results">{query?'No messages match your search.':'Your saved messages will appear here.'}</div>}
     </div>
+    {mediaPickerOpen&&<div className="saved-chat-media-picker">
+      <div className="saved-chat-media-picker-header"><button className="saved-chat-media-picker-close" onClick={()=>setMediaPickerOpen(false)} aria-label="Close media picker"><X size={22}/></button><button className="saved-chat-media-picker-recents"><span>Recents</span><ChevronDown size={16}/></button></div>
+      <div className="saved-chat-media-picker-grid">
+        <button className="saved-chat-media-thumb saved-chat-media-thumb-camera" onClick={()=>{setNotice('Camera is not available in browser preview.');}}><Camera size={26}/></button>
+        {recentMedia.length>0?recentMedia.map((m,i)=><button key={i} className="saved-chat-media-thumb" onClick={()=>{setNotice('Media selection requires device gallery access.');}}>{m.type==='video'?<><div className="saved-chat-media-thumb-overlay"/><span className="saved-chat-media-duration">{m.duration||'0:00'}</span></>:null}<div className="saved-chat-media-thumb-select"/></button>):<>
+          {[1,2,3,4,5,6,7,8].map(i=><button key={i} className="saved-chat-media-thumb saved-chat-media-thumb-placeholder" onClick={()=>fileRef.current?.click()}><ImageIcon size={20}/></button>)}
+        </>}
+      </div>
+      <div className="saved-chat-media-picker-tabs">
+        {([['gallery','Gallery',<ImageIcon size={20} key="g"/>],['file','File',<FileText size={20} key="f"/>],['location','Location',<MapPin size={20} key="l"/>],['poll','Poll',<BarChart3 size={20} key="p"/>],['checklist','Checklist',<CheckSquare size={20} key="c"/>],['audio','Audio',<Music size={20} key="a"/>]] as [string,string,React.ReactNode][]).map(([key,label,icon])=><button key={key} className={mediaPickerTab===key?'active':''} onClick={()=>{setMediaPickerTab(key as typeof mediaPickerTab);if(key==='file'){fileRef.current?.click();setMediaPickerOpen(false)}else if(key!=='gallery'){setNotice(label+' is not yet available in this preview.');setMediaPickerOpen(false)}}}>{icon}<span>{label}</span></button>)}
+      </div>
+    </div>}
     <footer className="saved-chat-compose-wrap">
-      {attachOpen&&<div className="saved-chat-attach-menu"><button onClick={()=>fileRef.current?.click()}><ImageIcon size={17}/> Photo or file</button><button onClick={saveLink}><Link2 size={17}/> Link</button><button onClick={()=>{setDraft('');composerRef.current?.focus();setAttachOpen(false)}}><FileText size={17}/> Write a message</button></div>}
-      <input ref={fileRef} type="file" hidden onChange={e=>{void uploadFile(e.target.files?.[0]);e.currentTarget.value='';setAttachOpen(false)}}/>
-      <button className="saved-chat-attach" aria-label="Attach" onClick={()=>setAttachOpen(v=>!v)}><Paperclip size={21}/></button>
-      <div className="saved-chat-input-wrap"><textarea ref={composerRef} value={draft} rows={1} onChange={e=>{setDraft(e.target.value);e.currentTarget.style.height='auto';e.currentTarget.style.height=Math.min(e.currentTarget.scrollHeight,120)+'px'}} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}} placeholder="Message..."/><button aria-label="Add emoji" onClick={()=>setDraft(v=>v+' 😊')}><Smile size={19}/></button></div>
-      <button className="saved-chat-send" aria-label="Send message" onClick={sendMessage} disabled={!draft.trim()}><Send size={19}/></button>
+      <input ref={fileRef} type="file" hidden onChange={e=>{void uploadFile(e.target.files?.[0]);e.currentTarget.value='';setAttachOpen(false);setMediaPickerOpen(false)}}/>
+      <button className="saved-chat-attach" aria-label="Attach media" onClick={()=>{setMediaPickerOpen(v=>!v);setAttachOpen(false)}}><Paperclip size={21}/></button>
+      <div className="saved-chat-input-wrap"><textarea ref={composerRef} value={draft} rows={1} onChange={e=>{setDraft(e.target.value);e.currentTarget.style.height='auto';e.currentTarget.style.height=Math.min(e.currentTarget.scrollHeight,120)+'px'}} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}} placeholder="Message"/></div>
+      <div className="saved-chat-compose-right">
+        <button aria-label="Add emoji" onClick={()=>setDraft(v=>v+' 😊')}><Smile size={21}/></button>
+        <button aria-label="Stickers" onClick={()=>setNotice('Stickers coming soon.')}><Sticker size={21}/></button>
+        <button aria-label="Camera" onClick={()=>setNotice('Camera is not available in browser preview.')}><Camera size={21}/></button>
+      </div>
+      {draft.trim()&&<button className="saved-chat-send" aria-label="Send message" onClick={sendMessage}><Send size={19}/></button>}
     </footer>
     <div className="saved-chat-local-note">Saved privately on this device</div>
     {notice&&<div className="saved-chat-notice" role="status">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss"><X size={14}/></button></div>}
