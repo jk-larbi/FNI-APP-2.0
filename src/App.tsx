@@ -16,7 +16,7 @@ export default function App() {
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [groupMemberInput, setGroupMemberInput] = useState('');
-  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[] }>>(() => {
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[] }>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-groups') || '{}'); }
     catch { return {}; }
   });
@@ -398,10 +398,23 @@ export default function App() {
                     {(groupDetails[activeChat].members || []).map((member) => (
                       <div className="group-member-row" key={member}>
                         <span className="group-member-avatar">{member.slice(1, 2).toUpperCase()}</span>
-                        <strong>{member}</strong>
+                        <div className="group-member-identity"><strong>{member}</strong>{groupDetails[activeChat].moderators?.includes(member) && <span className="group-moderator-label">Moderator</span>}</div>
+                        <button type="button" className="group-role-button" onClick={() => setGroupDetails((current) => ({
+                          ...current,
+                          [activeChat]: {
+                            ...current[activeChat],
+                            moderators: current[activeChat].moderators?.includes(member)
+                              ? (current[activeChat].moderators || []).filter((item) => item !== member)
+                              : [...(current[activeChat].moderators || []), member],
+                          },
+                        }))}>{groupDetails[activeChat].moderators?.includes(member) ? 'Remove role' : 'Make moderator'}</button>
                         <button type="button" aria-label={'Remove ' + member} onClick={() => setGroupDetails((current) => ({
                           ...current,
-                          [activeChat]: { ...current[activeChat], members: (current[activeChat].members || []).filter((item) => item !== member) },
+                          [activeChat]: {
+                            ...current[activeChat],
+                            members: (current[activeChat].members || []).filter((item) => item !== member),
+                            moderators: (current[activeChat].moderators || []).filter((item) => item !== member),
+                          },
                         }))}>Remove</button>
                       </div>
                     ))}
