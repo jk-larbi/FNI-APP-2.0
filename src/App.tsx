@@ -4,7 +4,19 @@ import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, Chevro
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'FNI Community' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups' | 'Archived';
 type AccountProfile = { name: string; username: string; bio: string; photo: string };
-type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; fileUrl?: string; fileSize?: number; attachmentKind?: 'file' | 'location' | 'contact' | 'poll' | 'meeting' | 'prayer' | 'scripture'; scriptureReference?: string; scriptureTranslation?: string; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
+type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; fileUrl?: string; fileSize?: number; stickerData?: string; attachmentKind?: 'file' | 'location' | 'contact' | 'poll' | 'meeting' | 'prayer' | 'scripture' | 'sticker'; scriptureReference?: string; scriptureTranslation?: string; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
+
+const EMOJI_CATEGORIES: Record<string, string[]> = {
+  Smileys: Array.from('😀 😃 😄 😁 😆 😅 😂 🤣 🥲 🥹 ☺️ 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🥸 🤩 🥳 🙂‍↕️ 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🫣 🤭 🫢 🫡 🤫 🫠 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 😵 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕 🤑 🤠 😈 👿 👹 👺 🤡 💩 👻 💀 ☠️ 👽 👾 🤖 🎃'.split(' ')),
+  People: Array.from('👋 🤚 🖐️ ✋ 🖖 🫱 🫲 🫳 🫴 👌 🤌 🤏 ✌️ 🤞 🫰 🤟 🤘 🤙 👈 👉 👆 🖕 👇 ☝️ 👍 👎 ✊ 👊 🤛 🤜 👏 🙌 🫶 👐 🤲 🤝 🙏 ✍️ 💅 🤳 💪 🦾 🦿 🦵 🦶 👂 🦻 👃 🧠 🫀 🫁 🦷 🦴 👀 👁️ 👅 👄 🫦 👶 🧒 👦 👧 🧑 👨 👩 🧔 👴 👵 🙍 🙎 🙅 🙆 💁 🙋 🧏 🙇 🤦 🤷 👮 🕵️ 💂 🥷 👷 🤴 👸 👳 👲 🧕 🤵 👰 🤰 🫃 🫄 🤱 👼 🎅 🤶 🦸 🦹 🧙 🧚 🧛 🧜 🧝 🧞 🧟 💃 🕺 🕴️ 👯 🧖 🧗 🤺 🏇 ⛷️ 🏂 🏌️ 🏄 🚣 🏊 ⛹️ 🏋️ 🚴 🚵 🤸 🤼 🤽 🤾 🤹 🧘 🛀 🛌'.split(' ')),
+  Animals: Array.from('🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐻‍❄️ 🐨 🐯 🦁 🐮 🐷 🐽 🐸 🐵 🙈 🙉 🙊 🐒 🐔 🐧 🐦 🐤 🐣 🐥 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🫎 🫏 🐝 🪱 🐛 🦋 🐌 🪲 🐞 🐜 🪰 🪱 🦟 🦗 🕷️ 🕸️ 🦂 🐢 🐍 🦎 🦖 🦕 🐙 🦑 🦐 🦞 🦀 🐡 🐠 🐟 🐬 🦈 🐳 🐋 🦭 🐊 🐅 🐆 🦓 🦍 🦧 🦣 🐘 🦛 🦏 🐪 🐫 🦒 🦘 🦬 🐃 🐂 🐄 🐎 🐖 🐏 🐑 🦙 🐐 🦌 🐕 🐩 🦮 🐕‍🦺 🐈 🐈‍⬛ 🪶 🐓 🦃 🦤 🦚 🦜 🪽 🐇 🦝 🦨 🦡 🦫 🦦 🦥 🐁 🐀 🐿️ 🦔'.split(' ')),
+  Food: Array.from('🍏 🍎 🍐 🍊 🍋 🍌 🍉 🍇 🍓 🫐 🍈 🍒 🍑 🥭 🍍 🥥 🥝 🍅 🫒 🥑 🍆 🥔 🥕 🌽 🌶️ 🫑 🥒 🥬 🥦 🧄 🧅 🍄 🥜 🌰 🍞 🥐 🥖 🫓 🥨 🥯 🥞 🧇 🧀 🍖 🍗 🥩 🥓 🍔 🍟 🍕 🌭 🥪 🌮 🌯 🫔 🥙 🧆 🥚 🍳 🥘 🍲 🫕 🥣 🥗 🍿 🧈 🧂 🥫 🍱 🍘 🍙 🍚 🍛 🍜 🍝 🍠 🍢 🍣 🍤 🍥 🥮 🍡 🥟 🥠 🥡 🦪 🍦 🍧 🍨 🍩 🍪 🎂 🍰 🧁 🥧 🍫 🍬 🍭 🍮 🍯 🍼 🥛 ☕ 🫖 🍵 🍶 🍾 🍷 🍸 🍹 🍺 🍻 🥂 🥃 🫗 🧋 🧃 🧉'.split(' ')),
+  Travel: Array.from('🚗 🚕 🚙 🚌 🚎 🏎️ 🚓 🚑 🚒 🚐 🛻 🚚 🚛 🚜 🛵 🏍️ 🛺 🚲 🛴 🛹 🛼 🚏 🛣️ 🛤️ ⛽ 🚨 🚥 🚦 🚧 ⚓ 🛟 ⛵ 🚤 🛳️ ⛴️ 🛥️ 🚢 ✈️ 🛩️ 🛫 🛬 🪂 💺 🚁 🚟 🚠 🚡 🚀 🛸 🌍 🌎 🌏 🌐 🗺️ 🧭 🏔️ ⛰️ 🌋 🗻 🏕️ 🏖️ 🏜️ 🏝️ 🏞️ 🏟️ 🏛️ 🏗️ 🧱 🏘️ 🏚️ 🏠 🏡 🏢 🏣 🏤 🏥 🏦 🏨 🏩 🏪 🏫 🏬 🏭 🏯 🏰 💒 🗼 🗽 ⛪ 🕌 🛕 🕍 ⛩️ 🕋 ⛲ 🌁 🌃 🌄 🌅 🌆 🌇 🌉 🌌 🌠 🎇 🎆 🌈'.split(' ')),
+  Activities: Array.from('⚽ 🏀 🏈 ⚾ 🥎 🎾 🏐 🏉 🥏 🎱 🪀 🏓 🏸 🏒 🏑 🥍 🏏 🪃 🥅 ⛳ 🪁 🏹 🎣 🤿 🥊 🥋 🎽 🛷 ⛸️ 🥌 🎿 🏆 🥇 🥈 🥉 🏅 🎖️ 🏵️ 🎗️ 🎫 🎟️ 🎪 🤹 🎭 🩰 🎨 🎬 🎤 🎧 🎼 🎹 🥁 🪘 🎷 🎺 🪗 🎸 🪕 🎻 🪇 🎲 ♟️ 🎯 🎳 🎮 🕹️ 🧩 🧸 🪅 🪩 🪆 🃏 🀄'.split(' ')),
+  Objects: Array.from('⌚ 📱 📲 💻 ⌨️ 🖥️ 🖨️ 🖱️ 🖲️ 🕹️ 💽 💾 💿 📀 📼 📷 📸 📹 🎥 📽️ 🎞️ 📞 ☎️ 📟 📠 📺 📻 🎙️ 🎚️ 🎛️ 🧭 ⏱️ ⏲️ ⏰ 🕰️ ⌛ ⏳ 📡 🔋 🪫 🔌 💡 🔦 🕯️ 🪔 🧯 🛢️ 💸 💵 💴 💶 💷 🪙 💰 💳 🧾 💎 ⚖️ 🪜 🧰 🔧 🔨 ⚒️ 🛠️ ⛏️ 🪚 🔩 ⚙️ 🪛 🧲 💣 🧨 🔪 🗡️ ⚔️ 🛡️ 🚬 ⚰️ 🪦 ⚱️ 🏺 🔮 📿 🧿 💈 ⚗️ 🔭 🔬 🕳️ 🩹 🩺 💊 💉 🩸 🧬 🦠 🧫 🧪 🌡️ 🧹 🧺 🧻 🚽 🚿 🛁 🪥 🧴 🧷 🧸 🪞 🪟 🛏️ 🛋️ 🪑 🚪 🪑 🧳 🛍️ 🎁 🎈 🎀 🪄 🪅 🪆'.split(' ')),
+  Symbols: Array.from('❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❤️‍🔥 ❤️‍🩹 💕 💞 💓 💗 💖 💘 💝 💟 ♥️ ❣️ 💌 💋 💯 💢 💥 💫 💦 💨 🕳️ 💬 👁️‍🗨️ 🗨️ 🗯️ 💭 💤 ☮️ ✝️ ☪️ 🕉️ ☸️ ✡️ 🔯 🕎 ☯️ ☦️ 🛐 ⛎ ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ 🆔 ⚛️ 🉑 ☢️ ☣️ 📴 📳 🈶 🈚 🈸 🈺 🈷️ ✴️ 🆚 💮 🉐 ㊙️ ㊗️ 🈴 🈵 🈹 🈲 🅰️ 🅱️ 🆎 🆑 🅾️ 🆘 ❌ ⭕ 🛑 ⛔ 📛 🚫 💯 🔞 🔕 🔔 🔊 🔇 🔈 🔉 🔍 🔎 ⚠️ 🚸 🔱 ⚜️ 🔰 ♻️ ✅ ☑️ ✔️ ❎ ➕ ➖ ➗ ✖️ ♾️ 💲 💱 ™️ ©️ ®️ 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🟤 🔺 🔻 🔸 🔹 🔶 🔷'.split(' ')),
+  Flags: Array.from('🏁 🚩 🎌 🏴 🏳️ 🏳️‍🌈 🏳️‍⚧️ 🏴‍☠️ 🇬🇭 🇳🇬 🇿🇦 🇰🇪 🇺🇸 🇬🇧 🇨🇦 🇦🇺 🇩🇪 🇫🇷 🇮🇹 🇪🇸 🇵🇹 🇧🇷 🇯🇵 🇰🇷 🇨🇳 🇮🇳 🇸🇦 🇦🇪 🇶🇦 🇮🇱 🇺🇦 🇷🇺 🇪🇺'.split(' '))
+};
 
 function SettingToggle({ title, description, checked, onChange }: { title: string; description: string; checked: boolean; onChange: (value: boolean) => void }) {
   return <label className="settings-toggle-row"><span><strong>{title}</strong><small>{description}</small></span><input type="checkbox" checked={checked} onChange={event => onChange(event.target.checked)}/><i aria-hidden="true"/></label>;
@@ -324,7 +336,7 @@ export default function App() {
   const [bibleTranslation, setBibleTranslation] = useState('kjv');
   const [bibleBotOpen, setBibleBotOpen] = useState(false);
   const [bibleReferenceInput, setBibleReferenceInput] = useState('');
-  const [bibleLookupResult, setBibleLookupResult] = useState<{ reference: string; text: string; translation: string } | null>(null);
+  const [bibleLookupResult, setBibleLookupResult] = useState<{ reference: string; text: string; translation: string; verses?: { verse: number; text: string }[] } | null>(null);
   const [bibleLookupLoading, setBibleLookupLoading] = useState(false);
   const [bibleLookupError, setBibleLookupError] = useState('');
   const bibleCommand = draft.match(/^(?:@FNIBibleBot\s+|\/bible\s+)(.+)$/i);
@@ -372,7 +384,12 @@ export default function App() {
   const [pinnedMessageId, setPinnedMessageId] = useState<number | null>(null);
   const [openMessageMenu, setOpenMessageMenu] = useState<number | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [emojiCategory, setEmojiCategory] = useState('Smileys');
   const [stickerOpen, setStickerOpen] = useState(false);
+  const [customStickers, setCustomStickers] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('fni-custom-stickers') || '[]'); } catch { return []; } });
+  const stickerInput = useRef<HTMLInputElement>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  useEffect(() => { try { localStorage.setItem('fni-custom-stickers', JSON.stringify(customStickers)); } catch { /* storage limit */ } }, [customStickers]);
   const [mentionOpen, setMentionOpen] = useState(false);
   const [forwardingMessage, setForwardingMessage] = useState<Message | null>(null);
   const [forwardRecipient, setForwardRecipient] = useState('');
@@ -581,6 +598,18 @@ export default function App() {
   };
 
   const addEmoji = (emoji: string) => { setDraft((current) => current + emoji); setEmojiOpen(false); };
+  const createCustomSticker = (file?: File) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { window.alert('Choose an image file to create a sticker.'); return; }
+    if (file.size > 1024 * 1024) { window.alert('Choose an image under 1 MB for your sticker.'); return; }
+    const reader = new FileReader();
+    reader.onload = () => { const data = String(reader.result || ''); if (data) setCustomStickers(current => [data, ...current].slice(0, 40)); };
+    reader.readAsDataURL(file);
+  };
+  const sendCustomSticker = (stickerData: string) => {
+    setMessages(current => [...current, { id: Date.now(), text: '', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), attachmentKind: 'sticker', stickerData }]);
+    setStickerOpen(false);
+  };
 
   const addReaction = (messageId: number, emoji: string) => {
     setMessages((current) => current.map((message) => message.id === messageId ? { ...message, reactions: message.reactions?.includes(emoji) ? message.reactions.filter((item) => item !== emoji) : [...(message.reactions || []), emoji] } : message));
@@ -654,7 +683,8 @@ export default function App() {
       const data = await response.json();
       const verseText = String(data.text || '').trim();
       if (!verseText) throw new Error('No verse text was returned for that reference.');
-      setBibleLookupResult({ reference: String(data.reference || reference), text: verseText, translation: bibleTranslation.toUpperCase() });
+      const numberedVerses = Array.isArray(data.verses) ? data.verses.map((item: { verse?: number; text?: string }) => ({ verse: Number(item.verse || 0), text: String(item.text || '').trim() })).filter((item: { verse: number; text: string }) => item.text) : [];
+      setBibleLookupResult({ reference: String(data.reference || reference), text: verseText, translation: bibleTranslation.toUpperCase(), verses: numberedVerses });
     } catch (error) {
       setBibleLookupError(error instanceof Error ? error.message : 'Could not retrieve this verse. Check your connection and reference.');
     } finally {
@@ -665,7 +695,7 @@ export default function App() {
     if (!bibleLookupResult || !activeChat) return;
     const verseMessage: Message = {
       id: Date.now(),
-      text: bibleLookupResult.text,
+      text: bibleLookupResult.verses?.length ? bibleLookupResult.verses.map(item => `${item.verse}  ${item.text}`).join('\n') : bibleLookupResult.text,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       attachmentKind: 'scripture',
       mediaName: 'FNI Bible Bot',
@@ -978,22 +1008,23 @@ export default function App() {
                       )}
                       <button className="delete-action" onClick={() => { setMessages((current) => current.filter((item) => item.id !== message.id)); setOpenMessageMenu(null); }}>Delete</button>
                     </div>}
-                    <div className="message-bubble">
+                    <div className="message-bubble" onTouchStart={event => { const touch=event.touches[0]; touchStart.current={x:touch.clientX,y:touch.clientY}; }} onTouchEnd={event => { if (!touchStart.current) return; const touch=event.changedTouches[0]; const dx=touch.clientX-touchStart.current.x; const dy=touch.clientY-touchStart.current.y; if (dx>64 && Math.abs(dy)<55) { setReplyTo(message); setEditingMessage(null); setOpenMessageMenu(null); } touchStart.current=null; }}>
                       {message.forwardedFrom && <div className="forwarded-label">Forwarded from {message.forwardedFrom}</div>}
                       {message.replyTo && <div className="quoted-message">{message.replyTo}</div>}
                       {message.mediaType === 'photo' && message.mediaUrl && <img className="message-media" src={message.mediaUrl} alt={message.mediaName || 'Shared photo'} />}
                       {message.mediaType === 'video' && message.mediaUrl && <video className="message-media" src={message.mediaUrl} controls playsInline />}
                       {message.attachmentKind === 'file' && message.fileUrl && <a className="document-message-card" href={message.fileUrl} download={message.mediaName || 'FNI-file'}><FileText /><span><strong>{message.mediaName || 'Document'}</strong><small>{message.fileSize ? (message.fileSize/1024/1024).toFixed(2)+' MB' : 'File attachment'} · Download</small></span><Download /></a>}
-                      {message.attachmentKind === 'scripture' && <div className="bible-verse-message"><div className="bible-verse-heading"><BookOpen size={17}/><strong>{message.scriptureReference || 'Bible verse'}</strong><span>{message.scriptureTranslation || 'KJV'}</span></div><p>{message.text}</p><small>Sent with FNI Bible Bot</small></div>}
+                      {message.attachmentKind === 'scripture' && <div className="bible-verse-message"><div className="bible-verse-heading"><BookOpen size={17}/><strong>{message.scriptureReference || 'Bible verse'}</strong><span>{message.scriptureTranslation || 'KJV'}</span></div><div className="bible-numbered-sent">{message.text.split('\n').map((line,index) => { const match = line.match(/^(\d+)\s+(.+)$/); return <p key={index}>{match ? <><b>{match[1]}</b><span>{match[2]}</span></> : line}</p>; })}</div><small>Sent with FNI Bible Bot</small></div>}
+                      {message.attachmentKind === 'sticker' && message.stickerData && <img className="sent-custom-sticker" src={message.stickerData} alt="Sticker" />}
                       {message.attachmentKind && message.attachmentKind !== 'file' && message.attachmentKind !== 'scripture' && <div className={'structured-attachment-card '+message.attachmentKind}><strong>{message.mediaName || message.attachmentKind}</strong><small>{message.attachmentKind === 'poll' ? 'Poll' : message.attachmentKind === 'location' ? 'Location shared' : message.attachmentKind === 'contact' ? 'Contact card' : message.attachmentKind === 'meeting' ? 'Meeting invitation' : message.attachmentKind === 'prayer' ? 'Prayer request' : 'Scripture'}</small></div>}
-                      {message.text && <div>{message.text.split(/(@[\w.]+)/g).map((part, index) => part.startsWith('@') ? <strong className="message-mention" key={index}>{part}</strong> : part)}</div>}<span className={preferences.showMessageTimestamps ? '' : 'message-meta-hidden'}>{message.edited ? 'edited · ' : ''}{message.time} <b>✓✓</b></span>
+                      {message.text && message.attachmentKind !== 'scripture' && <div>{message.text.split(/(@[\w.]+)/g).map((part, index) => part.startsWith('@') ? <button type="button" className="message-mention" key={index} onClick={() => { if (part.toLowerCase() === '@fnibiblebot') { setBibleReferenceInput(''); setBibleLookupResult(null); setBibleLookupError(''); setBibleBotOpen(true); } }}>{part}</button> : part)}</div>}<span className={preferences.showMessageTimestamps ? '' : 'message-meta-hidden'}>{message.edited ? 'edited · ' : ''}{message.time} <b>✓✓</b></span>
                       {message.reactions && message.reactions.length > 0 && <div className="message-reactions">{message.reactions.map((emoji) => <button key={emoji} onClick={() => addReaction(message.id, emoji)}>{emoji}</button>)}</div>}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            {(replyTo || editingMessage) && <div className="reply-preview"><div><strong>{editingMessage ? 'Editing message' : 'Replying to your message'}</strong><span>{editingMessage ? editingMessage.text : replyTo?.text}</span></div><button onClick={() => { setReplyTo(null); setEditingMessage(null); setDraft(editingMessage ? draftBeforeEdit : draft); }} aria-label="Cancel reply"><X size={17} /></button></div>}
+            {(replyTo || editingMessage) && <div className="reply-preview"><div><strong>{editingMessage ? 'Editing message' : 'Replying to message'}</strong><span>{editingMessage ? editingMessage.text : replyTo?.text}</span></div><button onClick={() => { setReplyTo(null); setEditingMessage(null); setDraft(editingMessage ? draftBeforeEdit : draft); }} aria-label="Cancel reply"><X size={17} /></button></div>}
             {pendingAttachments.length > 0 && <div className="attachment-preview-sheet" role="dialog" aria-label="Review attachments">
               <div className="attachment-preview-heading"><strong>Review attachments</strong><button type="button" aria-label="Close preview" onClick={() => { setPendingAttachments([]); setAttachmentCaption(''); }}><X /></button></div>
               <div className="attachment-preview-items">{pendingAttachments.map((file,index) => <div className="attachment-preview-item" key={index}>
@@ -1005,16 +1036,16 @@ export default function App() {
               <div className="attachment-preview-footer"><span>{pendingAttachments.length} item{pendingAttachments.length===1?'':'s'} selected</span><button type="button" onClick={sendPendingAttachments}>Send</button></div>
             </div>}
             {(bibleBotOpen || bibleCommand) && <div className="bible-bot-panel">
-              <div className="bible-bot-title"><BookOpen size={18}/><div><strong>FNI Bible Bot</strong><small>Find a verse and send it to this chat</small></div><button type="button" className="icon-button" aria-label="Close Bible Bot" onClick={() => { setBibleBotOpen(false); setBibleLookupResult(null); setBibleLookupError(''); }}><X size={16}/></button></div>
+              <div className="bible-bot-title"><BookOpen size={18}/><div><strong>FNI Bible Bot</strong><small>Find a verse and send it to this chat</small></div><button type="button" className="icon-button" aria-label="Close Bible Bot" onClick={() => { setBibleBotOpen(false); setBibleReferenceInput(''); setBibleLookupResult(null); setBibleLookupError(''); }}><X size={16}/></button></div>
               <div className="bible-bot-controls">
-                <input type="text" value={bibleReferenceInput || bibleCommand?.[1]?.trim() || ''} onChange={(event) => { setBibleReferenceInput(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} onKeyDown={(event) => { if (event.key === 'Enter') event.preventDefault(); }} placeholder="Enter a reference, e.g. John 3:16" aria-label="Bible scripture reference" />
+                <input type="text" value={bibleBotOpen ? bibleReferenceInput : (bibleCommand?.[1]?.trim() || bibleReferenceInput)} onChange={(event) => { setBibleReferenceInput(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} onKeyDown={(event) => { if (event.key === 'Enter') event.preventDefault(); }} placeholder="Enter a reference, e.g. John 3:16" aria-label="Bible scripture reference" />
                 <select value={bibleTranslation} onChange={(event) => { setBibleTranslation(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} aria-label="Bible translation">
                   <option value="kjv">KJV · King James Version</option><option value="nkjv">NKJV · New King James Version</option><option value="esv">ESV · English Standard Version</option><option value="niv">NIV · New International Version</option><option value="nlt">NLT · New Living Translation</option><option value="web">WEB · World English Bible</option>
                 </select>
               </div>
               {bibleLookupLoading && <p className="bible-bot-searching">Searching scripture…</p>}
               {bibleLookupError && <p className="bible-bot-error">{bibleLookupError}</p>}
-              {bibleLookupResult && <div className="bible-bot-result"><div><strong>{bibleLookupResult.reference}</strong><span>{bibleLookupResult.translation}</span></div><p>{bibleLookupResult.text}</p><button type="button" onClick={sendBibleVerseToGroup}>Tap to send to chat</button></div>}
+              {bibleLookupResult && <div className="bible-bot-result"><div><strong>{bibleLookupResult.reference}</strong><span>{bibleLookupResult.translation}</span></div>{bibleLookupResult.verses?.length ? <div className="bible-numbered-verses">{bibleLookupResult.verses.map(item => <p key={item.verse}><b>{item.verse}</b><span>{item.text}</span></p>)}</div> : <p>{bibleLookupResult.text}</p>}<button type="button" onClick={sendBibleVerseToGroup}>Tap to send to chat</button></div>}
             </div>}
             <div className="message-composer">
               <div className="attachment-menu-wrap">
@@ -1036,15 +1067,15 @@ export default function App() {
               <input ref={fileInput} className="attachment-input" type="file" multiple onChange={(event) => { if(event.target.files) queueAttachments(event.target.files); event.target.value = ''; }} />
               <div className="composer-input-wrap">
                 <textarea value={draft} onChange={(event) => { setDraft(event.target.value); const tail = event.target.value.split(/\s/).pop() || ''; setMentionOpen(Boolean(preferences.mentionSuggestions) && tail.startsWith('@') && tail.length > 0); }} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && preferences.enterToSend) { event.preventDefault(); sendMessage(); } if (event.key === 'Escape') { setMentionOpen(false); setEmojiOpen(false); setStickerOpen(false); } }} placeholder="Message" rows={1} />
-                {mentionOpen && activeChat && <div className="mention-suggestions">{(groupDetails[activeChat]?.members || [activeChat]).filter(member => member.toLowerCase().includes((draft.split(/\s/).pop() || '').slice(1).toLowerCase())).map(member => <button type="button" key={member} onClick={() => { setDraft((current) => current.replace(/@[\w.]*$/, `@${member.replace(/^@/, '')} `)); setMentionOpen(false); }}>{member}<span>{groupDetails[activeChat] ? 'Member of this group' : 'Chat contact'}</span></button>)}</div>}
+                {mentionOpen && activeChat && <div className="mention-suggestions">{'FNIBibleBot'.toLowerCase().includes((draft.split(/\s/).pop() || '').slice(1).toLowerCase()) && <button type="button" onClick={() => { setDraft((current) => current.replace(/@[\w.]*$/, '@FNIBibleBot ')); setBibleReferenceInput(''); setBibleLookupResult(null); setBibleLookupError(''); setBibleBotOpen(true); setMentionOpen(false); }}>{'@FNIBibleBot'}<span>Search and share scripture</span></button>}{(groupDetails[activeChat]?.members || [activeChat]).filter(member => member.toLowerCase().includes((draft.split(/\s/).pop() || '').slice(1).toLowerCase())).map(member => <button type="button" key={member} onClick={() => { setDraft((current) => current.replace(/@[\w.]*$/, `@${member.replace(/^@/, '')} `)); setMentionOpen(false); }}>{member}<span>{groupDetails[activeChat] ? 'Member of this group' : 'Chat contact'}</span></button>)}</div>}
               </div>
               <div className="emoji-picker-wrap">
                 <button type="button" className="composer-icon emoji-button" aria-label="Emoji" title="Emoji" onClick={() => { setStickerOpen(false); setEmojiOpen((open) => !open); }}><Smile /></button>
-                {emojiOpen && <div className="emoji-picker">{['😀','😂','🥹','😍','😊','🙏','❤️','👍','🔥','🎉','😢','😮','👏','✨','💯','🤝','🙌','💙','🤣','😉'].map((emoji) => <button type="button" key={emoji} onClick={() => addEmoji(emoji)}>{emoji}</button>)}</div>}
+                {emojiOpen && <div className="emoji-picker" aria-label="Full emoji picker"><div className="emoji-category-tabs">{Object.keys(EMOJI_CATEGORIES).map(category => <button type="button" key={category} className={emojiCategory===category?'active':''} onClick={() => setEmojiCategory(category)}>{category}</button>)}</div><div className="emoji-grid">{(EMOJI_CATEGORIES[emojiCategory] || EMOJI_CATEGORIES.Smileys).map((emoji,index) => <button type="button" key={emoji+'-'+index} onClick={() => addEmoji(emoji)}>{emoji}</button>)}</div></div>}
               </div>
               <div className="emoji-picker-wrap sticker-picker-wrap">
                 <button type="button" className="composer-icon sticker-button" aria-label="Stickers" title="Stickers" onClick={() => { setEmojiOpen(false); setStickerOpen((open) => !open); }}><Sticker /></button>
-                {stickerOpen && <div className="sticker-picker" aria-label="Sticker picker">{['🙏','❤️','🙌','👏','😊','😂','🔥','💙','✨','🎉','🤝','🥹'].map((sticker) => <button type="button" key={sticker} aria-label={sticker + ' sticker'} onClick={() => { setDraft((current) => current + (current && !current.endsWith(' ') ? ' ' : '') + sticker); setStickerOpen(false); }}>{sticker}</button>)}</div>}
+                {stickerOpen && <div className="sticker-picker" aria-label="Sticker picker"><div className="sticker-picker-heading"><strong>Your stickers</strong><button type="button" onClick={() => stickerInput.current?.click()}>＋ Create</button><input ref={stickerInput} type="file" accept="image/*" hidden onChange={event => { createCustomSticker(event.target.files?.[0]); event.currentTarget.value=''; }} /></div><div className="sticker-grid">{customStickers.map((sticker,index) => <button type="button" key={index} onClick={() => sendCustomSticker(sticker)}><img src={sticker} alt={'Custom sticker '+(index+1)} /></button>)}{['🙏','❤️','🙌','👏','😊','😂','🔥','💙','✨','🎉','🤝','🥹'].map((sticker,index) => <button type="button" key={sticker+index} aria-label={sticker + ' sticker'} onClick={() => { setDraft((current) => current + (current && !current.endsWith(' ') ? ' ' : '') + sticker); setStickerOpen(false); }}>{sticker}</button>)}</div></div>}
               </div>
               <button className="send-button" aria-label={editingMessage ? 'Save edited message' : 'Send message'} onClick={sendMessage} disabled={!draft.trim()}><Send size={19} /></button>
             </div>
