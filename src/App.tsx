@@ -221,7 +221,7 @@ function App() {
             </div>)}
           </aside>
           {selectedSetting === 'profile' ? <ProfileIdentity onNotice={message => { setNotice(message); window.setTimeout(() => setNotice(''), 4800); }} /> : <section className="settings-detail">
-            <div className="settings-detail-head"><div className="setting-detail-icon"><ActiveSettingIcon size={20} /></div><div><h3>{activeSetting.label}</h3><p>{activeSetting.description}</p></div></div>
+            <div className="settings-detail-head"><div className="setting-detail-icon"><ActiveSettingIcon size={20} /></div><div><h3>{t(activeSetting.label)}</h3><p>{activeSetting.description}</p></div></div>
             <div className="settings-options">
               {activeSetting.options.map(option => {
                 const key = activeSetting.id + ':' + option.label;
