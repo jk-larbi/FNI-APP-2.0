@@ -22,6 +22,8 @@ export default function App() {
   const [groupGoalTitle, setGroupGoalTitle] = useState('');
   const [groupGoalDate, setGroupGoalDate] = useState('');
   const [groupGoalDescription, setGroupGoalDescription] = useState('');
+  const [groupAnnouncementText, setGroupAnnouncementText] = useState('');
+  const [groupAnnouncementImportant, setGroupAnnouncementImportant] = useState(false);
   const [attendanceDate, setAttendanceDate] = useState('');
   const [attendanceSelection, setAttendanceSelection] = useState<string[]>([]);
   const [meetingDate, setMeetingDate] = useState('');
@@ -30,7 +32,7 @@ export default function App() {
   const [meetingLink, setMeetingLink] = useState('');
   const [groupApprovalRequests, setGroupApprovalRequests] = useState<{ id: string; name: string; description: string; requestedAt: string; status: 'Pending' | 'Approved' | 'Declined' }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-requests') || '[]'); } catch { return []; } });
   const [groupApprovalLog, setGroupApprovalLog] = useState<{ id: string; groupName: string; action: 'Submitted' | 'Approved' | 'Declined'; time: string }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-log') || '[]'); } catch { return []; } });
-  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[] }>>(() => {
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[]; announcements?: { id: number; text: string; important: boolean; createdAt: string }[] }>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-groups') || '{}'); }
     catch { return {}; }
   });
@@ -606,6 +608,31 @@ export default function App() {
                 <p className="group-insights-note">Insights are calculated from records saved on this device. They are not a live attendance or spiritual-growth measurement.</p>
               </section>;
             })()}
+            {groupDetails[activeChat] && (
+              <section className="group-goals-section">
+                <div className="shared-media-heading"><strong>Group announcements</strong><span>{(groupDetails[activeChat].announcements || []).length} posts</span></div>
+                <form className="group-goal-form" onSubmit={(event) => {
+                  event.preventDefault();
+                  const text = groupAnnouncementText.trim();
+                  if (!text) return;
+                  const announcement = { id: Date.now(), text, important: groupAnnouncementImportant, createdAt: new Date().toISOString() };
+                  setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], announcements: [announcement, ...(current[activeChat].announcements || [])] } }));
+                  setGroupAnnouncementText(''); setGroupAnnouncementImportant(false);
+                }}>
+                  <textarea aria-label="Announcement message" value={groupAnnouncementText} onChange={(event) => setGroupAnnouncementText(event.target.value)} placeholder="Write an update for this group..." rows={3} maxLength={600} required />
+                  <label className="attendance-member-option"><input type="checkbox" checked={groupAnnouncementImportant} onChange={(event) => setGroupAnnouncementImportant(event.target.checked)} /><span>Mark as important</span></label>
+                  <button type="submit" disabled={!groupAnnouncementText.trim()}>Post announcement</button>
+                </form>
+                {(groupDetails[activeChat].announcements || []).length ? <div className="group-goal-list">
+                  {(groupDetails[activeChat].announcements || []).map((announcement) => <article className="group-goal-card" key={announcement.id}>
+                    <div className="group-goal-card-head"><strong>{announcement.important ? "Important announcement" : "Group update"}</strong><span>{new Date(announcement.createdAt).toLocaleDateString([], { day: "numeric", month: "short" })}</span></div>
+                    <p>{announcement.text}</p>
+                    <div className="group-goal-actions"><time>{new Date(announcement.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time><button type="button" onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], announcements: (current[activeChat].announcements || []).filter((item) => item.id !== announcement.id) } }))}>Delete</button></div>
+                  </article>)}
+                </div> : <p className="group-members-empty">No announcements yet.</p>}
+                <p className="group-insights-note">Announcements are saved on this device in the preview. Member-wide delivery and push notifications will be connected with the FNI backend.</p>
+              </section>
+            )}
             {groupDetails[activeChat] && (
               <section className="group-goals-section">
                 <div className="shared-media-heading"><strong>Group goals & progress</strong><span>{(groupDetails[activeChat].goals || []).filter((goal) => goal.completed).length}/{(groupDetails[activeChat].goals || []).length} complete</span></div>
