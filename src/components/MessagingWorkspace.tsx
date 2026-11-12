@@ -290,11 +290,20 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     <div className="fni-group-chat-messages" ref={chatMessagesRef}>
       {groupMessages.filter(message => message.groupId === selected.id).length === 0
         ? <div className="fni-group-chat-empty"><div><MessageCircle size={24}/></div><b>{selected.name}</b><span>No messages yet. Start the conversation with your group.</span></div>
-        : groupMessages.filter(message => message.groupId === selected.id).map(message => {
+        : groupMessages.filter(message => message.groupId === selected.id).map((message, messageIndex, messageList) => {
           const parent = groupMessages.find(item => item.id === message.replyTo);
-          return <article
+          const previousMessage = messageList[messageIndex - 1];
+          const messageDate = new Date(message.createdAt);
+          const previousDate = previousMessage ? new Date(previousMessage.createdAt) : null;
+          const showDateDivider = !previousDate || messageDate.toDateString() !== previousDate.toDateString();
+          const today = new Date();
+          const yesterday = new Date();
+          yesterday.setDate(today.getDate() - 1);
+          const dateLabel = messageDate.toDateString() === today.toDateString() ? 'Today' : messageDate.toDateString() === yesterday.toDateString() ? 'Yesterday' : messageDate.toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' });
+          return <div className="fni-chat-day-group" key={message.id}>
+            {showDateDivider && <div className="fni-chat-day-divider" style={{ display: 'flex', justifyContent: 'center', padding: '5px 0' }}><span style={{ padding: '5px 12px', borderRadius: '20px', background: '#34383d', color: '#f4f5f7', fontSize: '11px', fontWeight: 600 }}>{dateLabel}</span></div>}
+            <article
             className={`fni-group-chat-entry${selectedMessages.includes(message.id) ? ' is-message-selected' : ''}`}
-            key={message.id}
             onContextMenu={event => { event.preventDefault(); openMessageMenu(message, event.clientX, event.clientY); }}
             onTouchStart={event => {
               longPressTriggered.current = false;
@@ -342,7 +351,8 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
               <button title="Reply" aria-label="Reply to message" onClick={()=>{setReplyTarget(message);setEmojiOpen(false)}}><Reply size={15}/></button>
               {['❤️','👍','🙏','😂'].map(emoji=><button key={emoji} title={'React '+emoji} onClick={()=>setGroupMessages(items=>items.map(item=>item.id===message.id?{...item,reactions:item.reactions?.includes(emoji)?item.reactions.filter(value=>value!==emoji):[...(item.reactions||[]),emoji]}:item))}>{emoji}</button>)}
             </div>
-          </article>;
+            </article>
+          </div>;
         })}
     </div>
     {messageMenu && (() => {
