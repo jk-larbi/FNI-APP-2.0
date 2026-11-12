@@ -668,3 +668,76 @@ button{cursor:pointer}
 .meeting-followup-form>div{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .meeting-countdown{display:inline-flex!important;width:max-content;padding:3px 7px;border-radius:5px;background:#edf5ff;color:#2878d0!important;font-size:10px!important;font-weight:650}
 @media(max-width:380px){.meeting-followup-form>div{grid-template-columns:1fr}}
+
+
+/* Telegram-style settings and FNI account controls */
+.telegram-settings{width:100%;max-width:1040px;margin:0 auto;padding:18px 20px 34px;color:var(--text,#263449)}
+.settings-profile-card{display:flex;align-items:center;gap:13px;padding:16px;margin-bottom:18px;border:1px solid var(--border-color,#e6eaf0);border-radius:12px;background:var(--surface,#fff)}
+.settings-profile-avatar{display:grid;place-items:center;flex:none;width:54px;height:54px;border-radius:50%;background:#2878d0;color:#fff;font-size:22px;font-weight:650}
+.settings-profile-card>div:nth-child(2){display:grid;gap:4px;flex:1;min-width:0}
+.settings-profile-card strong{font-size:14px;font-weight:650}
+.settings-profile-card span{font-size:11px;color:var(--muted,#7c8796)}
+.settings-profile-card small{font-size:10px;color:var(--muted,#929baa);line-height:1.45}
+.settings-profile-card>button{border:0;background:transparent;color:var(--muted,#8993a1);cursor:pointer}
+.settings-layout{display:grid;grid-template-columns:255px minmax(0,1fr);gap:18px;align-items:start}
+.settings-category-list{display:grid;gap:3px;padding:6px;border:1px solid var(--border-color,#e6eaf0);border-radius:11px;background:var(--surface,#fff)}
+.settings-category{display:flex;align-items:center;gap:11px;width:100%;min-height:54px;padding:8px 10px;border:0;border-radius:8px;background:transparent;color:var(--muted,#687587);text-align:left;cursor:pointer}
+.settings-category>svg:first-child{flex:none}
+.settings-category>span{display:grid;gap:3px;flex:1;min-width:0}
+.settings-category strong{font-size:11px;font-weight:600;color:var(--text,#344054)}
+.settings-category small{font-size:9px;color:var(--muted,#8993a1)}
+.settings-category>svg:last-child{opacity:.5}
+.settings-category.active{background:#edf5ff;color:#2878d0}
+.settings-category.active strong{color:#246fbd}
+.settings-content{min-width:0;padding:17px 19px;border:1px solid var(--border-color,#e6eaf0);border-radius:11px;background:var(--surface,#fff)}
+.settings-content-heading{display:flex;align-items:center;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--border-color,#edf0f4)}
+.settings-content-heading h2{margin:0;color:var(--text,#263449);font-size:17px;font-weight:650}
+.settings-content-heading p{margin:4px 0 0;color:var(--muted,#8993a1);font-size:10px}
+.settings-mobile-back{display:none;border:0;background:transparent;color:var(--muted,#7c8796)}
+.settings-section{display:grid;gap:0}
+.settings-section h3{margin:18px 0 8px;color:var(--muted,#7c8796);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+.settings-toggle-row,.settings-control-row,.settings-info-row{display:flex;align-items:center;gap:14px;min-height:61px;padding:10px 0;border-bottom:1px solid var(--border-color,#edf0f4)}
+.settings-toggle-row>span,.settings-control-row>span,.settings-info-row>span{display:grid;gap:4px;flex:1;min-width:0}
+.settings-toggle-row strong,.settings-control-row strong,.settings-info-row strong{color:var(--text,#344054);font-size:11px;font-weight:600}
+.settings-toggle-row small,.settings-control-row small,.settings-info-row small{color:var(--muted,#8993a1);font-size:10px;line-height:1.4}
+.settings-toggle-row input{position:absolute;width:1px;height:1px;opacity:0}
+.settings-toggle-row i{position:relative;flex:none;width:36px;height:21px;border-radius:20px;background:#c9d0d9;transition:background .18s}
+.settings-toggle-row i:after{position:absolute;top:3px;left:3px;width:15px;height:15px;border-radius:50%;background:#fff;content:"";box-shadow:0 1px 3px #0002;transition:transform .18s}
+.settings-toggle-row input:checked+i{background:#2878d0}
+.settings-toggle-row input:checked+i:after{transform:translateX(15px)}
+.settings-toggle-row input:focus-visible+i{outline:2px solid #2878d0;outline-offset:3px}
+.settings-control-row select{max-width:150px;min-width:118px;padding:8px 25px 8px 9px;border:1px solid var(--border-color,#dfe4eb);border-radius:7px;background:var(--surface,#fff);color:var(--text,#344054);font:inherit;font-size:10px}
+.settings-info-row>svg{flex:none;width:19px;height:19px;color:#2878d0}
+.settings-info-row em{color:var(--muted,#8993a1);font-size:9px;font-style:normal;text-align:right}
+.settings-info-row button{border:0;background:transparent;color:#2878d0;font:inherit;font-size:10px;font-weight:600;cursor:pointer}
+.settings-status{color:#219568!important;font-weight:650}
+.settings-footnote{margin:13px 0 2px;padding:10px 11px;border-radius:7px;background:var(--soft-surface,#f5f7fa);color:var(--muted,#7c8796);font-size:10px;line-height:1.55}
+.settings-theme-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0 13px}
+.settings-theme-option{display:grid;justify-items:center;gap:7px;min-height:90px;padding:12px 5px;border:1px solid var(--border-color,#e2e7ee);border-radius:9px;background:var(--surface,#fff);color:var(--muted,#8993a1);cursor:pointer}
+.settings-theme-option strong{color:var(--text,#344054);font-size:11px}
+.settings-theme-option small{font-size:9px}
+.settings-theme-option.selected{border-color:#2878d0;background:#f0f6ff;color:#2878d0}
+.settings-about{display:grid;justify-items:center;gap:5px;padding:24px 8px 12px;text-align:center}
+.settings-about img{width:54px;height:54px;object-fit:contain;border-radius:12px}
+.settings-about strong{font-size:13px;color:var(--text,#344054)}
+.settings-about span,.settings-about small{font-size:10px;color:var(--muted,#8993a1)}
+@media(max-width:720px){
+ .telegram-settings{padding:12px 12px 24px}
+ .settings-layout{grid-template-columns:1fr;gap:10px}
+ .settings-category-list{grid-template-columns:1fr 1fr;gap:3px}
+ .settings-category{min-height:55px;padding:7px}
+ .settings-category>svg:last-child{display:none}
+ .settings-content{padding:14px}
+ .settings-content-heading h2{font-size:15px}
+}
+@media(max-width:430px){
+ .settings-category-list{grid-template-columns:1fr}
+ .settings-category{min-height:49px}
+ .settings-category small{font-size:9px}
+ .settings-profile-card{padding:12px;gap:10px}
+ .settings-profile-avatar{width:46px;height:46px}
+ .settings-control-row{align-items:flex-start;flex-direction:column;gap:8px}
+ .settings-control-row select{max-width:none;width:100%}
+ .settings-theme-options{gap:6px}
+ .settings-theme-option{min-height:82px}
+}
