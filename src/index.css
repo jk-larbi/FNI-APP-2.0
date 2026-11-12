@@ -542,3 +542,28 @@ button{cursor:pointer}
 .group-insights-grid article>strong{color:var(--text,#263445);font-size:22px;font-weight:650;line-height:1.1}
 .group-insights-grid article>small{color:#929baa;font-size:10px}
 .group-insights-note{margin:8px 0 0;color:#929baa;font-size:10px;line-height:1.5}
+
+
+/* FNI cell group goals and progress */
+.group-goals-section{padding:14px 0;border-top:1px solid var(--border-color,#e8eaf0)}
+.group-goal-form{display:grid;gap:8px;margin:11px 0 14px}
+.group-goal-form>input,.group-goal-form textarea,.group-goal-form label input{width:100%;min-width:0;padding:10px 11px;border:1px solid var(--border-color,#dfe3ea);border-radius:8px;background:var(--surface,#fff);color:var(--text,#344054);font:inherit;font-size:12px;outline:none}
+.group-goal-form textarea{resize:vertical}
+.group-goal-form label{display:grid;gap:5px;color:var(--muted,#7b8795);font-size:11px}
+.group-goal-form>button{justify-self:start;min-height:37px;padding:0 14px;border:0;border-radius:8px;background:#2878d0;color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.group-goal-form>button:disabled{opacity:.45;cursor:not-allowed}
+.group-goal-list{display:grid;gap:9px}
+.group-goal-card{padding:11px 12px;border:1px solid var(--border-color,#e7eaf0);border-radius:9px;background:var(--surface,#fff)}
+.group-goal-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.group-goal-card-head strong{color:var(--text,#344054);font-size:12px;font-weight:600;overflow-wrap:anywhere}
+.group-goal-card-head>span{flex:none;color:#2878d0;font-size:11px;font-weight:650}
+.group-goal-card p{margin:7px 0;color:var(--muted,#7b8795);font-size:11px;line-height:1.45;overflow-wrap:anywhere}
+.group-goal-card time{color:#929baa;font-size:10px}
+.group-goal-progress{height:5px;margin:10px 0;border-radius:5px;background:#e9edf2;overflow:hidden}
+.group-goal-progress span{display:block;height:100%;border-radius:5px;background:#2878d0;transition:width .2s ease}
+.group-goal-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.group-goal-actions label{display:flex;align-items:center;gap:7px;color:var(--muted,#7b8795);font-size:10px}
+.group-goal-actions select{min-height:30px;padding:3px 7px;border:1px solid var(--border-color,#dfe3ea);border-radius:6px;background:var(--surface,#fff);color:var(--text,#344054);font:inherit;font-size:11px}
+.group-goal-actions button{border:0;background:transparent;color:#c34d4d;font:inherit;font-size:10px;cursor:pointer}
+.group-goal-card.goal-completed{background:rgba(46,142,91,.045)}
+.group-goal-card.goal-completed .group-goal-card-head>span{color:#278354}
