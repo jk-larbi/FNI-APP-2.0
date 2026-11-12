@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import ProfileIdentity from './components/ProfileIdentity';
 import MessagingWorkspace from './components/MessagingWorkspace';
+import CallingWorkspace from './components/CallingWorkspace';
 import {
   Bell, Bookmark, CalendarDays, ChevronDown, CircleHelp, Compass,
   Menu, MessageCircle, MoreHorizontal, Plus, Search, Settings,
@@ -9,7 +10,7 @@ import {
   SlidersHorizontal, ChevronRight, ArrowLeft
 } from 'lucide-react';
 
-type Section = 'chats' | 'community' | 'cells' | 'meetings' | 'settings';
+type Section = 'chats' | 'community' | 'cells' | 'calls' | 'settings';
 type SettingKind = 'toggle' | 'select' | 'action';
 type SettingOption = { label: string; description?: string; kind: SettingKind; choices?: string[]; value?: string; defaultOn?: boolean };
 type SettingCategory = { id: string; label: string; group: string; description: string; icon: typeof Settings; options: SettingOption[] };
@@ -18,7 +19,7 @@ const sections: { id: Section; label: string; icon: typeof MessageCircle }[] = [
   { id: 'chats', label: 'Chats', icon: MessageCircle },
   { id: 'community', label: 'Community', icon: Compass },
   { id: 'cells', label: 'Cell groups', icon: Users },
-  { id: 'meetings', label: 'Meetings', icon: Video },
+  { id: 'calls', label: 'Calls & meetings', icon: Video },
 ];
 
 const settingCategories: SettingCategory[] = [
@@ -129,6 +130,7 @@ function Brand() {
 
 function App() {
   const [section, setSection] = useState<Section>('chats');
+  const [callGroup, setCallGroup] = useState('');
   const [folder, setFolder] = useState('All chats');
   const [search, setSearch] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -220,7 +222,7 @@ function App() {
         </div>
       </header>
 
-      {section === 'settings' ? <div className="settings-page">
+      {section === 'calls' ? <CallingWorkspace initialGroup={callGroup} onClearInitialGroup={() => setCallGroup('')} /> : section === 'settings' ? <div className="settings-page">
         <div className="settings-intro"><div><span className="settings-kicker">YOUR FNI EXPERIENCE</span><h2>{t('Settings')}</h2><p>Manage your account, privacy, preferences and ministry experience.</p></div><div className="settings-profile"><div className="profile-avatar">F</div><div><strong>FNI Member</strong><span>Account setup pending</span></div></div></div>
         <div className="settings-layout">
           <aside className="settings-menu">
