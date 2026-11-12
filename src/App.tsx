@@ -4,7 +4,7 @@ import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, Chevro
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'FNI Community' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups' | 'Archived';
 type AccountProfile = { name: string; username: string; bio: string; photo: string };
-type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; fileUrl?: string; fileSize?: number; stickerData?: string; attachmentKind?: 'file' | 'location' | 'contact' | 'poll' | 'meeting' | 'prayer' | 'scripture' | 'sticker'; scriptureReference?: string; scriptureTranslation?: string; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
+type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; fileUrl?: string; fileSize?: number; recordingDataUrl?: string; recordingMimeType?: string; recordingTitle?: string; stickerData?: string; attachmentKind?: 'file' | 'location' | 'contact' | 'poll' | 'meeting' | 'prayer' | 'scripture' | 'sticker'; scriptureReference?: string; scriptureTranslation?: string; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
 
 const EMOJI_CATEGORIES: Record<string, string[]> = {
   Smileys: Array.from('😀 😃 😄 😁 😆 😅 😂 🤣 🥲 🥹 ☺️ 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🥸 🤩 🥳 🙂‍↕️ 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🫣 🤭 🫢 🫡 🤫 🫠 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 😵 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕 🤑 🤠 😈 👿 👹 👺 🤡 💩 👻 💀 ☠️ 👽 👾 🤖 🎃'.split(' ')),
@@ -306,6 +306,12 @@ export default function App() {
   const [chatInfoOpen, setChatInfoOpen] = useState(false);
   const [videoRoomOpen, setVideoRoomOpen] = useState(false);
   const [videoRoomStarted, setVideoRoomStarted] = useState(false);
+  const [callMode, setCallMode] = useState<'group' | 'voice' | 'video'>('group');
+  const [recording, setRecording] = useState(false);
+  const [recordingTitle, setRecordingTitle] = useState('');
+  const [recordingError, setRecordingError] = useState('');
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingChunksRef = useRef<Blob[]>([]);
   const [videoMicOn, setVideoMicOn] = useState(true);
   const [videoCameraOn, setVideoCameraOn] = useState(true);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
@@ -375,7 +381,7 @@ export default function App() {
   useEffect(() => {
     const textOnly: Record<string, Message[]> = {};
     Object.entries(conversations).forEach(([chat, items]) => {
-      textOnly[chat] = items.filter((item) => !item.mediaType);
+      textOnly[chat] = items.filter((item) => !item.mediaType || Boolean(item.recordingDataUrl));
     });
     try { localStorage.setItem('fni-local-conversations', JSON.stringify(textOnly)); } catch { /* storage may be unavailable */ }
   }, [conversations]);
@@ -409,31 +415,68 @@ export default function App() {
   }, [videoStream, videoRoomOpen, videoCameraOn]);
 
   const stopVideoRoom = () => {
+    if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
     videoStream?.getTracks().forEach((track) => track.stop());
-    setVideoStream(null);
-    setVideoRoomStarted(false);
-    setVideoRoomOpen(false);
-    setVideoError('');
+    setVideoStream(null); setVideoRoomStarted(false); setVideoRoomOpen(false); setVideoError('');
+    setRecording(false); setRecordingTitle(''); setRecordingError('');
   };
-
+  const openCall = (mode: 'group' | 'voice' | 'video') => {
+    setCallMode(mode); setVideoRoomStarted(false); setVideoMicOn(true); setVideoCameraOn(mode === 'video');
+    setVideoError(''); setRecordingError(''); setVideoRoomOpen(true);
+  };
   const startVideoRoom = async () => {
     setVideoError('');
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setVideoError('Camera and microphone access is not available in this browser. Open FNI over HTTPS and try again.');
-      return;
-    }
+    if (!navigator.mediaDevices?.getUserMedia) { setVideoError('Microphone and camera access is not available here. Open FNI over HTTPS and try again.'); return; }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-      setVideoStream(stream);
-      setVideoMicOn(true);
-      setVideoCameraOn(true);
-      setVideoRoomStarted(true);
-      const groupNameForNotice = groupDetails[activeChat]?.name || activeChat;
-      setMeetingNotifications((current) => [{ id: Date.now(), title: groupNameForNotice + ' meeting started', body: 'Meeting alert for group members, leaders and the Man of God.', time: new Date().toLocaleString(), read: false, groupId: activeChat }, ...current]);
-    } catch {
-      setVideoError('Camera or microphone permission was denied or no device was found. Check browser permissions and try again.');
-    }
+      const wantsVideo = callMode === 'video';
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: wantsVideo });
+      setVideoStream(stream); setVideoMicOn(true); setVideoCameraOn(wantsVideo); setVideoRoomStarted(true);
+      if (callMode === 'group') {
+        const groupNameForNotice = groupDetails[activeChat]?.name || activeChat;
+        setMeetingNotifications(current => [{ id: Date.now(), title: groupNameForNotice + ' voice chat started', body: 'Group voice chat is live. Members can turn on their cameras whenever they are ready.', time: new Date().toLocaleString(), read: false, groupId: activeChat }, ...current]);
+      }
+    } catch { setVideoError('Microphone or camera permission was denied, or no device was found. Check browser permissions and try again.'); }
   };
+  const toggleVideoCamera = async () => {
+    if (!videoStream) return;
+    const existingTrack = videoStream.getVideoTracks()[0];
+    if (existingTrack) { const next = !videoCameraOn; existingTrack.enabled = next; setVideoCameraOn(next); return; }
+    try {
+      const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      const track = cameraStream.getVideoTracks()[0];
+      if (track) { videoStream.addTrack(track); setVideoCameraOn(true); }
+    } catch { setVideoError('Camera permission was denied. Allow camera access to turn your video on.'); }
+  };
+  const saveRecordingToMessages = (blob: Blob, title: string) => {
+    if (blob.size > 5 * 1024 * 1024) { setRecordingError('This recording is larger than 5 MB. Shorten it and record again to save it in this preview.'); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result || '');
+      if (!dataUrl) { setRecordingError('The recording could not be saved.'); return; }
+      const item: Message = { id: Date.now(), text: title, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), recordingDataUrl: dataUrl, recordingMimeType: blob.type || 'video/webm', recordingTitle: title, mediaName: title };
+      setConversations(current => ({ ...current, 'Saved Messages': [...(current['Saved Messages'] || []), item] }));
+      setRecordingError('Saved to Saved Messages on this device.');
+    };
+    reader.onerror = () => setRecordingError('Could not read the recording for saving.');
+    reader.readAsDataURL(blob);
+  };
+  const startRecording = () => {
+    if (!videoStream) return;
+    if (!window.MediaRecorder) { setRecordingError('Recording is not supported by this browser.'); return; }
+    const title = window.prompt('Enter a title for this recording:')?.trim();
+    if (!title) return;
+    try {
+      const preferred = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'audio/webm;codecs=opus', 'video/webm'];
+      const mimeType = preferred.find(type => MediaRecorder.isTypeSupported(type));
+      const recorder = new MediaRecorder(videoStream, mimeType ? { mimeType } : undefined);
+      recordingChunksRef.current = [];
+      recorder.ondataavailable = event => { if (event.data.size) recordingChunksRef.current.push(event.data); };
+      recorder.onerror = () => setRecordingError('Recording stopped because the browser reported an error.');
+      recorder.onstop = () => { const blob = new Blob(recordingChunksRef.current, { type: recorder.mimeType || 'video/webm' }); saveRecordingToMessages(blob, title); recordingChunksRef.current = []; setRecording(false); };
+      mediaRecorderRef.current = recorder; recorder.start(1000); setRecordingTitle(title); setRecording(true); setRecordingError('');
+    } catch { setRecordingError('FNI could not start recording. Check browser recording support and permissions.'); }
+  };
+  const stopRecording = () => { if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop(); setRecording(false); };
 
   const toggleVideoMic = () => {
     const next = !videoMicOn;
@@ -451,7 +494,7 @@ export default function App() {
   const recentChats = Object.entries(conversations)
     .filter(([chat, items]) => {
       const isArchived = archivedChats.includes(chat);
-      const matchesFolder = folder === 'Archived' ? isArchived : !isArchived && (folder === 'All chats' || (folder === 'Personal' && chat.startsWith('@')) || (folder === 'Groups' && !chat.startsWith('@')));
+      const matchesFolder = folder === 'Archived' ? isArchived : !isArchived && (folder === 'All chats' || (folder === 'Personal' && (chat.startsWith('@') || chat === 'Saved Messages')) || (folder === 'Groups' && !chat.startsWith('@') && chat !== 'Saved Messages'));
       const query = search.trim().toLowerCase();
       const matchesConversation = !query || chat.toLowerCase().includes(query) || items.some((message) =>
         message.text.toLowerCase().includes(query) || (message.mediaName || '').toLowerCase().includes(query)
@@ -969,8 +1012,8 @@ export default function App() {
               <button className="chat-person-details chat-info-trigger" onClick={() => { const meeting = groupDetails[activeChat]?.meeting; setMeetingDate(meeting?.date || ''); setMeetingTime(meeting?.time || ''); setMeetingLocation(meeting?.location || ''); setMeetingLink(meeting?.link || ''); setChatInfoOpen(true); }} aria-label="View chat information"><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{groupDetails[activeChat] ? 'FNI group' : 'FNI member'}</span></button>
               <div className="active-chat-actions">
                 <button className="icon-button" aria-label="Search messages" title="Search messages" onClick={() => { setChatSearchOpen((open) => !open); setChatSearch(''); }}><Search /></button>
-                <button className="icon-button" aria-label="Voice call"><PhoneCall /></button>
-                <button className="icon-button" aria-label="Video call"><Video /></button>
+                <button className="icon-button" aria-label="Voice call" title="Start voice call" onClick={() => openCall('voice')}><PhoneCall /></button>
+                <button className="icon-button" aria-label="Video call" title="Start video call" onClick={() => openCall('video')}><Video /></button>
                 <button className="icon-button" aria-label="Chat options" aria-expanded={chatOptionsOpen} onClick={() => setChatOptionsOpen((open) => !open)}><MoreVertical /></button>
               </div>
             </header>
@@ -1016,6 +1059,7 @@ export default function App() {
                       {message.attachmentKind === 'file' && message.fileUrl && <a className="document-message-card" href={message.fileUrl} download={message.mediaName || 'FNI-file'}><FileText /><span><strong>{message.mediaName || 'Document'}</strong><small>{message.fileSize ? (message.fileSize/1024/1024).toFixed(2)+' MB' : 'File attachment'} · Download</small></span><Download /></a>}
                       {message.attachmentKind === 'scripture' && <div className="bible-verse-message"><div className="bible-verse-heading"><BookOpen size={17}/><strong>{message.scriptureReference || 'Bible verse'}</strong><span>{message.scriptureTranslation || 'KJV'}</span></div><div className="bible-numbered-sent">{message.text.split('\n').map((line,index) => { const match = line.match(/^(\d+)\s+(.+)$/); return <p key={index}>{match ? <><b>{match[1]}</b><span>{match[2]}</span></> : line}</p>; })}</div><small>Sent with FNI Bible Bot</small></div>}
                       {message.attachmentKind === 'sticker' && message.stickerData && <img className="sent-custom-sticker" src={message.stickerData} alt="Sticker" />}
+                      {message.recordingDataUrl && <div className="saved-recording-card"><div><strong>{message.recordingTitle || message.mediaName || 'Meeting recording'}</strong><small>Saved recording · {message.recordingMimeType?.startsWith('audio/') ? 'Audio' : 'Video'}</small></div>{message.recordingMimeType?.startsWith('audio/') ? <audio controls src={message.recordingDataUrl}/> : <video controls playsInline src={message.recordingDataUrl}/>}</div>}
                       {message.attachmentKind && message.attachmentKind !== 'file' && message.attachmentKind !== 'scripture' && <div className={'structured-attachment-card '+message.attachmentKind}><strong>{message.mediaName || message.attachmentKind}</strong><small>{message.attachmentKind === 'poll' ? 'Poll' : message.attachmentKind === 'location' ? 'Location shared' : message.attachmentKind === 'contact' ? 'Contact card' : message.attachmentKind === 'meeting' ? 'Meeting invitation' : message.attachmentKind === 'prayer' ? 'Prayer request' : 'Scripture'}</small></div>}
                       {message.text && message.attachmentKind !== 'scripture' && <div>{message.text.split(/(@[\w.]+)/g).map((part, index) => part.startsWith('@') ? <button type="button" className="message-mention" key={index} onClick={() => { if (part.toLowerCase() === '@fnibiblebot') { setBibleReferenceInput(''); setBibleLookupResult(null); setBibleLookupError(''); setBibleBotOpen(true); } }}>{part}</button> : part)}</div>}<span className={preferences.showMessageTimestamps ? '' : 'message-meta-hidden'}>{message.edited ? 'edited · ' : ''}{message.time} <b>✓✓</b></span>
                       {message.reactions && message.reactions.length > 0 && <div className="message-reactions">{message.reactions.map((emoji) => <button key={emoji} onClick={() => addReaction(message.id, emoji)}>{emoji}</button>)}</div>}
@@ -1190,7 +1234,7 @@ export default function App() {
               <section className="group-meeting-section">
                 <div className="shared-media-heading"><strong>Group meeting</strong><span>{groupDetails[activeChat].meeting ? 'Scheduled' : 'Not scheduled'}</span></div>
                 <div className="group-video-actions">
-                  <button type="button" className="start-video-chat-button" onClick={() => { setVideoRoomStarted(false); setVideoMicOn(true); setVideoCameraOn(true); setVideoRoomOpen(true); }}><Video size={17} /> Start Video Chat</button>
+                  <button type="button" className="start-video-chat-button" onClick={() => openCall('group')}><Video size={17} /> Start Video Chat</button>
                   {groupDetails[activeChat].meeting?.link && <a className="external-meeting-button" href={groupDetails[activeChat].meeting.link} target="_blank" rel="noreferrer">Join external meeting</a>}
                 </div>
                 {groupDetails[activeChat].meeting && (() => {
@@ -1544,22 +1588,23 @@ export default function App() {
       )}
       {videoRoomOpen && activeChat && (
         <div className="video-room-screen">
-          <header className="video-room-topbar"><div><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{videoRoomStarted ? 'Video chat · You are in the room' : 'Group video chat'}</span></div><button type="button" aria-label="Close video chat" onClick={stopVideoRoom}><X /></button></header>
+          <header className="video-room-topbar"><div><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{videoRoomStarted ? (callMode === 'group' ? 'Group voice chat · Cameras optional' : callMode === 'voice' ? 'Voice call · Audio only' : 'Video call · Camera on') : callMode === 'group' ? 'Group voice chat' : callMode === 'voice' ? 'Voice call' : 'Video call'}</span></div><button type="button" aria-label="Close video chat" onClick={stopVideoRoom}><X /></button></header>
           <div className="video-room-content">
             <div className="video-room-stage">
-              {videoStream && videoCameraOn ? <video ref={localVideoRef} autoPlay muted playsInline className="local-video-preview" /> : <div className="video-room-avatar">{(groupDetails[activeChat]?.name || 'FNI').slice(0,1).toUpperCase()}</div>}
+              {videoStream && videoCameraOn && videoStream.getVideoTracks().length ? <video ref={localVideoRef} autoPlay muted playsInline className="local-video-preview" /> : <div className="video-room-avatar">{(groupDetails[activeChat]?.name || 'FNI').slice(0,1).toUpperCase()}</div>}
               <div className="video-self-label">You {videoStream ? '· Connected locally' : '· Preview'}</div>
             </div>
-            {!videoRoomStarted && <div className="video-room-intro"><strong>Start a video chat</strong><span>Allow camera and microphone access to enter the room.</span></div>}
+            {!videoRoomStarted && <div className="video-room-intro"><strong>{callMode === 'group' ? 'Start a group voice chat' : callMode === 'voice' ? 'Start a voice call' : 'Start a video call'}</strong><span>{callMode === 'group' ? 'Everyone joins with microphone audio first. Each member can turn on their camera.' : callMode === 'voice' ? 'Start with microphone audio only.' : 'Allow camera and microphone access to start video.'}</span></div>}
             {videoError && <p className="video-room-error" role="alert">{videoError}</p>}
           </div>
           <footer className="video-room-footer">
             <div className="video-room-controls">
               <button type="button" className={videoMicOn ? '' : 'control-off'} onClick={toggleVideoMic} disabled={!videoStream}>{videoMicOn ? 'Microphone' : 'Mic muted'}</button>
-              <button type="button" className={videoCameraOn ? '' : 'control-off'} onClick={toggleVideoCamera} disabled={!videoStream}>{videoCameraOn ? 'Camera' : 'Camera off'}</button>
+              <button type="button" className={videoCameraOn ? '' : 'control-off'} onClick={() => { void toggleVideoCamera(); }} disabled={!videoStream}>{videoCameraOn ? 'Camera on' : 'Turn camera on'}</button>
             </div>
-            {!videoRoomStarted ? <button type="button" className="video-room-primary" onClick={startVideoRoom}>Start Video Chat</button> : <button type="button" className="video-room-leave" onClick={stopVideoRoom}>Leave meeting</button>}
-            <p className="video-room-note">Your camera and microphone preview works on this device. Inviting other members and live group connections will be enabled with FNI's own meeting signalling service later. No Supabase is required for this frontend step.</p>
+            {!videoRoomStarted ? <button type="button" className="video-room-primary" onClick={startVideoRoom}>{callMode === 'group' ? 'Start Voice Chat' : callMode === 'voice' ? 'Start Voice Call' : 'Start Video Call'}</button> : <div className="video-room-live-actions"><button type="button" className={recording ? 'recording-active' : 'video-room-record'} onClick={recording ? stopRecording : startRecording}>{recording ? 'Stop recording' : 'Record meeting'}</button><button type="button" className="video-room-leave" onClick={stopVideoRoom}>Leave call</button></div>}
+            {recording && <p className="video-room-recording-status">Recording: {recordingTitle}</p>}{recordingError && <p className="video-room-error" role="status">{recordingError}</p>}
+            <p className="video-room-note">Recording is saved to Saved Messages on this device. Always tell participants before recording. Group calls and individual calls currently preview your local device only; live multi-person calling needs the FNI calling service.</p>
           </footer>
         </div>
       )}
