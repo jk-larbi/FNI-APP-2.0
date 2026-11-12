@@ -351,3 +351,22 @@ button{cursor:pointer}
 .group-meeting-form>button:disabled{opacity:.45;cursor:not-allowed}
 .group-meeting-form>button.group-meeting-cancel{background:transparent;color:#c44c4c;border:1px solid #eadede}
 .group-meeting-note{margin:10px 0 0;color:#929aa5;font-size:10px;line-height:1.5}
+
+
+/* Group prayer room */
+.group-prayer-section{padding:14px 0;border-top:1px solid var(--border-color,#e8eaf0)}
+.group-prayer-form{display:grid;gap:8px;margin:10px 0 13px}
+.group-prayer-form textarea{width:100%;min-height:68px;resize:vertical;padding:10px 11px;border:1px solid #dfe3ea;border-radius:8px;background:transparent;color:inherit;font:inherit;font-size:12px;outline:none}
+.group-prayer-form textarea:focus{border-color:#3390ec;box-shadow:0 0 0 2px #3390ec18}
+.group-prayer-form>button{justify-self:start;min-height:36px;padding:0 13px;border:0;border-radius:8px;background:#2878d0;color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.group-prayer-form>button:disabled{opacity:.45;cursor:not-allowed}
+.group-prayer-list{display:grid;gap:9px;max-height:260px;overflow-y:auto}
+.group-prayer-card{padding:11px 12px;border:1px solid var(--border-color,#e7eaf0);border-radius:9px;background:var(--surface,#fff)}
+.group-prayer-card-top{display:flex;justify-content:space-between;gap:10px;color:#2878d0;font-size:11px;font-weight:600}
+.group-prayer-card-top time{color:#929aa5;font-size:10px;font-weight:400;white-space:nowrap}
+.group-prayer-card p{margin:8px 0 10px;color:var(--text,#344054);font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.group-prayer-actions{display:flex;gap:8px}
+.group-prayer-actions button{padding:6px 9px;border:0;border-radius:6px;background:#edf4fc;color:#286db4;font:inherit;font-size:11px;cursor:pointer}
+.group-prayer-actions button.prayer-delete{background:transparent;color:#c44c4c}
+.group-prayer-card.prayer-answered{background:#f5faf7}
+.group-prayer-card.prayer-answered .group-prayer-card-top{color:#38845e}
