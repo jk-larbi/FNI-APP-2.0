@@ -3167,3 +3167,33 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
     overflow-x: auto;
   }
 }
+
+
+/* Telegram-style chat list editing and bulk actions */
+.fni-chat-home-header{display:flex;align-items:center;gap:12px}
+.fni-chat-edit-toggle{flex:0 0 auto;padding:8px 12px;border:1px solid var(--border,#e3e7f0);border-radius:999px;background:var(--surface-2,#eef1f8);color:var(--text-primary,#192033);font-size:12px;font-weight:650}
+.fni-chat-edit-toggle.active{color:#173b8f;background:#e9eefb}
+.fni-chat-home-title{flex:1;min-width:0}
+.fni-chat-home-title .msg-eyebrow{display:block}
+.fni-chat-bulk-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 10px;padding:10px 12px;border:1px solid var(--border,#e3e7f0);border-radius:12px;background:var(--surface,#fff);color:var(--muted,#687187);font-size:11px}
+.fni-chat-select-all{display:flex;align-items:center;gap:6px;padding:5px 0;background:transparent;color:var(--text-primary,#192033);font-size:11px;font-weight:600}
+.fni-chat-bulk-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+.fni-chat-bulk-actions button{display:flex;align-items:center;gap:5px;padding:7px 9px;border-radius:8px;background:var(--surface-2,#eef1f8);color:var(--text-primary,#192033);font-size:11px;font-weight:600}
+.fni-chat-bulk-actions button:disabled{opacity:.35;cursor:not-allowed}
+.fni-chat-row-wrap.is-selectable{gap:8px;padding-left:10px}
+.fni-chat-select-circle{width:22px;height:22px;flex:0 0 22px;display:grid;place-items:center;border:1.5px solid #9aa5b8;border-radius:50%;background:transparent;color:#fff}
+.fni-chat-select-circle:has(svg){border-color:#173b8f;background:#173b8f}
+.fni-chat-row.selected{background:rgba(23,59,143,.09)}
+:root[data-theme="dark"] .fni-chat-edit-toggle,:root[data-theme="dark"] .fni-chat-bulk-bar{background:#222634;border-color:#383e50;color:#e4e8f1}
+:root[data-theme="dark"] .fni-chat-edit-toggle{color:#f4f5fa}
+:root[data-theme="dark"] .fni-chat-edit-toggle.active{background:#303d60;color:#a9bdf4}
+:root[data-theme="dark"] .fni-chat-select-all{color:#f4f5fa}
+:root[data-theme="dark"] .fni-chat-bulk-actions button{background:#30384e;color:#f4f5fa}
+@media(max-width:700px){
+ .fni-chat-home-header{gap:8px}
+ .fni-chat-edit-toggle{padding:8px 11px}
+ .fni-chat-bulk-bar{gap:8px;padding:9px}
+ .fni-chat-bulk-actions{gap:4px}
+ .fni-chat-bulk-actions button{padding:7px 8px}
+ .fni-chat-bulk-actions button span{font-size:10px}
+}
