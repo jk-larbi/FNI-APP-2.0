@@ -2869,3 +2869,35 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
  .fni-wa-my-status,.fni-wa-story-person{width:60px;min-width:60px}
  .fni-wa-story-ring{width:54px;height:54px;flex-basis:54px}
 }
+
+
+/* WhatsApp-style FNI Status interactions and media treatment */
+.story-text-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:3px 0 8px;color:var(--fni-muted,#687187);font-size:11px}
+.story-text-tools button{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--fni-line,#e3e7f0);border-radius:8px;background:var(--fni-surface-2,#eef1f8);color:var(--fni-blue,#173b8f);font-size:11px;font-weight:600}
+.fni-wa-story-avatar img,.fni-status-avatar img,.story-viewer-user>span img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
+.fni-wa-story-avatar img,.story-viewer-user>span img{position:absolute;inset:0}
+.fni-wa-story-avatar,.story-viewer-user>span{position:relative;overflow:hidden}
+.fni-status-avatar img{position:absolute;inset:0}
+.story-progress span{position:relative;overflow:hidden}
+.story-progress span.done{background:#fff}
+.story-progress span.active{background:#ffffff55}
+.story-progress span.active::after{content:"";position:absolute;inset:0 auto 0 0;width:100%;background:#fff;transform:scaleX(0);transform-origin:left;animation:fni-status-progress 6.5s linear forwards}
+.story-viewer.is-paused .story-progress span.active::after{animation-play-state:paused}
+@keyframes fni-status-progress{to{transform:scaleX(1)}}
+.story-hit{top:62px;bottom:62px;width:48%;height:auto;z-index:4;opacity:1;touch-action:pan-y}
+.story-hit.previous{left:0}
+.story-hit.next{right:0}
+.story-viewer>header,.story-viewer>footer{position:relative;z-index:5}
+.story-viewer-content{position:relative;z-index:1}
+.story-viewer-content img,.story-viewer-content video{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain}
+.story-viewer-content video{background:#080808}
+.story-viewer-back{min-width:66px}
+.fni-status-row .fni-status-avatar img{border:0}
+@media(max-width:680px){
+ .story-text-tools{font-size:12px}
+ .story-text-tools button{padding:8px 10px}
+ .story-viewer-content{padding:18px 12px}
+ .story-hit{top:66px;bottom:64px}
+ .story-viewer>header{padding:12px 14px}
+ .story-viewer>footer{padding-bottom:max(10px,env(safe-area-inset-bottom))}
+}
