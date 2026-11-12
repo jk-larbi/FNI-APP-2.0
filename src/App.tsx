@@ -3,6 +3,7 @@ import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, Chevro
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'FNI Community' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups' | 'Archived';
+type AccountProfile = { name: string; username: string; bio: string; photo: string };
 type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
 
 function SettingToggle({ title, description, checked, onChange }: { title: string; description: string; checked: boolean; onChange: (value: boolean) => void }) {
@@ -13,12 +14,12 @@ export default function App() {
   const [section, setSection] = useState<Section>('Chats');
   const [settingsCategory, setSettingsCategory] = useState('Account');
   const [settingsMobileDetail, setSettingsMobileDetail] = useState(false);
-  const [accountProfile, setAccountProfile] = useState(() => {
+  const [accountProfile, setAccountProfile] = useState<AccountProfile>(() => {
     try { return { name: 'FNI Member', username: '', bio: '', photo: '', ...JSON.parse(localStorage.getItem('fni-account-profile') || '{}') }; }
     catch { return { name: 'FNI Member', username: '', bio: '', photo: '' }; }
   });
   const [profileEditorOpen, setProfileEditorOpen] = useState(false);
-  const [profileDraft, setProfileDraft] = useState(accountProfile);
+  const [profileDraft, setProfileDraft] = useState<AccountProfile>(accountProfile);
   const [securityInfoOpen, setSecurityInfoOpen] = useState(false);
   const [profileSaveNotice, setProfileSaveNotice] = useState('');
   const saveAccountProfile = () => {
