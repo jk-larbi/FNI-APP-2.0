@@ -448,7 +448,7 @@ export default function App() {
     } catch { setVideoError('Camera permission was denied. Allow camera access to turn your video on.'); }
   };
   const saveRecordingToMessages = (blob: Blob, title: string) => {
-    if (blob.size > 5 * 1024 * 1024) { setRecordingError('This recording is larger than 5 MB. Shorten it and record again to save it in this preview.'); return; }
+    if (blob.size > 2500 * 1024) { setRecordingError('This recording is larger than 2.5 MB. Shorten it and record again to save it in this preview.'); return; }
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = String(reader.result || '');
@@ -1012,8 +1012,8 @@ export default function App() {
               <button className="chat-person-details chat-info-trigger" onClick={() => { const meeting = groupDetails[activeChat]?.meeting; setMeetingDate(meeting?.date || ''); setMeetingTime(meeting?.time || ''); setMeetingLocation(meeting?.location || ''); setMeetingLink(meeting?.link || ''); setChatInfoOpen(true); }} aria-label="View chat information"><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{groupDetails[activeChat] ? 'FNI group' : 'FNI member'}</span></button>
               <div className="active-chat-actions">
                 <button className="icon-button" aria-label="Search messages" title="Search messages" onClick={() => { setChatSearchOpen((open) => !open); setChatSearch(''); }}><Search /></button>
-                <button className="icon-button" aria-label="Voice call" title="Start voice call" onClick={() => openCall('voice')}><PhoneCall /></button>
-                <button className="icon-button" aria-label="Video call" title="Start video call" onClick={() => openCall('video')}><Video /></button>
+                <button className="icon-button" aria-label="Voice call" title="Start voice call" onClick={() => openCall(groupDetails[activeChat] ? 'group' : 'voice')}><PhoneCall /></button>
+                <button className="icon-button" aria-label="Video call" title="Start video call" onClick={() => openCall(groupDetails[activeChat] ? 'group' : 'video')}><Video /></button>
                 <button className="icon-button" aria-label="Chat options" aria-expanded={chatOptionsOpen} onClick={() => setChatOptionsOpen((open) => !open)}><MoreVertical /></button>
               </div>
             </header>
