@@ -11,6 +11,32 @@ function SettingToggle({ title, description, checked, onChange }: { title: strin
 
 export default function App() {
   const [section, setSection] = useState<Section>('Chats');
+  const [settingsCategory, setSettingsCategory] = useState('Account');
+  const [settingsMobileDetail, setSettingsMobileDetail] = useState(false);
+  const [storageReport, setStorageReport] = useState<{ localBytes: number; originUsage?: number; originQuota?: number } | null>(null);
+  const inspectStorage = async () => {
+    let localBytes = 0;
+    try {
+      const entries = Object.keys(localStorage).filter(key => key.startsWith('fni-') || key === 'fni-settings').map(key => [key, localStorage.getItem(key) || '']);
+      localBytes = new Blob(entries.map(([key, value]) => String(key) + ':' + String(value))).size;
+    } catch { /* local storage may be unavailable */ }
+    let originUsage: number | undefined;
+    let originQuota: number | undefined;
+    try {
+      const estimate = await navigator.storage?.estimate();
+      originUsage = estimate?.usage;
+      originQuota = estimate?.quota;
+    } catch { /* storage estimate is not supported in every browser */ }
+    setStorageReport({ localBytes, originUsage, originQuota });
+  };
+  const [preferences, setPreferences] = useState(() => {
+    try {
+      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, compactChatList: false, chatTextSize: 'Normal', showMessageTimestamps: true, mentionSuggestions: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, ...JSON.parse(localStorage.getItem('fni-settings') || '{}') };
+    } catch {
+      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, compactChatList: false, chatTextSize: 'Normal', showMessageTimestamps: true, mentionSuggestions: true };
+    }
+  });
+  const updatePreference = (key: string, value: string | boolean) => setPreferences((current: Record<string, string | boolean>) => ({ ...current, [key]: value }));
   const language = String(preferences.language || 'English');
   const translations: Record<string, Record<string, string>> = {
     French: {
@@ -39,32 +65,6 @@ export default function App() {
     }
   };
   const t = (value: string) => translations[language]?.[value] || value;
-  const [settingsCategory, setSettingsCategory] = useState('Account');
-  const [settingsMobileDetail, setSettingsMobileDetail] = useState(false);
-  const [storageReport, setStorageReport] = useState<{ localBytes: number; originUsage?: number; originQuota?: number } | null>(null);
-  const inspectStorage = async () => {
-    let localBytes = 0;
-    try {
-      const entries = Object.keys(localStorage).filter(key => key.startsWith('fni-') || key === 'fni-settings').map(key => [key, localStorage.getItem(key) || '']);
-      localBytes = new Blob(entries.map(([key, value]) => String(key) + ':' + String(value))).size;
-    } catch { /* local storage may be unavailable */ }
-    let originUsage: number | undefined;
-    let originQuota: number | undefined;
-    try {
-      const estimate = await navigator.storage?.estimate();
-      originUsage = estimate?.usage;
-      originQuota = estimate?.quota;
-    } catch { /* storage estimate is not supported in every browser */ }
-    setStorageReport({ localBytes, originUsage, originQuota });
-  };
-  const [preferences, setPreferences] = useState(() => {
-    try {
-      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, compactChatList: false, chatTextSize: 'Normal', showMessageTimestamps: true, mentionSuggestions: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, ...JSON.parse(localStorage.getItem('fni-settings') || '{}') };
-    } catch {
-      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, compactChatList: false, chatTextSize: 'Normal', showMessageTimestamps: true, mentionSuggestions: true };
-    }
-  });
-  const updatePreference = (key: string, value: string | boolean) => setPreferences((current: Record<string, string | boolean>) => ({ ...current, [key]: value }));
   const [systemTheme, setSystemTheme] = useState<'Light' | 'Dark'>(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'Dark' : 'Light');
   const resolvedTheme = preferences.appearance === 'System' ? systemTheme : preferences.appearance;
   useEffect(() => {
@@ -446,7 +446,7 @@ export default function App() {
           {section === 'Chats' && (
             <div className="folder-tabs" role="tablist" aria-label="Chat folders">
               {(['All chats', 'Personal', 'Groups', 'Archived'] as Folder[]).map((item) => (
-                <button key={item} role="tab" aria-selected={folder === item} className={folder === item ? 'folder-tab selected' : 'folder-tab'} onClick={() => setFolder(item)}{t(item)}</button>
+                <button key={item} role="tab" aria-selected={folder === item} className={folder === item ? 'folder-tab selected' : 'folder-tab'} onClick={() => setFolder(item)}>{t(item)}</button>
               ))}
             </div>
           )}
