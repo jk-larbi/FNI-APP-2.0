@@ -175,6 +175,7 @@ function App() {
   const [choices, setChoices] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-settings-choices') || '{}'); } catch { return {}; }
   });
+  const [systemDark, setSystemDark] = useState(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false);
   const [activeAction, setActiveAction] = useState('');
   const [savedItems, setSavedItems] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('fni-saved-items') || '[]'); } catch { return []; } });
   const [moments, setMoments] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('fni-moments') || '[]'); } catch { return []; } });
@@ -189,8 +190,7 @@ function App() {
   const [blockedMembers, setBlockedMembers] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('fni-blocked-members') || '[]'); } catch { return []; } });
   const [reportDrafts, setReportDrafts] = useState<{id:string;type:string;reference:string;details:string;createdAt:string}[]>(() => { try { return JSON.parse(localStorage.getItem('fni-report-drafts') || '[]'); } catch { return []; } });
   const themeChoice = localStorage.getItem('fni-appearance-mode') || 'Light';
-  const customThemeColors = (() => { try { return JSON.parse(localStorage.getItem('fni-theme-colors') || '{}') as { background?: string }; } catch { return {}; } })();
-  const systemDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+  const customThemeColors = (() => { try { const themes = JSON.parse(localStorage.getItem('fni-custom-themes') || '[]') as Array<{id:string;colors:{background?:string}}>; const active = localStorage.getItem('fni-active-custom-theme') || ''; return themes.find(theme => theme.id === active)?.colors || JSON.parse(localStorage.getItem('fni-theme-colors') || '{}') as { background?: string }; } catch { return {}; } })();
   const customBackground = customThemeColors.background || '#F4F5F8';
   const customIsDark = (() => { const hex = customBackground.replace('#',''); if (!/^[0-9a-f]{6}$/i.test(hex)) return false; const rgb = [0,2,4].map(i => parseInt(hex.slice(i,i+2),16)); return rgb[0]*.299 + rgb[1]*.587 + rgb[2]*.114 < 128; })();
   const appTheme = (themeChoice === 'Dark' || (themeChoice === 'System default' && systemDark) || (themeChoice === 'Custom' && customIsDark)) ? 'dark' : 'light';
@@ -199,6 +199,7 @@ function App() {
   useEffect(() => { localStorage.setItem('fni-settings-toggles', JSON.stringify(toggles)); }, [toggles]);
   useEffect(() => { localStorage.setItem('fni-settings-choices', JSON.stringify(choices)); }, [choices]);
   useEffect(() => { document.documentElement.dataset.theme = appTheme; }, [appTheme]);
+  useEffect(() => { const media = window.matchMedia('(prefers-color-scheme: dark)'); const update = () => setSystemDark(media.matches); media.addEventListener?.('change', update); return () => media.removeEventListener?.('change', update); }, []);
   useEffect(() => { localStorage.setItem('fni-saved-items', JSON.stringify(savedItems)); }, [savedItems]);
   useEffect(() => { localStorage.setItem('fni-moments', JSON.stringify(moments)); }, [moments]);
   useEffect(() => { localStorage.setItem('fni-meeting-drafts', JSON.stringify(meetingDrafts)); }, [meetingDrafts]);
