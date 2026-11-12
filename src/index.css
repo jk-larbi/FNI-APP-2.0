@@ -962,3 +962,7 @@ input:focus,textarea:focus,select:focus,button:focus-visible{
 .mini-call-copy span,.mini-call-view>p{color:var(--fni-muted);font-size:10px}
 .mini-call-view>p{margin:0;line-height:1.5}
 @media(max-width:760px){.incoming-call-view,.mini-call-view{min-height:calc(100dvh - 220px)}.mini-call-card{flex-wrap:wrap}.mini-call-copy{flex-basis:calc(100% - 60px)}.mini-call-card button{flex:1}}
+
+.call-group-invite-preview{width:min(100%,520px);display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--fni-line);border-radius:10px;background:var(--fni-surface-2)}
+.call-group-invite-preview .call-inline-entry{width:100%;max-width:none}
+.call-invite-chip{align-self:flex-start;padding:5px 8px;border-radius:6px;background:var(--fni-hover);color:var(--fni-muted);font-size:9px}
