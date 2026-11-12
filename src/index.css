@@ -788,3 +788,11 @@ input:focus,textarea:focus,select:focus,button:focus-visible{
 }
 :root[data-theme="dark"] .action-overlay{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 *,*::before,*::after{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+
+
+/* Remove the last decorative legacy treatments from the remaining profile and mobile controls. */
+.preview-avatar{background:var(--fni-purple)!important;border-color:var(--fni-line)!important;box-shadow:none!important;color:#fff!important}
+.msg-actions{background:var(--fni-bg)!important}
+:root[data-theme="light"] .preview-avatar{background:var(--fni-purple)!important}
+:root[data-theme="dark"] .preview-avatar{background:var(--fni-purple)!important}
+:root[data-theme="light"] .msg-actions,:root[data-theme="dark"] .msg-actions{background:var(--fni-bg)!important}
