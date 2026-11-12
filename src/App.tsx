@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import ProfileIdentity from './components/ProfileIdentity';
+import AuthGate, { readFniDemoSession, clearFniDemoSession } from './components/AuthGate';
+import AdministrationWorkspace from './components/AdministrationWorkspace';
 import MessagingWorkspace from './components/MessagingWorkspace';
 import CallingWorkspace from './components/CallingWorkspace';
 import AppearanceContactsWorkspace from './components/AppearanceContactsWorkspace';
@@ -17,7 +19,7 @@ import {
   SlidersHorizontal, ChevronRight, ArrowLeft
 } from 'lucide-react';
 
-type Section = 'chats' | 'mediahub' | 'ministry' | 'cells' | 'calls' | 'settings' | 'notifications';
+type Section = 'chats' | 'mediahub' | 'ministry' | 'cells' | 'calls' | 'settings' | 'notifications' | 'admin';
 type SettingKind = 'toggle' | 'select' | 'action';
 type SettingOption = { label: string; description?: string; kind: SettingKind; choices?: string[]; value?: string; defaultOn?: boolean };
 type SettingCategory = { id: string; label: string; group: string; description: string; icon: typeof Settings; options: SettingOption[] };
@@ -159,6 +161,7 @@ function Brand() {
 }
 
 function App() {
+  const [identity, setIdentity] = useState<{name:string;email:string;role:'member'|'admin'} | null>(() => readFniDemoSession());
   const [section, setSection] = useState<Section>('chats');
   const [callGroup, setCallGroup] = useState('');
   const [folder, setFolder] = useState('All chats');
@@ -223,6 +226,11 @@ function App() {
     setMenuOpen(false);
   }
 
+  if (!identity) return <AuthGate onAuthenticated={setIdentity} />;
+
+  const visibleSections = identity.role === 'admin' ? [...sections, { id: 'admin' as Section, label: 'Administration', icon: ShieldCheck }] : sections;
+  const signOut = () => { clearFniDemoSession(); setIdentity(null); setSection('chats'); };
+
   return <div className="app-shell" data-theme={appTheme} data-language={language}>
     <aside className="sidebar">
       <div className="sidebar-top"><Brand />
@@ -232,16 +240,16 @@ function App() {
       {menuOpen && <div className="account-menu">
         <button onClick={openSettings}><Settings size={16} /> Settings</button>
         <button onClick={() => { setSection('notifications'); setMenuOpen(false); }}><Bell size={16} /> Notifications</button>
-        <button onClick={() => comingSoon('Help centre')}><CircleHelp size={16} /> Help centre</button>
+        {identity.role === 'admin' && <button onClick={() => { setSection('admin'); setMenuOpen(false); }}><ShieldCheck size={16}/> Administration</button>}<button onClick={() => comingSoon('Help centre')}><CircleHelp size={16} /> Help centre</button><button onClick={signOut}><LockKeyhole size={16}/> Sign out</button>
       </div>}
       <div className="sidebar-label">YOUR SPACE</div>
       <nav className="main-nav" aria-label="Main navigation">
-        {sections.map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'nav-item active' : 'nav-item'} onClick={() => { setSection(item.id); setMenuOpen(false); }}><Icon size={19} strokeWidth={1.8} /><span>{t(item.label)}</span></button>; })}
+        {visibleSections.map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'nav-item active' : 'nav-item'} onClick={() => { setSection(item.id); setMenuOpen(false); }}><Icon size={19} strokeWidth={1.8} /><span>{t(item.label)}</span></button>; })}
         <button className={section === 'settings' ? 'nav-item active' : 'nav-item'} onClick={openSettings}><Settings size={19} /><span>{t('Settings')}</span></button>
       </nav>
       <div className="sidebar-bottom">
         <div className="ministry-card"><div className="ministry-icon"><ShieldCheck size={18} /></div><div><strong>FNI Connect</strong><span>Your community, together.</span></div></div>
-        <button className="profile-row" onClick={openSettings}><div className="profile-avatar">F</div><div className="profile-copy"><strong>FNI Member</strong><span>Account setup pending</span></div><ChevronDown size={16} /></button>
+        <button className="profile-row" onClick={openSettings}><div className="profile-avatar">F</div><div className="profile-copy"><strong>{identity.name}</strong><span>{identity.role === 'admin' ? 'Administrator' : 'FNI Member'}</span></div><ChevronDown size={16} /></button>
       </div>
     </aside>
 
@@ -254,8 +262,8 @@ function App() {
         </div>
       </header>
 
-      {section === 'calls' ? null : section === 'notifications' ? <NotificationsWorkspace onNavigate={destination => setSection(destination)} /> : section === 'mediahub' ? <MediaHubWorkspace /> : section === 'ministry' ? <MinistryWorkspace /> : section === 'settings' ? <div className="settings-page">
-        <div className="settings-intro"><div><span className="settings-kicker">YOUR FNI EXPERIENCE</span><h2>{t('Settings')}</h2><p>Manage your account, privacy, preferences and ministry experience.</p></div><div className="settings-profile"><div className="profile-avatar">F</div><div><strong>FNI Member</strong><span>Account setup pending</span></div></div></div>
+      {section === 'admin' ? <AdministrationWorkspace /> : section === 'calls' ? null : section === 'notifications' ? <NotificationsWorkspace onNavigate={destination => setSection(destination)} /> : section === 'mediahub' ? <MediaHubWorkspace /> : section === 'ministry' ? <MinistryWorkspace /> : section === 'settings' ? <div className="settings-page">
+        <div className="settings-intro"><div><span className="settings-kicker">YOUR FNI EXPERIENCE</span><h2>{t('Settings')}</h2><p>Manage your account, privacy, preferences and ministry experience.</p></div><div className="settings-profile"><div className="profile-avatar">{identity.name.slice(0,1).toUpperCase()}</div><div><strong>{identity.name}</strong><span>{identity.role === 'admin' ? 'Administrator' : 'FNI Member'}</span></div></div></div>
         <div className="settings-layout">
           <aside className="settings-menu">
             {['ACCOUNT','PREFERENCES','COMMUNICATION','MINISTRY','SUPPORT'].map(group => <div className="settings-group" key={group}><span className="settings-group-label">{group}</span>
