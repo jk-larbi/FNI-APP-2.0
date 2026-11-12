@@ -239,3 +239,13 @@ button{cursor:pointer}
 
 .forward-message-preview { padding: 12px 14px; margin: 12px 0 18px; border-left: 3px solid #3390ec; border-radius: 6px; background: var(--surface, #f4f6f9); color: var(--text, #333); font-size: 14px; overflow-wrap: anywhere; }
 .forwarded-label { margin-bottom: 6px; color: #3390ec; font-size: 12px; font-weight: 600; }
+
+
+/* Search within the open conversation */
+.chat-search-bar{min-height:48px;flex:none;display:flex;align-items:center;gap:10px;padding:0 16px;background:#fff;border-bottom:1px solid #e7e9ed;color:#8b95a3}
+.chat-search-bar input{flex:1;min-width:0;height:36px;border:0;outline:0;background:transparent;color:#263445;font:inherit;font-size:13px}
+.chat-search-bar input::placeholder{color:#9aa3af}
+.chat-search-bar>span{font-size:11px;white-space:nowrap;color:#8a94a2}
+.chat-search-bar>button{width:32px;height:32px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:#7d8795}
+.chat-search-bar>button:hover{background:#f0f2f5}
+@media(max-width:620px){.chat-search-bar{min-height:46px;padding:0 11px}}
