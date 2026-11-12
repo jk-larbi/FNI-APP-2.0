@@ -4,7 +4,7 @@ import {
   ArrowLeft, BookOpen, CalendarDays, CheckCircle2, ChevronRight, CircleDollarSign,
   FileText, HandHeart, Headphones, MessageSquareText, PlayCircle, Plus, Radio,
   ScanLine, Search, ShieldCheck, UsersRound, X, Bookmark,
-  Heart, LockKeyhole, CalendarCheck, Wallet, Sparkles, Trash2
+  Heart, LockKeyhole, CalendarCheck, Wallet, Sparkles, Trash2, Images as ImagesIcon
 } from 'lucide-react';
 
 type MinistryArea = 'home' | 'media' | 'sermons' | 'events' | 'resources' | 'forums' | 'prayerwall' | 'prayer' | 'checkin' | 'giving';
@@ -74,7 +74,7 @@ export default function MinistryWorkspace() {
 
   function saveDraft() {
     if (!title.trim() || !speaker.trim()) { setNotice('Add a message title and speaker before saving.'); return; }
-    const next = [{ id: crypto.randomUUID(), title: title.trim(), speaker: speaker.trim(), format, description: [description.trim(), messageLink.trim() ? 'Link: ' + messageLink.trim() : ''].filter(Boolean).join('\\n'), createdAt: new Date().toISOString() }, ...drafts];
+    const next = [{ id: crypto.randomUUID(), title: title.trim(), speaker: speaker.trim(), format, description: [description.trim(), messageLink.trim() ? 'Link: ' + messageLink.trim() : ''].filter(Boolean).join('\n'), createdAt: new Date().toISOString() }, ...drafts];
     setDrafts(next); storage.write('fni-ministry-sermon-drafts', next);
     setTitle(''); setSpeaker(''); setDescription(''); setMessageLink(''); setFormat('Video'); setShowDraft(false);
     setNotice('Sermon draft saved on this device. It has not been published.');
@@ -91,7 +91,7 @@ export default function MinistryWorkspace() {
     if (area === 'media') {
       if (!mediaLink.trim()) { setNotice('Add a media link before saving.'); return; }
       if (!/^https?:\\/\\//i.test(mediaLink.trim())) { setNotice('Enter a valid http or https media link.'); return; }
-      item = makeItem(formTitle, [formBody, 'Media link: ' + mediaLink.trim()].filter(Boolean).join('\\n'), mediaKind, 'Media draft');
+      item = makeItem(formTitle, [formBody, 'Media link: ' + mediaLink.trim()].filter(Boolean).join('\n'), mediaKind, 'Media draft');
       const next = [item, ...mediaDrafts]; setMediaDrafts(next); storage.write('fni-ministry-media-drafts', next);
     } else if (area === 'events') {
       item = makeItem(formTitle, formBody + (eventDate ? '\nDate: ' + eventDate : ''), 'Event draft', 'Draft');
@@ -283,7 +283,7 @@ export default function MinistryWorkspace() {
   </div>;
 }
 
-function BellIcon() { return <span className=\"ministry-update-emoji\" aria-hidden=\"true\">📢</span>; }\nfunction ImagesIcon({ size = 20 }: { size?: number }) { return <span className=\"ministry-images-icon\" style={{ width: size, height: size }} aria-hidden=\"true\">▧</span>; }
+function BellIcon() { return <span className="ministry-update-emoji" aria-hidden="true">📢</span>; }
 
 function ItemList({ items, emptyTitle, emptyText, onRemove }: { items: LocalItem[]; emptyTitle: string; emptyText: string; onRemove: (id: string) => void }) {
   if (!items.length) return <div className="ministry-empty"><div><FileText size={22}/></div><strong>{emptyTitle}</strong><p>{emptyText}</p></div>;
