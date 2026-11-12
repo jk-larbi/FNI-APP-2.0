@@ -2625,3 +2625,32 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
   .telegram-saved .saved-item-actions { flex-direction:column; }
   .telegram-saved .saved-item-copy { overflow-wrap:anywhere; }
 }
+
+
+/* FNI Status — WhatsApp-style updates list with FNI brand treatment. */
+.fni-status-list{display:flex;flex-direction:column;gap:0;width:100%;max-width:100%;padding:4px 0 8px}
+.fni-status-own,.fni-status-row{display:flex;align-items:center;gap:13px;width:100%;min-height:74px;padding:10px 12px;text-align:left;background:transparent;border-bottom:1px solid var(--fni-line,#e3e7f0);color:var(--fni-text,#192033)}
+.fni-status-own:hover,.fni-status-row:hover{background:color-mix(in srgb,var(--fni-blue,#173b8f) 5%,transparent)}
+.fni-status-avatar{position:relative;display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;border-radius:50%;border:2px solid transparent;color:#fff;font-size:17px;font-weight:650}
+.fni-status-avatar.unseen{padding:3px;border:2px solid #d9a72e;background-clip:content-box}
+.fni-status-avatar.seen{padding:3px;border:2px solid #a6adbb;background-clip:content-box}
+.fni-status-avatar.own{background:#173b8f;border-color:#d9a72e;color:#f5d34d}
+.fni-status-avatar.own>span{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;background:#173b8f}
+.fni-status-letter{font-size:19px;font-weight:750}
+.fni-status-avatar i{position:absolute;right:-2px;bottom:-1px;display:grid;place-items:center;width:21px;height:21px;border:2px solid var(--fni-surface,#fff);border-radius:50%;background:#d9a72e;color:#173b8f;font-style:normal}
+.fni-status-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+.fni-status-copy strong{font-size:13px;font-weight:650;color:var(--fni-text,#192033)}
+.fni-status-copy small{font-size:11px;color:var(--fni-muted,#687187)}
+.fni-status-add{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:color-mix(in srgb,var(--fni-blue,#173b8f) 10%,var(--fni-surface,#fff));color:var(--fni-blue,#173b8f)}
+.fni-status-label{padding:15px 12px 7px;color:var(--fni-muted,#687187);font-size:11px;font-weight:650;letter-spacing:.02em}
+.fni-status-label.viewed-label{padding-top:19px}
+.story-viewer-back{display:flex!important;align-items:center;justify-content:center;gap:5px;width:auto!important;min-width:64px;padding:0 9px!important;background:#ffffff20!important;color:#fff!important}
+.story-viewer-back span{font-size:11px;font-weight:600}
+@media(max-width:760px){
+ .fni-status-list{padding-top:2px}
+ .fni-status-own,.fni-status-row{min-height:70px;padding:9px 8px;gap:11px}
+ .fni-status-avatar{width:49px;height:49px;flex-basis:49px}
+ .fni-status-copy strong{font-size:13px}
+ .fni-status-copy small{font-size:10px}
+ .story-viewer-back{min-width:60px}
+}
