@@ -3,7 +3,7 @@ import SavedMessagesWorkspace from './SavedMessagesWorkspace';
 import StoriesWorkspace from './StoriesWorkspace';
 import ChatEmojiPicker from './ChatEmojiPicker';
 import VoiceMessageButton from './VoiceMessageButton';
-import { Archive, ArrowLeft, AtSign, Bookmark, Camera, Check, CheckCheck, ChevronRight, Copy, Download, Forward, Lock, MessageCircle, MoreHorizontal, MoreVertical, Paperclip, Pencil, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, Video, X } from 'lucide-react';
+import { Archive, ArrowLeft, AtSign, Bookmark, Camera, Check, CheckCheck, ChevronRight, Copy, Download, Forward, Folder, Lock, MessageCircle, MoreHorizontal, MoreVertical, Paperclip, Pencil, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, Video, X } from 'lucide-react';
 
 type PermissionKey = 'addMembers' | 'approveRequests' | 'editInfo' | 'pinDelete' | 'restrictMembers' | 'manageInvites' | 'appointAdmins';
 type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; replyTo?: string; reactions?: string[]; mentions?: string[]; sticker?: boolean; pinned?: boolean; mediaUrl?: string; mediaType?: 'image' | 'video' | 'audio'; };
@@ -32,7 +32,9 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [groups, setGroups] = useState<Group[]>(() => { try { return JSON.parse(localStorage.getItem('fni-chat-groups') || '[]'); } catch { return []; } });
   const [personalChats, setPersonalChats] = useState<PersonalChat[]>(() => { try { return JSON.parse(localStorage.getItem('fni-personal-chats') || '[]'); } catch { return []; } });
   const [selectedId, setSelectedId] = useState('');
-  const [tab, setTab] = useState<'All chats' | 'Personal' | 'Groups' | 'Archived'>('All chats');
+  const [tab, setTab] = useState<string>('All chats');
+  const [customFolders, setCustomFolders] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('fni-custom-chat-folders') || '[]'); } catch { return []; } });
+  const [chatFolderMap, setChatFolderMap] = useState<Record<string,string>>(() => { try { return JSON.parse(localStorage.getItem('fni-chat-folder-map') || '{}'); } catch { return {}; } });
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedChats, setSelectedChats] = useState<string[]>([]);
   const [archivedChats, setArchivedChats] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('fni-archived-chats') || '[]'); } catch { return []; } });
@@ -79,6 +81,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     if (action === 'Archive') { setArchivedChats(c => tab === 'Archived' ? c.filter(id => id !== chatId) : [...new Set([...c, chatId])]); setNotice(tab === 'Archived' ? 'Chat restored.' : 'Chat archived.'); }
     if (action === 'Mark as Read') { setReadChats(c => [...new Set([...c, chatId])]); setNotice('Marked as read.'); }
     if (action === 'Delete') { if (!confirm('Delete this chat from this browser preview?')) return; setGroups(c => c.filter(g => g.id !== chatId)); setPersonalChats(c => c.filter(chat => chat.id !== chatId)); setPinnedChats(c => c.filter(id => id !== chatId)); setArchivedChats(c => c.filter(id => id !== chatId)); setReadChats(c => c.filter(id => id !== chatId)); if (chatId === 'saved-messages') localStorage.removeItem('fni-personal-cloud-items'); setNotice('Chat deleted.'); }
+    if (action.startsWith('Move to: ')) { const folder = action.slice(9); setChatFolderMap(current => ({ ...current, [chatId]: folder })); setNotice('Chat moved to ' + folder + '.'); }
     if (action === 'Select') { setSelectionMode(true); setSelectedChats([chatId]); }
   };
   const chatRowTouchHandlers = (chatId: string) => ({
@@ -141,9 +144,11 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   useEffect(() => { localStorage.setItem('fni-pinned-chats', JSON.stringify(pinnedChats)); }, [pinnedChats]);
   useEffect(() => { localStorage.setItem('fni-archived-chats', JSON.stringify(archivedChats)); }, [archivedChats]);
   useEffect(() => { localStorage.setItem('fni-read-chats', JSON.stringify(readChats)); }, [readChats]);
+  useEffect(() => { localStorage.setItem('fni-custom-chat-folders', JSON.stringify(customFolders)); }, [customFolders]);
+  useEffect(() => { localStorage.setItem('fni-chat-folder-map', JSON.stringify(chatFolderMap)); }, [chatFolderMap]);
   useEffect(() => { try { const globalWallpaper = localStorage.getItem('fni-global-wallpaper') || ''; const individual = JSON.parse(localStorage.getItem('fni-chat-wallpapers') || '{}') as Record<string,string>; const key = selected?.name.toLowerCase() || ''; const wallpaper = (key && individual[key]) || globalWallpaper; document.documentElement.style.setProperty('--fni-chat-wallpaper-image', wallpaper ? (wallpaper.startsWith('linear-gradient') ? wallpaper : 'url(' + wallpaper + ')') : 'none'); } catch { document.documentElement.style.setProperty('--fni-chat-wallpaper-image', 'none'); } }, [selected?.name, selectedId]);
-  const filtered = useMemo(() => groups.filter(g => (tab === 'Archived' ? archivedChats.includes(g.id) : !archivedChats.includes(g.id)) && (g.name + ' ' + g.description).toLowerCase().includes(query.toLowerCase())).sort((a,b) => Number(pinnedChats.includes(b.id)) - Number(pinnedChats.includes(a.id))), [groups, query, tab, pinnedChats, archivedChats]);
-  const filteredPersonalChats = useMemo(() => personalChats.filter(chat => (tab === 'Archived' ? archivedChats.includes(chat.id) : !archivedChats.includes(chat.id)) && chat.username.toLowerCase().includes(query.toLowerCase())).sort((a,b) => Number(pinnedChats.includes(b.id)) - Number(pinnedChats.includes(a.id))), [personalChats, query, tab, pinnedChats, archivedChats]);
+  const filtered = useMemo(() => groups.filter(g => (tab === 'Archived' ? archivedChats.includes(g.id) : !archivedChats.includes(g.id)) && (customFolders.includes(tab) ? chatFolderMap[g.id] === tab : !customFolders.includes(chatFolderMap[g.id] || '')) && (g.name + ' ' + g.description).toLowerCase().includes(query.toLowerCase())).sort((a,b) => Number(pinnedChats.includes(b.id)) - Number(pinnedChats.includes(a.id))), [groups, query, tab, pinnedChats, archivedChats, customFolders, chatFolderMap]);
+  const filteredPersonalChats = useMemo(() => personalChats.filter(chat => (tab === 'Archived' ? archivedChats.includes(chat.id) : !archivedChats.includes(chat.id)) && (customFolders.includes(tab) ? chatFolderMap[chat.id] === tab : !customFolders.includes(chatFolderMap[chat.id] || '') && tab !== 'Groups') && chat.username.toLowerCase().includes(query.toLowerCase())).sort((a,b) => Number(pinnedChats.includes(b.id)) - Number(pinnedChats.includes(a.id))), [personalChats, query, tab, pinnedChats, archivedChats, customFolders, chatFolderMap]);
   const updateGroup = (patch: Partial<Group>) => setGroups(current => current.map(g => g.id === selectedId ? { ...g, ...patch } : g));
   const createGroup = () => {
     if (!groupName.trim()) { setNotice('Enter a group name to continue.'); return; }
@@ -250,7 +255,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     }
   };
   const toggleChatSelection = (id: string) => setSelectedChats(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
-  const visibleChatIds = [...(tab === 'Groups' ? filtered.map(group => group.id) : tab === 'Personal' ? filteredPersonalChats.map(chat => chat.id) : tab === 'Archived' ? [...filtered.map(group => group.id), ...filteredPersonalChats.map(chat => chat.id)] : [...filtered.map(group => group.id), ...filteredPersonalChats.map(chat => chat.id)]), ...((tab === 'Personal' && !archivedChats.includes('saved-messages')) || (tab === 'Archived' && archivedChats.includes('saved-messages')) ? ['saved-messages'] : [])];
+  const visibleChatIds = [...(tab === 'Groups' ? filtered.map(group => group.id) : tab === 'Personal' ? filteredPersonalChats.map(chat => chat.id) : [...filtered.map(group => group.id), ...filteredPersonalChats.map(chat => chat.id)]), ...((tab === 'Personal' && !archivedChats.includes('saved-messages')) || (tab === 'Archived' && archivedChats.includes('saved-messages')) ? ['saved-messages'] : [])];
   const toggleSelectAll = () => setSelectedChats(current => visibleChatIds.every(id => current.includes(id)) ? current.filter(id => !visibleChatIds.includes(id)) : [...new Set([...current, ...visibleChatIds])]);
   const exitSelection = () => { setSelectionMode(false); setSelectedChats([]); };
   const markSelectedRead = () => { setReadChats(current => [...new Set([...current, ...selectedChats])]); setNotice(`Marked ${selectedChats.length} chat${selectedChats.length === 1 ? '' : 's'} as read in this preview.`); exitSelection(); };
@@ -438,7 +443,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     </div>
     <StoriesWorkspace compact onReply={() => setNotice('Open a conversation to continue your reply.')} />
     <div className="fni-chat-search"><Search size={18}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search people, @usernames, messages..." aria-label="Search chats"/></div>
-    <div className="msg-tabs fni-chat-tabs" role="tablist" aria-label="Chat folders">{(['All chats','Personal','Groups','Archived'] as const).map(t => <button role="tab" aria-selected={tab===t} key={t} className={tab===t?'active':''} onClick={() => { setTab(t); exitSelection(); }}>{t}</button>)}</div>
+    <div className="fni-chat-folder-bar"><div className="msg-tabs fni-chat-tabs" role="tablist" aria-label="Chat folders">{['All chats','Personal','Groups',...customFolders,'Archived'].map(t => <button role="tab" aria-selected={tab===t} key={t} className={tab===t?'active':''} onClick={() => { setTab(t); exitSelection(); }}>{t}</button>)}</div><button className="fni-add-folder" title="Create folder" aria-label="Create folder" onClick={() => { const value = window.prompt('Name your chat folder'); const folder = value?.trim(); if (!folder) return; if (['All chats','Personal','Groups','Archived'].some(item => item.toLowerCase() === folder.toLowerCase()) || customFolders.some(item => item.toLowerCase() === folder.toLowerCase())) { setNotice('A folder with that name already exists.'); return; } setCustomFolders(current => [...current, folder]); setTab(folder); setNotice(folder + ' folder created. Move chats into it using a chat menu.'); }}><Plus size={17}/></button></div>
     {selectionMode && <div className="fni-chat-bulk-bar">
       <button className="fni-chat-select-all" onClick={toggleSelectAll}>{visibleChatIds.length > 0 && visibleChatIds.every(id => selectedChats.includes(id)) ? <SquareCheck size={17}/> : <Square size={17}/>} Select all</button>
       <span>{selectedChats.length} selected</span>
@@ -479,8 +484,8 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     {chatContextMenu && (() => {
       const isPinned = pinnedChats.includes(chatContextMenu.chatId);
       const isArchived = archivedChats.includes(chatContextMenu.chatId);
-      const actions = ['Open', 'Mark as Read', isPinned ? 'Unpin' : 'Pin', isArchived ? 'Unarchive' : 'Archive', 'Select', 'Delete'];
-      return <><button className="fni-chat-context-dismiss" aria-label="Close menu" onClick={() => setChatContextMenu(null)}/><div className="fni-chat-context-menu" role="menu" style={{left:chatContextMenu.x,top:chatContextMenu.y}}>{actions.map(action => <button key={action} role="menuitem" className={action === 'Delete' ? 'danger' : ''} onClick={() => handleChatContextAction(action === 'Unpin' ? 'Pin' : action === 'Unarchive' ? 'Archive' : action, chatContextMenu.chatId)}>{action === 'Open' ? <MessageCircle size={16}/> : action === 'Mark as Read' ? <CheckCheck size={16}/> : action === 'Pin' || action === 'Unpin' ? <Pin size={16}/> : action === 'Archive' || action === 'Unarchive' ? <Archive size={16}/> : action === 'Select' ? <SquareCheck size={16}/> : <Trash2 size={16}/>}<span>{action}</span></button>)}</div></>;
+      const actions = ['Open', 'Mark as Read', isPinned ? 'Unpin' : 'Pin', isArchived ? 'Unarchive' : 'Archive', ...customFolders.map(folder => 'Move to: ' + folder), 'Select', 'Delete'];
+      return <><button className="fni-chat-context-dismiss" aria-label="Close menu" onClick={() => setChatContextMenu(null)}/><div className="fni-chat-context-menu" role="menu" style={{left:chatContextMenu.x,top:chatContextMenu.y}}>{actions.map(action => <button key={action} role="menuitem" className={action === 'Delete' ? 'danger' : ''} onClick={() => handleChatContextAction(action === 'Unpin' ? 'Pin' : action === 'Unarchive' ? 'Archive' : action, chatContextMenu.chatId)}>{action === 'Open' ? <MessageCircle size={16}/> : action === 'Mark as Read' ? <CheckCheck size={16}/> : action === 'Pin' || action === 'Unpin' ? <Pin size={16}/> : action === 'Archive' || action === 'Unarchive' ? <Archive size={16}/> : action === 'Select' ? <SquareCheck size={16}/> : action.startsWith('Move to: ') ? <Folder size={16}/> : <Trash2 size={16}/>}<span>{action}</span></button>)}</div></>;
     })()}
     <div className="msg-footer-note"><Shield size={15}/> Your chat list is stored in this browser preview. Real member conversations and cross-device sync will be enabled with the FNI backend.</div>
     {notice && <div className="msg-toast" role="status">{notice}<button onClick={() => setNotice('')}><X size={14}/></button></div>}
