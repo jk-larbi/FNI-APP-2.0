@@ -583,6 +583,26 @@ export default function App() {
                 <p className="group-meeting-note">Prayer requests are saved on this device only. Sharing with members and private prayer rooms require the FNI backend.</p>
               </section>
             )}
+            {groupDetails[activeChat] && (() => {
+              const group = groupDetails[activeChat];
+              const members = group.members || [];
+              const records = group.attendance || [];
+              const totalPossible = records.length * members.length;
+              const totalPresent = records.reduce((sum, record) => sum + record.present.length, 0);
+              const attendanceRate = totalPossible ? Math.round((totalPresent / totalPossible) * 100) : 0;
+              const prayerRequests = group.prayerRequests || [];
+              const prayedCount = prayerRequests.filter((request) => request.prayed).length;
+              return <section className="group-insights-section">
+                <div className="shared-media-heading"><strong>Group overview</strong><span>Local insights</span></div>
+                <div className="group-insights-grid">
+                  <article><span>Members</span><strong>{members.length}</strong><small>Current group size</small></article>
+                  <article><span>Moderators</span><strong>{(group.moderators || []).length}</strong><small>Group leadership</small></article>
+                  <article><span>Attendance</span><strong>{records.length ? attendanceRate + '%' : '—'}</strong><small>{records.length ? 'Across saved registers' : 'No records yet'}</small></article>
+                  <article><span>Prayer care</span><strong>{prayerRequests.length ? prayedCount + '/' + prayerRequests.length : '—'}</strong><small>Requests prayed for</small></article>
+                </div>
+                <p className="group-insights-note">Insights are calculated from records saved on this device. They are not a live attendance or spiritual-growth measurement.</p>
+              </section>;
+            })()}
             {groupDetails[activeChat] && (
               <section className="group-attendance-section">
                 <div className="shared-media-heading"><strong>Attendance register</strong><span>{groupDetails[activeChat].attendance?.length || 0} records</span></div>
