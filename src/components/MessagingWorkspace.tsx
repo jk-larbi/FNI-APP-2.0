@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import SavedMessagesWorkspace from './SavedMessagesWorkspace';
-import { Archive, ArrowLeft, Bookmark, Check, CheckCheck, ChevronRight, Lock, MessageCircle, Phone, Pin, Plus, Search, Send, Settings2, Shield, Square, SquareCheck, Trash2, Users, X } from 'lucide-react';
+import { Archive, ArrowLeft, AtSign, Bookmark, Check, CheckCheck, ChevronRight, Lock, MessageCircle, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Trash2, Users, X } from 'lucide-react';
 
 type PermissionKey = 'addMembers' | 'approveRequests' | 'editInfo' | 'pinDelete' | 'restrictMembers' | 'manageInvites' | 'appointAdmins';
-type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; };
+type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; replyTo?: string; reactions?: string[]; mentions?: string[]; };
 type Group = {
   id: string; name: string; description: string; createdAt: string;
   mode: 'Everyone' | 'Admins only' | 'Selected members';
@@ -36,6 +36,9 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [view, setView] = useState<'list' | 'create' | 'group' | 'group-chat' | 'new-chat'>('list');
   const [groupMessages, setGroupMessages] = useState<GroupMessage[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-chat-messages') || '[]'); } catch { return []; } });
   const [groupDraft, setGroupDraft] = useState('');
+  const [replyTarget, setReplyTarget] = useState<GroupMessage | null>(null);
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const [mentionOpen, setMentionOpen] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [groupMode, setGroupMode] = useState<Group['mode']>('Everyone');
@@ -75,7 +78,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     updateGroup({ admins: selected.admins.map(a => a.username === username ? { ...a, permissions: { ...a.permissions, [key]: value } } : a) });
   };
   const closeToList = () => { setView('list'); setSelectedId(''); setGroupDraft(''); };
-  const sendGroupMessage = () => { const text = groupDraft.trim(); if (!text || !selected) return; setGroupMessages(current => [...current, { id: crypto.randomUUID(), groupId: selected.id, text, createdAt: new Date().toISOString() }]); setGroupDraft(''); };
+  const sendGroupMessage = () => { const text = groupDraft.trim(); if (!text || !selected) return; const mentions = [...text.matchAll(/@([a-zA-Z0-9_.-]+)/g)].map(match => match[1]); setGroupMessages(current => [...current, { id: crypto.randomUUID(), groupId: selected.id, text, createdAt: new Date().toISOString(), replyTo: replyTarget?.id, reactions: [], mentions }]); setGroupDraft(''); setReplyTarget(null); setEmojiOpen(false); setMentionOpen(false); };
   const toggleChatSelection = (id: string) => setSelectedChats(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const visibleChatIds = [...filtered.map(group => group.id), ...(tab === 'All chats' && !archivedChats.includes('saved-messages') ? ['saved-messages'] : tab === 'Personal' && !archivedChats.includes('saved-messages') ? ['saved-messages'] : tab === 'Archived' && archivedChats.includes('saved-messages') ? ['saved-messages'] : [])];
   const toggleSelectAll = () => setSelectedChats(current => visibleChatIds.every(id => current.includes(id)) ? current.filter(id => !visibleChatIds.includes(id)) : [...new Set([...current, ...visibleChatIds])]);
@@ -133,13 +136,32 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     <div className="fni-group-chat-messages">
       {groupMessages.filter(message => message.groupId === selected.id).length === 0
         ? <div className="fni-group-chat-empty"><div><MessageCircle size={24}/></div><b>{selected.name}</b><span>No messages yet. Start the conversation with your group.</span></div>
-        : groupMessages.filter(message => message.groupId === selected.id).map(message => <article className="fni-group-chat-bubble" key={message.id}><p>{message.text}</p><time>{new Date(message.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</time></article>)}
+        : groupMessages.filter(message => message.groupId === selected.id).map(message => {
+          const parent = groupMessages.find(item => item.id === message.replyTo);
+          return <article className="fni-group-chat-entry" key={message.id}>
+            <div className="fni-group-chat-bubble">
+              {parent && <button className="fni-chat-reply-preview" onClick={() => document.getElementById('fni-message-'+parent.id)?.scrollIntoView({behavior:'smooth',block:'center'})}><b>You replied to</b><span>{parent.text}</span></button>}
+              <p id={'fni-message-'+message.id}>{message.text.split(/(@[a-zA-Z0-9_.-]+)/g).map((part,index) => part.startsWith('@') ? <strong className="fni-chat-mention" key={index}>{part}</strong> : part)}</p>
+              <div className="fni-chat-message-meta"><time>{new Date(message.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</time><span>✓✓</span></div>
+              {!!message.reactions?.length && <div className="fni-chat-reactions">{message.reactions.map(emoji=><button key={emoji} onClick={()=>setGroupMessages(items=>items.map(item=>item.id===message.id?{...item,reactions:item.reactions?.filter(value=>value!==emoji)}:item))}>{emoji}</button>)}</div>}
+            </div>
+            <div className="fni-chat-message-tools">
+              <button title="Reply" aria-label="Reply to message" onClick={()=>{setReplyTarget(message);setEmojiOpen(false)}}><Reply size={15}/></button>
+              {['❤️','👍','🙏','😂'].map(emoji=><button key={emoji} title={'React '+emoji} onClick={()=>setGroupMessages(items=>items.map(item=>item.id===message.id?{...item,reactions:item.reactions?.includes(emoji)?item.reactions.filter(value=>value!==emoji):[...(item.reactions||[]),emoji]}:item))}>{emoji}</button>)}
+            </div>
+          </article>;
+        })}
     </div>
+    {replyTarget && <div className="fni-chat-replying"><div><b>Replying to your message</b><span>{replyTarget.text}</span></div><button type="button" onClick={()=>setReplyTarget(null)} aria-label="Cancel reply"><X size={17}/></button></div>}
+    {emojiOpen && <div className="fni-ios-emoji-panel" role="group" aria-label="Emoji picker">{['😀','😃','😄','😁','😆','🥹','😂','🤣','😊','😍','🥰','😘','😎','😭','🙏','👏','👍','👎','❤️','🧡','💛','💚','💙','💜','🔥','🎉','✨','🙌','🤍','💯','🤝','🕊️'].map(emoji=><button type="button" key={emoji} onClick={()=>setGroupDraft(value=>value+emoji)}>{emoji}</button>)}</div>}
+    {mentionOpen && <div className="fni-chat-mention-panel"><span>Insert a mention</span>{['you',...selected.admins.map(admin=>admin.username)].map(name=><button type="button" key={name} onClick={()=>{setGroupDraft(value=>value+'@'+name+' ');setMentionOpen(false)}}>@{name}</button>)}</div>}
     <form className="fni-group-chat-compose" onSubmit={event => { event.preventDefault(); sendGroupMessage(); }}>
+      <button type="button" className="fni-chat-compose-tool" aria-label="Insert mention" onClick={()=>{setMentionOpen(value=>!value);setEmojiOpen(false)}}><AtSign size={19}/></button>
+      <button type="button" className="fni-chat-compose-tool" aria-label="Open emoji picker" onClick={()=>{setEmojiOpen(value=>!value);setMentionOpen(false)}}><Smile size={19}/></button>
       <input value={groupDraft} onChange={event => setGroupDraft(event.target.value)} placeholder="Message the group..." aria-label="Message the group"/>
       <button type="submit" disabled={!groupDraft.trim()} aria-label="Send message"><Send size={18}/></button>
     </form>
-    <div className="fni-group-chat-local-note">Messages are stored only in this browser preview. Shared group messaging will require the FNI backend.</div>
+    <div className="fni-group-chat-local-note">Preview messages stay on this device. Replies, mentions and reactions are stored locally; live delivery needs the FNI messaging backend.</div>
   </div>;
 
   if (view === 'group' && selected) return <div className="msg-workspace msg-fullscreen-workspace">
