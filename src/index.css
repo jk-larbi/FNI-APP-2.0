@@ -1705,3 +1705,21 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
 .media-hub-empty p{max-width:390px;margin:0 auto;color:var(--text-secondary,#778198);font-size:13px;line-height:1.55}
 .media-hub-footnote{margin-top:20px;color:var(--text-secondary,#778198);font-size:12px;line-height:1.5}
 @media(max-width:600px){.media-hub-page{padding:18px 15px 90px}.media-hub-heading h2{font-size:24px}.media-hub-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.media-hub-image{height:145px}.media-hub-card-copy{padding:11px}.media-hub-card-copy h3{font-size:13px}}
+
+
+/* Spiritual resources and unified prayer workspace */
+.ministry-resource-feature{margin:14px 0;padding:20px;border:1px solid var(--fni-line);border-radius:14px;background:var(--fni-surface);color:var(--fni-text)}
+.ministry-resource-feature h3{margin:8px 0;font-size:20px}
+.ministry-resource-feature p{margin:0 0 8px;line-height:1.7;color:var(--fni-text)}
+.ministry-resource-feature small{color:var(--fni-muted);font-size:11px}
+.ministry-resource-tools{display:flex;align-items:center;gap:10px;margin:14px 0;flex-wrap:wrap}
+.ministry-resource-tools .ministry-search{flex:1;min-width:190px;margin:0}
+.ministry-resource-tools select,.ministry-resource-tools>button,.ministry-folder-create input,.ministry-folder-create button{min-height:42px;border:1px solid var(--fni-line);border-radius:10px;padding:0 12px;background:var(--fni-surface);color:var(--fni-text);font:inherit}
+.ministry-resource-tools>button,.ministry-folder-create button{display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
+.ministry-resource-tools>button.selected{border-color:var(--fni-blue);color:var(--fni-blue);background:color-mix(in srgb,var(--fni-blue) 8%,var(--fni-surface))}
+.ministry-folder-create{display:flex;gap:8px;margin:12px 0}
+.ministry-folder-create input{flex:1;min-width:0}
+.ministry-resource-list{display:grid;gap:9px}
+.ministry-resource-tabs{overflow-x:auto;flex-wrap:nowrap}
+.ministry-resource-tabs button{white-space:nowrap}
+@media(max-width:600px){.ministry-resource-tools{align-items:stretch}.ministry-resource-tools .ministry-search{flex-basis:100%}.ministry-resource-tools select{flex:1}.ministry-folder-create button{white-space:nowrap}}
