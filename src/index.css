@@ -1016,3 +1016,5 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
 .app-shell[data-theme=dark] .ac-workspace{--fni-surface:#1c202a;--fni-app-bg:#12141b;--fni-text:#f2f3f7;--fni-muted:#a0a6b3;--fni-border:#343b49}
 .msg-workspace{background-color:transparent}
 .msg-workspace .msg-panel,.msg-workspace .msg-form-card{background:color-mix(in srgb,var(--fni-surface,#fff) 91%,transparent)}
+
+.msg-workspace{background-image:linear-gradient(rgba(0,0,0,var(--fni-wallpaper-dim,0)),rgba(0,0,0,var(--fni-wallpaper-dim,0))),var(--fni-chat-wallpaper-image,none);background-position:center;background-size:cover;background-repeat:no-repeat}
