@@ -577,3 +577,152 @@ button{transition:background-color .14s ease,color .14s ease,border-color .14s e
  .toast{bottom:calc(78px + env(safe-area-inset-bottom))}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* FNI VISUAL QA PASS — enforce the approved classic Telegram baseline app-wide.
+   This layer is intentionally visual-only; it does not change component behaviour. */
+:root{
+  --fni-bg:#F4F5F8;--fni-surface:#FFFFFF;--fni-surface-2:#F7F8FA;
+  --fni-elevated:#FFFFFF;--fni-text:#20232B;--fni-muted:#747985;
+  --fni-line:#E6E8ED;--fni-blue:#2463D3;--fni-purple:#30245F;
+  --fni-gold:#D9A52B;--fni-shadow:0 1px 3px rgba(25,35,55,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --fni-bg:#12141B;--fni-surface:#1C202A;--fni-surface-2:#252A35;
+  --fni-elevated:#343B49;--fni-text:#F2F3F7;--fni-muted:#A1A8B5;
+  --fni-line:#343A46;--fni-blue:#5B8FF0;--fni-purple:#8A7AC5;
+  --fni-gold:#D9A52B;--fni-shadow:0 1px 4px rgba(0,0,0,.18);
+  color-scheme:dark;
+}
+html,body,#root{min-height:100%;background:var(--fni-bg);color:var(--fni-text)}
+html{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-width:320px;margin:0;background:var(--fni-bg);color:var(--fni-text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*,*::before,*::after{box-sizing:border-box;font-family:inherit}
+button,input,textarea,select{font:inherit}
+button{box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+svg{flex-shrink:0}
+.app-shell,.main-panel{background:var(--fni-bg)!important;color:var(--fni-text)}
+.sidebar,.topbar,.settings-menu,.settings-detail,.settings-profile,.msg-form-card,.msg-panel,.action-sheet{
+  background:var(--fni-surface)!important;color:var(--fni-text);border-color:var(--fni-line)!important;
+  box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important
+}
+.sidebar{padding:16px 12px}
+.sidebar-top{margin-bottom:24px}
+.brand-mark{background:var(--fni-blue)!important;color:#fff!important;border:0!important;border-radius:9px!important;box-shadow:none!important}
+.brand-copy strong,.topbar h1,.welcome-line h2,.settings-intro h2,.settings-detail-head h3,
+.msg-heading h2,.msg-panel-title h3,.action-sheet h3{font-family:inherit!important;color:var(--fni-text);font-weight:600;letter-spacing:-.02em}
+.brand-copy span,.sidebar-label,.topbar-title .eyebrow,.welcome-line p,.settings-intro p,
+.settings-detail-head p,.setting-option-copy span,.msg-heading p,.msg-panel-title p,
+.msg-group-copy span,.msg-empty span,.photo-actions>span,.profile-section-heading p,
+.profile-field small,.profile-online-setting span{color:var(--fni-muted)!important}
+.nav-item,.setting-nav{border-radius:8px!important;color:var(--fni-muted)}
+.nav-item.active,.setting-nav.active{background:var(--fni-hover)!important;color:var(--fni-blue)!important;box-shadow:inset 3px 0 var(--fni-blue)!important}
+.nav-item.active svg,.setting-nav.active svg{color:var(--fni-blue)!important}
+.ministry-card,.settings-profile,.profile-preview-card,.msg-form-card,.msg-panel,.msg-admin-card,
+.msg-empty,.msg-info,.msg-footer-note,.settings-footnote,.profile-guidance,.profile-history-note,
+.workspace-callout,.action-empty,.local-record{
+  background:var(--fni-surface-2)!important;border:1px solid var(--fni-line)!important;
+  border-radius:12px!important;box-shadow:none!important
+}
+.ministry-icon,.setting-detail-icon,.empty-art,.msg-group-avatar{
+  background:#EAF0FD!important;color:var(--fni-blue)!important;border:0!important;box-shadow:none!important
+}
+:root[data-theme="dark"] .ministry-icon,
+:root[data-theme="dark"] .setting-detail-icon,
+:root[data-theme="dark"] .empty-art,
+:root[data-theme="dark"] .msg-group-avatar{background:#29364D!important;color:var(--fni-blue)!important}
+.profile-avatar{background:var(--fni-purple)!important;color:#fff!important}
+.topbar{height:68px!important;padding:0 16px!important;border-bottom:1px solid var(--fni-line)!important}
+.content,.settings-page,.msg-workspace{padding-left:16px!important;padding-right:16px!important}
+.content{padding-top:24px!important}
+.settings-page{padding-top:24px!important}
+.settings-layout{gap:16px!important}
+.settings-menu{border-radius:12px!important}
+.settings-detail{border-radius:12px!important;padding:18px!important}
+.settings-detail-head,.profile-photo-editor,.profile-form-section,.setting-option,
+.msg-panel-title,.msg-role-row,.msg-setting,.profile-save-row{border-color:var(--fni-line)!important}
+.setting-option{min-height:62px!important}
+.setting-option-copy strong{color:var(--fni-text)!important;font-size:13px!important;font-weight:550!important}
+.setting-option-copy span{font-size:11px!important}
+.search-bar,.msg-search{
+  height:48px!important;background:var(--fni-surface)!important;color:var(--fni-muted)!important;
+  border:1px solid var(--fni-line)!important;border-radius:10px!important;box-shadow:none!important
+}
+.search-bar input,.msg-search input{color:var(--fni-text)!important;font-size:13px!important}
+.search-bar input::placeholder,.msg-search input::placeholder{color:var(--fni-muted)!important}
+.folder-row{gap:4px!important;border-bottom:1px solid var(--fni-line)!important}
+.folder{border-radius:7px!important}
+.folder.active{background:transparent!important;color:var(--fni-blue)!important;box-shadow:inset 0 -2px var(--fni-blue)!important}
+.new-button,.msg-primary,.profile-save-button,.local-entry button,.action-done{
+  min-height:46px!important;background:var(--fni-blue)!important;color:#fff!important;
+  border:1px solid var(--fni-blue)!important;border-radius:9px!important;box-shadow:none!important
+}
+.msg-secondary,.setting-action,.profile-upload-button{
+  min-height:42px;background:var(--fni-hover)!important;color:var(--fni-blue)!important;
+  border:1px solid var(--fni-line)!important;border-radius:9px!important;box-shadow:none!important
+}
+input:not([type=checkbox]):not([type=radio]),textarea,select{
+  min-height:44px;border:1px solid var(--fni-line)!important;border-radius:9px!important;
+  background:var(--fni-surface-2)!important;color:var(--fni-text)!important;box-shadow:none!important
+}
+textarea{min-height:88px}
+input:focus,textarea:focus,select:focus,button:focus-visible{
+  outline:2px solid color-mix(in srgb,var(--fni-blue) 55%,transparent);outline-offset:2px
+}
+.msg-tabs button{background:transparent!important;border-radius:0!important}
+.msg-tabs button.active{color:var(--fni-blue)!important;border-bottom:2px solid var(--fni-blue)!important}
+.msg-group-list{gap:0!important}
+.msg-group-card{
+  background:transparent!important;border:0!important;border-bottom:1px solid var(--fni-line)!important;
+  border-radius:0!important;padding:12px 8px!important;box-shadow:none!important
+}
+.msg-group-card:hover{background:var(--fni-hover)!important}
+.msg-group-avatar{width:48px!important;height:48px!important;border-radius:50%!important}
+.msg-group-copy b{color:var(--fni-text)!important;font-size:14px!important;font-weight:600!important}
+.msg-group-copy small{color:var(--fni-muted)!important}
+.msg-form-card,.msg-panel{padding:16px!important}
+.msg-empty{border-style:solid!important}
+.msg-role{background:var(--fni-hover)!important;color:var(--fni-blue)!important}
+.msg-admin-head button,.msg-list-row button{background:#FFF0F0!important;color:var(--fni-red)!important}
+:root[data-theme="dark"] .msg-admin-head button,:root[data-theme="dark"] .msg-list-row button{background:#402B32!important;color:#ED9999!important}
+.large-profile-avatar{background:var(--fni-purple)!important;border-color:var(--fni-line)!important;box-shadow:none!important}
+.profile-preview-card{box-shadow:none!important}
+.action-overlay{background:rgba(20,25,35,.42)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.action-sheet{border-radius:14px!important;box-shadow:0 8px 28px rgba(20,30,50,.16)!important}
+.mobile-nav{
+  background:var(--fni-surface)!important;border-top:1px solid var(--fni-line)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important
+}
+.mobile-nav-item{color:var(--fni-muted)!important}
+.mobile-nav-item.active{color:var(--fni-blue)!important}
+.status-dot{box-shadow:none!important}
+.toast,.msg-toast{background:var(--fni-surface)!important;color:var(--fni-text)!important;border:1px solid var(--fni-line)!important;box-shadow:var(--fni-shadow)!important}
+.brand-mark,.ministry-card,.empty-art,.setup-note,.settings-menu,.settings-detail,.settings-profile,
+.setting-detail-icon,.profile-preview-card,.msg-group-avatar,.msg-group-card,.msg-empty,.msg-form-card,
+.msg-panel,.msg-admin-card,.action-sheet,.action-empty,.local-record,.workspace-callout{
+  background-image:none!important
+}
+@media(max-width:760px){
+  .main-panel{padding-bottom:calc(70px + env(safe-area-inset-bottom))!important}
+  .topbar{height:62px!important;padding:0 16px!important}
+  .content{padding:20px 16px 16px!important}
+  .settings-page{padding:18px 16px 24px!important}
+  .settings-layout{display:flex!important;flex-direction:column!important;gap:12px!important}
+  .settings-menu{width:100%!important;overflow-x:auto!important;overscroll-behavior-x:contain}
+  .settings-detail{width:100%!important;padding:14px!important}
+  .setting-nav{min-height:40px!important}
+  .setting-option{gap:10px!important}
+  .setting-option select{max-width:46vw;min-width:108px}
+  .msg-workspace{padding:18px 16px calc(88px + env(safe-area-inset-bottom))!important}
+  .msg-toolbar{flex-wrap:wrap}
+  .msg-search{flex-basis:100%}
+  .msg-detail-grid{grid-template-columns:minmax(0,1fr)!important}
+  .msg-form-card,.msg-panel{padding:14px!important}
+  .action-overlay{align-items:end!important;padding:0!important}
+  .action-sheet{width:100%!important;max-height:88dvh!important;border-radius:14px 14px 0 0!important;padding:20px 16px calc(18px + env(safe-area-inset-bottom))!important}
+  .mobile-nav{min-height:68px!important;padding:6px 5px calc(6px + env(safe-area-inset-bottom))!important}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
