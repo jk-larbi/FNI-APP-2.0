@@ -603,7 +603,7 @@ export default function App() {
     setForwardingMessage(null); setForwardRecipient('');
   };
   const lookupBibleVerse = async () => {
-    const reference = bibleReferenceInput.trim();
+    const reference = (bibleReferenceInput || bibleCommand?.[1] || '').trim();
     if (!reference) return;
     if (!['kjv', 'web'].includes(bibleTranslation)) {
       setBibleLookupError('This translation needs a licensed Bible text provider/API key. KJV and World English Bible are available for live lookup in this preview.');
@@ -972,7 +972,7 @@ export default function App() {
             {(bibleBotOpen || bibleCommand) && <div className="bible-bot-panel">
               <div className="bible-bot-title"><BookOpen size={18}/><div><strong>FNI Bible Bot</strong><small>Find a verse and send it to this chat</small></div><button type="button" className="icon-button" aria-label="Close Bible Bot" onClick={() => { setBibleBotOpen(false); setBibleLookupResult(null); setBibleLookupError(''); }}><X size={16}/></button></div>
               <div className="bible-bot-controls">
-                <input type="text" value={bibleReferenceInput} onChange={(event) => { setBibleReferenceInput(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); lookupBibleVerse(); } }} placeholder="Enter a reference, e.g. John 3:16" aria-label="Bible scripture reference" />
+                <input type="text" value={bibleReferenceInput || bibleCommand?.[1]?.trim() || ''} onChange={(event) => { setBibleReferenceInput(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); lookupBibleVerse(); } }} placeholder="Enter a reference, e.g. John 3:16" aria-label="Bible scripture reference" />
                 <select value={bibleTranslation} onChange={(event) => { setBibleTranslation(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} aria-label="Bible translation">
                   <option value="kjv">KJV · King James Version</option><option value="nkjv">NKJV · New King James Version</option><option value="esv">ESV · English Standard Version</option><option value="niv">NIV · New International Version</option><option value="nlt">NLT · New Living Translation</option><option value="web">WEB · World English Bible</option>
                 </select>
