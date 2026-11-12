@@ -45,8 +45,26 @@ export default function NotificationsWorkspace({ onNavigate }: { onNavigate?: (d
   const filtered = useMemo(() => items.filter(item => tab === 'all' || (tab === 'unread' ? !item.read : tab === 'mentions' ? item.title.toLowerCase().includes('mention') || item.body.includes('@') : tab === 'calls' ? item.category === 'calls' || item.category === 'meetings' : item.category === 'security')), [items, tab]);
   function updatePreference<K extends keyof Preferences>(key: K, value: Preferences[K]) { setPreferences(current => ({ ...current, [key]: value })); }
   function toggleCategory(id: NoticeCategory) { setPreferences(current => ({ ...current, enabled: { ...current.enabled, [id]: !current.enabled[id] } })); }
+  function isWithinQuietHours(now: Date) {
+    if (!preferences.quietEnabled) return false;
+    const current = now.getHours() * 60 + now.getMinutes();
+    const [startHour, startMinute] = preferences.quietStart.split(':').map(Number);
+    const [endHour, endMinute] = preferences.quietEnd.split(':').map(Number);
+    const start = startHour * 60 + startMinute;
+    const end = endHour * 60 + endMinute;
+    if (start === end) return true;
+    return start < end ? current >= start && current < end : current >= start || current < end;
+  }
   function createLocalNotice() {
     if (!testTitle.trim()) { setNotice('Add a title before creating a local test notification.'); return; }
+    if (testCategory !== 'security' && !preferences.enabled[testCategory]) {
+      setNotice('This notification category is turned off in your preferences. Enable it to receive this alert.');
+      return;
+    }
+    if (testCategory !== 'security' && isWithinQuietHours(new Date())) {
+      setNotice('Quiet hours are active. This ordinary alert was held back; security alerts remain available.');
+      return;
+    }
     const item: NoticeItem = { id: crypto.randomUUID(), category: testCategory, title: testTitle.trim(), body: testBody.trim(), createdAt: new Date().toISOString(), read: false, destination: testCategory === 'calls' || testCategory === 'meetings' ? 'calls' : testCategory === 'security' || testCategory === 'admin' ? 'settings' : 'chats' };
     setItems(current => [item, ...current]); setTestTitle(''); setTestBody(''); setNotice('Local test notification added to your FNI inbox.');
   }
