@@ -13,7 +13,19 @@ export default function App() {
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [activeChat, setActiveChat] = useState('');
-  const [draft, setDraft] = useState('');
+  const [drafts, setDrafts] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem('fni-local-drafts') || '{}'); }
+    catch { return {}; }
+  });
+  const draft = activeChat ? drafts[activeChat] || '' : '';
+  const setDraft = (value: string | ((current: string) => string)) => {
+    if (!activeChat) return;
+    setDrafts((current) => ({
+      ...current,
+      [activeChat]: typeof value === 'function' ? value(current[activeChat] || '') : value,
+    }));
+  };
+  const [draftBeforeEdit, setDraftBeforeEdit] = useState('');
   const [conversations, setConversations] = useState<Record<string, Message[]>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-conversations') || '{}'); }
     catch { return {}; }
@@ -26,6 +38,9 @@ export default function App() {
       [activeChat]: typeof update === 'function' ? update(current[activeChat] || []) : update,
     }));
   };
+  useEffect(() => {
+    try { localStorage.setItem('fni-local-drafts', JSON.stringify(drafts)); } catch { /* storage may be unavailable */ }
+  }, [drafts]);
   useEffect(() => {
     const textOnly: Record<string, Message[]> = {};
     Object.entries(conversations).forEach(([chat, items]) => {
@@ -245,7 +260,7 @@ export default function App() {
                     <button className="message-more-button" aria-label="Message actions" onClick={() => setOpenMessageMenu(openMessageMenu === message.id ? null : message.id)}><MoreVertical size={17} /></button>
                     {openMessageMenu === message.id && <div className="message-action-menu">
                       <div className="reaction-choices">{['👍','❤️','😂','😮','🙏','🔥'].map((emoji) => <button key={emoji} aria-label="Add reaction" onClick={() => addReaction(message.id, emoji)}>{emoji}</button>)}</div>
-                      <button onClick={() => { setReplyTo(message); setEditingMessage(null); setOpenMessageMenu(null); }}>Reply</button>\n                      {!message.mediaType && <button onClick={() => { setEditingMessage(message); setDraft(message.text); setReplyTo(null); setOpenMessageMenu(null); }}>Edit message</button>}\n                      <button onClick={() => { setPinnedMessageId(pinnedMessageId === message.id ? null : message.id); setOpenMessageMenu(null); }}>{pinnedMessageId === message.id ? 'Unpin message' : 'Pin message'}</button>
+                      <button onClick={() => { setReplyTo(message); setEditingMessage(null); setOpenMessageMenu(null); }}>Reply</button>\n                      {!message.mediaType && <button onClick={() => { setDraftBeforeEdit(draft); setEditingMessage(message); setDraft(message.text); setReplyTo(null); setOpenMessageMenu(null); }}>Edit message</button>}\n                      <button onClick={() => { setPinnedMessageId(pinnedMessageId === message.id ? null : message.id); setOpenMessageMenu(null); }}>{pinnedMessageId === message.id ? 'Unpin message' : 'Pin message'}</button>
                       <button onClick={() => { setForwardingMessage(message); setForwardRecipient(''); setOpenMessageMenu(null); }}>Forward</button>
                       {message.mediaType ? (
                         <button onClick={() => saveMedia(message)}>Save {message.mediaType === 'video' ? 'video' : 'photo'}</button>
@@ -266,7 +281,7 @@ export default function App() {
                 </div>
               ))}
             </div>
-            {(replyTo || editingMessage) && <div className="reply-preview"><div><strong>{editingMessage ? 'Editing message' : 'Replying to your message'}</strong><span>{editingMessage ? editingMessage.text : replyTo?.text}</span></div><button onClick={() => { setReplyTo(null); setEditingMessage(null); setDraft(''); }} aria-label="Cancel reply"><X size={17} /></button></div>}
+            {(replyTo || editingMessage) && <div className="reply-preview"><div><strong>{editingMessage ? 'Editing message' : 'Replying to your message'}</strong><span>{editingMessage ? editingMessage.text : replyTo?.text}</span></div><button onClick={() => { setReplyTo(null); setEditingMessage(null); setDraft(editingMessage ? draftBeforeEdit : draft); }} aria-label="Cancel reply"><X size={17} /></button></div>}
             <div className="message-composer">
               <button className="composer-icon" aria-label="Attach photo or video" title="Attach photo or video" onClick={() => attachmentInput.current?.click()}><Paperclip /></button>
               <input ref={attachmentInput} className="attachment-input" type="file" accept="image/*,video/*" onChange={(event) => { attachMedia(event.target.files?.[0]); event.target.value = ''; }} />
