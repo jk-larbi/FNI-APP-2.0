@@ -7,7 +7,8 @@ import { Archive, ArrowLeft, AtSign, Bookmark, Camera, Check, CheckCheck, Chevro
 
 type PermissionKey = 'addMembers' | 'approveRequests' | 'editInfo' | 'pinDelete' | 'restrictMembers' | 'manageInvites' | 'appointAdmins';
 type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; replyTo?: string; reactions?: string[]; mentions?: string[]; sticker?: boolean; pinned?: boolean; mediaUrl?: string; mediaType?: 'image' | 'video' | 'audio'; editedAt?: string; scheduledAt?: string; silent?: boolean; };
-type PersonalChat = { id: string; username: string; createdAt: string; lastMessage?: string; lastMessageAt?: string; };\ntype PersonalMessage = { id: string; chatId: string; text: string; createdAt: string; };
+type PersonalChat = { id: string; username: string; createdAt: string; lastMessage?: string; lastMessageAt?: string; };
+type PersonalMessage = { id: string; chatId: string; text: string; createdAt: string; };
 type Group = {
   id: string; name: string; description: string; createdAt: string;
   mode: 'Everyone' | 'Admins only' | 'Selected members';
@@ -44,7 +45,10 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [query, setQuery] = useState('');
   const [view, setView] = useState<'list' | 'create' | 'group' | 'group-chat' | 'personal-chat' | 'new-chat'>('list');
   const [groupMessages, setGroupMessages] = useState<GroupMessage[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-chat-messages') || '[]'); } catch { return []; } });
-  const [groupDraft, setGroupDraft] = useState('');\n  const [selectedPersonalId, setSelectedPersonalId] = useState('');\n  const [personalDraft, setPersonalDraft] = useState('');\n  const [personalMessages, setPersonalMessages] = useState<PersonalMessage[]>(() => { try { return JSON.parse(localStorage.getItem('fni-personal-chat-messages') || '[]'); } catch { return []; } });
+  const [groupDraft, setGroupDraft] = useState('');
+  const [selectedPersonalId, setSelectedPersonalId] = useState('');
+  const [personalDraft, setPersonalDraft] = useState('');
+  const [personalMessages, setPersonalMessages] = useState<PersonalMessage[]>(() => { try { return JSON.parse(localStorage.getItem('fni-personal-chat-messages') || '[]'); } catch { return []; } });
   const [messageSearch, setMessageSearch] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
@@ -145,10 +149,13 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     const panel = chatMessagesRef.current;
     if (panel) panel.scrollTop = panel.scrollHeight;
   }, [groupMessages, view, selectedId]);
-  const selected = groups.find(g => g.id === selectedId);\n  const selectedPersonal = personalChats.find(chat => chat.id === selectedPersonalId);\n  const selectedPersonalMessages = personalMessages.filter(message => message.chatId === selectedPersonalId);
+  const selected = groups.find(g => g.id === selectedId);
+  const selectedPersonal = personalChats.find(chat => chat.id === selectedPersonalId);
+  const selectedPersonalMessages = personalMessages.filter(message => message.chatId === selectedPersonalId);
   useEffect(() => { localStorage.setItem('fni-chat-groups', JSON.stringify(groups)); }, [groups]);
   useEffect(() => { localStorage.setItem('fni-personal-chats', JSON.stringify(personalChats)); }, [personalChats]);
-  useEffect(() => { localStorage.setItem('fni-group-chat-messages', JSON.stringify(groupMessages)); }, [groupMessages]);\n  useEffect(() => { localStorage.setItem('fni-personal-chat-messages', JSON.stringify(personalMessages)); }, [personalMessages]);
+  useEffect(() => { localStorage.setItem('fni-group-chat-messages', JSON.stringify(groupMessages)); }, [groupMessages]);
+  useEffect(() => { localStorage.setItem('fni-personal-chat-messages', JSON.stringify(personalMessages)); }, [personalMessages]);
   useEffect(() => { localStorage.setItem('fni-pinned-chats', JSON.stringify(pinnedChats)); }, [pinnedChats]);
   useEffect(() => { localStorage.setItem('fni-archived-chats', JSON.stringify(archivedChats)); }, [archivedChats]);
   useEffect(() => { localStorage.setItem('fni-read-chats', JSON.stringify(readChats)); }, [readChats]);
