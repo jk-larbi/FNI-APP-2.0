@@ -1133,3 +1133,13 @@ img,video{max-width:100%}
 @media(prefers-reduced-motion:reduce){
   .recent-chat-list,.message-history,.telegram-settings,.fni-community-page{scroll-behavior:auto}
 }
+
+
+/* Give the FNI Community workspace the full desktop content area.
+   The compact chat preview column was constraining the ministry feature list. */
+@media(min-width:901px){
+  .app-shell.community-mode{grid-template-columns:68px minmax(0,1fr)}
+  .app-shell.community-mode .chat-list-panel{grid-column:2;width:100%;max-width:none;border-right:0}
+  .app-shell.community-mode .fni-community-page{width:100%;max-width:1240px;margin:0 auto;padding:24px 34px 40px}
+  .app-shell.community-mode .fni-community-page .settings-section{width:100%}
+}
