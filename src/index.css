@@ -477,3 +477,14 @@ button{cursor:pointer}
     max-height:calc(100dvh - 220px);
   }
 }
+
+
+/* Group photo and video sharing */
+.group-media-section{padding:14px 0;border-top:1px solid var(--border-color,#e8eaf0)}
+.group-media-upload{display:flex;align-items:center;justify-content:center;gap:8px;min-height:42px;margin:11px 0;padding:0 12px;border:1px dashed #9bb8d7;border-radius:8px;background:#f5f9fe;color:#286db4;font-size:12px;font-weight:600;cursor:pointer}
+.group-media-upload input{display:none}
+.group-media-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}
+.group-media-item{position:relative;display:block;min-width:0;aspect-ratio:1;overflow:hidden;padding:0;border:1px solid var(--border-color,#e7eaf0);border-radius:8px;background:#202938;cursor:pointer}
+.group-media-item img,.group-media-item video{display:block;width:100%;height:100%;object-fit:cover}
+.group-media-video-mark{position:absolute;top:6px;left:6px;padding:3px 5px;border-radius:4px;background:#111a;color:#fff;font-size:9px;font-weight:700}
+.group-media-file-name{position:absolute;right:0;bottom:0;left:0;overflow:hidden;padding:15px 6px 5px;background:linear-gradient(transparent,#000b);color:#fff;font-size:9px;text-align:left;text-overflow:ellipsis;white-space:nowrap}
