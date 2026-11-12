@@ -628,3 +628,19 @@ button{cursor:pointer}
 .group-resource-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .group-resource-row a{max-width:100%;overflow:hidden;color:#2878d0;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:480px){.group-feature-form-row{grid-template-columns:1fr}.group-feature-actions{flex-wrap:wrap}}
+
+
+/* Group meeting RSVP */
+.group-rsvp-panel{display:grid;gap:10px;margin:12px 0;padding:12px;border:1px solid var(--border-color,#e5e9ef);border-radius:10px;background:var(--surface,#fff)}
+.group-rsvp-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.group-rsvp-heading strong{font-size:12px;font-weight:650;color:var(--text,#344054)}
+.group-rsvp-heading span,.group-rsvp-panel>p,.group-rsvp-panel>small{font-size:10px;color:var(--muted,#8993a1)}
+.group-rsvp-panel>p{margin:0}
+.group-rsvp-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.group-rsvp-options button{min-height:35px;padding:6px 5px;border:1px solid var(--border-color,#e1e6ed);border-radius:7px;background:transparent;color:var(--text,#344054);font:inherit;font-size:10px;cursor:pointer}
+.group-rsvp-options button.active{border-color:#2878d0;background:rgba(40,120,208,.1);color:#2878d0;font-weight:650}
+.group-rsvp-roster{display:grid;gap:7px}
+.group-rsvp-roster>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:7px;border-top:1px solid var(--border-color,#edf0f4);font-size:11px;color:var(--text,#344054)}
+.rsvp-status{font-size:10px;font-weight:550;color:var(--muted,#8993a1)}
+.rsvp-going{color:#219568}.rsvp-maybe{color:#b47b24}.rsvp-not-going{color:#c05a5a}
+@media(max-width:380px){.group-rsvp-options{grid-template-columns:1fr}.group-rsvp-heading{align-items:flex-start;flex-direction:column}}
