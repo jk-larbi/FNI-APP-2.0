@@ -567,3 +567,11 @@ button{cursor:pointer}
 .group-goal-actions button{border:0;background:transparent;color:#c34d4d;font:inherit;font-size:10px;cursor:pointer}
 .group-goal-card.goal-completed{background:rgba(46,142,91,.045)}
 .group-goal-card.goal-completed .group-goal-card-head>span{color:#278354}
+
+.group-privacy-settings{display:grid;gap:11px;padding:13px 0;border-bottom:1px solid var(--border-color,#e8eaf0)}
+.group-privacy-settings .shared-media-heading{margin-bottom:2px}
+.group-privacy-settings .attendance-member-option{display:flex;align-items:center;gap:9px;color:var(--text,#344054);font-size:12px;line-height:1.4}
+.group-privacy-settings .attendance-member-option input{accent-color:#2878d0}
+.group-invite-link{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--border-color,#e5e9ef);border-radius:8px;font-size:11px;color:var(--muted,#737f8e)}
+.group-invite-link strong{color:var(--text,#344054);letter-spacing:.06em}
+.group-invite-link button{flex:none;border:0;border-radius:6px;padding:7px 10px;background:#2878d0;color:#fff;font:inherit;font-size:10px;cursor:pointer}
