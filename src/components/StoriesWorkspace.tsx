@@ -9,7 +9,8 @@ export default function StoriesWorkspace({onReply,compact=false}:{onReply?:()=>v
  const [stories,setStories]=useState<Story[]>(loadStories);
  const [composer,setComposer]=useState(false),[viewer,setViewer]=useState<string|null>(null),[draft,setDraft]=useState(''),[caption,setCaption]=useState(''),[kind,setKind]=useState<'text'|'image'|'video'>('text'),[media,setMedia]=useState(''),[backgroundIndex,setBackgroundIndex]=useState(0),[audience,setAudience]=useState('My Contacts'),[replies,setReplies]=useState(true),[share,setShare]=useState(false),[privacy,setPrivacy]=useState(false),[archive,setArchive]=useState(false),[paused,setPaused]=useState(false),[reply,setReply]=useState(''),[notice,setNotice]=useState('');
  const fileRef=useRef<HTMLInputElement>(null);
- const touchStartX=useRef<number|null>(null);\n const myPhoto=localStorage.getItem('fni-profile-photo')||'';
+ const touchStartX=useRef<number|null>(null);
+ const myPhoto=localStorage.getItem('fni-profile-photo')||'';
  useEffect(()=>{localStorage.setItem(KEY,JSON.stringify(stories.map(s=>({...s,media:s.kind==='text'?undefined:s.media}))));},[stories]);
  const mine=stories.filter(s=>s.mine),others=stories.filter(s=>!s.mine);
   const recentUpdates=others.filter(s=>!s.viewers.includes('You'));
