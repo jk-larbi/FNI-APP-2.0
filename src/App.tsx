@@ -39,6 +39,9 @@ export default function App() {
   const [videoRoomStarted, setVideoRoomStarted] = useState(false);
   const [videoMicOn, setVideoMicOn] = useState(true);
   const [videoCameraOn, setVideoCameraOn] = useState(true);
+  const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+  const [videoError, setVideoError] = useState('');
+  const localVideoRef = useRef<HTMLVideoElement>(null);
   const [sharedMediaPreview, setSharedMediaPreview] = useState<Message | null>(null);
   const [mutedChats, setMutedChats] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-muted') || '[]'); }
@@ -106,6 +109,47 @@ export default function App() {
   const [chatSearchOpen, setChatSearchOpen] = useState(false);
   const [chatSearch, setChatSearch] = useState('');
   const attachmentInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (localVideoRef.current && videoStream) localVideoRef.current.srcObject = videoStream;
+  }, [videoStream, videoRoomOpen, videoCameraOn]);
+
+  const stopVideoRoom = () => {
+    videoStream?.getTracks().forEach((track) => track.stop());
+    setVideoStream(null);
+    setVideoRoomStarted(false);
+    setVideoRoomOpen(false);
+    setVideoError('');
+  };
+
+  const startVideoRoom = async () => {
+    setVideoError('');
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setVideoError('Camera and microphone access is not available in this browser. Open FNI over HTTPS and try again.');
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+      setVideoStream(stream);
+      setVideoMicOn(true);
+      setVideoCameraOn(true);
+      setVideoRoomStarted(true);
+    } catch {
+      setVideoError('Camera or microphone permission was denied or no device was found. Check browser permissions and try again.');
+    }
+  };
+
+  const toggleVideoMic = () => {
+    const next = !videoMicOn;
+    videoStream?.getAudioTracks().forEach((track) => { track.enabled = next; });
+    setVideoMicOn(next);
+  };
+
+  const toggleVideoCamera = () => {
+    const next = !videoCameraOn;
+    videoStream?.getVideoTracks().forEach((track) => { track.enabled = next; });
+    setVideoCameraOn(next);
+  };
 
   const matchingMessages = chatSearch.trim() ? messages.filter((message) => message.text.toLowerCase().includes(chatSearch.trim().toLowerCase()) || (message.mediaName || '').toLowerCase().includes(chatSearch.trim().toLowerCase())) : messages;
   const recentChats = Object.entries(conversations)
@@ -540,21 +584,24 @@ export default function App() {
         </div>
       )}
       {videoRoomOpen && activeChat && (
-        <div className="modal-backdrop video-room-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) { setVideoRoomOpen(false); setVideoRoomStarted(false); } }}>
-          <section className="video-room-modal" role="dialog" aria-modal="true" aria-label="FNI group video chat">
-            <div className="modal-heading"><h2>{videoRoomStarted ? 'Video Chat' : 'Start Video Chat'}</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => { setVideoRoomOpen(false); setVideoRoomStarted(false); }}><X /></button></div>
+        <div className="video-room-screen">
+          <header className="video-room-topbar"><div><strong>{groupDetails[activeChat]?.name || activeChat}</strong><span>{videoRoomStarted ? 'Video chat · You are in the room' : 'Group video chat'}</span></div><button type="button" aria-label="Close video chat" onClick={stopVideoRoom}><X /></button></header>
+          <div className="video-room-content">
             <div className="video-room-stage">
-              <div className="video-room-avatar">{(groupDetails[activeChat]?.name || 'FNI').slice(0,1).toUpperCase()}</div>
-              <strong>{groupDetails[activeChat]?.name || activeChat}</strong>
-              <span>{videoRoomStarted ? 'Meeting room preview is open' : 'Start an online meeting with this group'}</span>
+              {videoStream && videoCameraOn ? <video ref={localVideoRef} autoPlay muted playsInline className="local-video-preview" /> : <div className="video-room-avatar">{(groupDetails[activeChat]?.name || 'FNI').slice(0,1).toUpperCase()}</div>}
+              <div className="video-self-label">You {videoStream ? '· Connected locally' : '· Preview'}</div>
             </div>
+            {!videoRoomStarted && <div className="video-room-intro"><strong>Start a video chat</strong><span>Allow camera and microphone access to enter the room.</span></div>}
+            {videoError && <p className="video-room-error" role="alert">{videoError}</p>}
+          </div>
+          <footer className="video-room-footer">
             <div className="video-room-controls">
-              <button type="button" className={videoMicOn ? '' : 'control-off'} onClick={() => setVideoMicOn((value) => !value)}>{videoMicOn ? 'Mic on' : 'Mic off'}</button>
-              <button type="button" className={videoCameraOn ? '' : 'control-off'} onClick={() => setVideoCameraOn((value) => !value)}>{videoCameraOn ? 'Camera on' : 'Camera off'}</button>
+              <button type="button" className={videoMicOn ? '' : 'control-off'} onClick={toggleVideoMic} disabled={!videoStream}>{videoMicOn ? 'Microphone' : 'Mic muted'}</button>
+              <button type="button" className={videoCameraOn ? '' : 'control-off'} onClick={toggleVideoCamera} disabled={!videoStream}>{videoCameraOn ? 'Camera' : 'Camera off'}</button>
             </div>
-            {!videoRoomStarted ? <button type="button" className="video-room-primary" onClick={() => setVideoRoomStarted(true)}>Start Video Chat</button> : <button type="button" className="video-room-leave" onClick={() => { setVideoRoomOpen(false); setVideoRoomStarted(false); }}>Leave meeting</button>}
-            <p className="video-room-note">This is the FNI meeting-room interface preview. Live audio, video, member joining and automatic attendance will work when FNI's meeting service and backend are connected.</p>
-          </section>
+            {!videoRoomStarted ? <button type="button" className="video-room-primary" onClick={startVideoRoom}>Start Video Chat</button> : <button type="button" className="video-room-leave" onClick={stopVideoRoom}>Leave meeting</button>}
+            <p className="video-room-note">Your camera and microphone preview works on this device. Inviting other members and live group connections will be enabled with FNI's own meeting signalling service later. No Supabase is required for this frontend step.</p>
+          </footer>
         </div>
       )}
       {sharedMediaPreview && (
