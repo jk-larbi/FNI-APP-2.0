@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Bookmark, Search, Plus, Paperclip, Send, Image as ImageIcon, Video, Link2, FileText, Pin, Trash2, Download, ExternalLink, X, MoreVertical, Smile } from 'lucide-react';
+import { ArrowLeft, Bookmark, Search, Plus, Paperclip, Send, Image as ImageIcon, Video, Link2, FileText, Pin, Trash2, Download, ExternalLink, X, MoreVertical, Smile } from 'lucide-react';
 
 type SavedType = 'note' | 'image' | 'video' | 'document' | 'link' | 'audio' | 'message';
 type SavedItem = { id: string; type: SavedType; title: string; content: string; fileName?: string; mime?: string; size: number; createdAt: string; source?: string; folderId: string; pinned: boolean; };
@@ -10,7 +10,7 @@ const initialFolders: SavedFolder[] = [{id:'important',name:'Important'},{id:'wo
 const formatBytes = (n:number) => n < 1024 ? n+' B' : n < 1048576 ? (n/1024).toFixed(1)+' KB' : (n/1048576).toFixed(1)+' MB';
 const dayLabel = (value:string) => { const d=new Date(value),now=new Date(); if(d.toDateString()===now.toDateString())return 'Today'; const y=new Date(now);y.setDate(now.getDate()-1);if(d.toDateString()===y.toDateString())return 'Yesterday';return d.toLocaleDateString(undefined,{day:'numeric',month:'long',year:d.getFullYear()===now.getFullYear()?undefined:'numeric'}); };
 
-export default function SavedMessagesWorkspace() {
+export default function SavedMessagesWorkspace({ onBack }: { onBack?: () => void }) {
   const [items,setItems] = useState<SavedItem[]>(() => { try{return JSON.parse(localStorage.getItem(ITEMS_KEY)||'[]')}catch{return []} });
   const [folders,setFolders] = useState<SavedFolder[]>(() => { try{return JSON.parse(localStorage.getItem(FOLDERS_KEY)||'null')||initialFolders}catch{return initialFolders} });
   const [folder,setFolder] = useState('all');
@@ -38,6 +38,7 @@ export default function SavedMessagesWorkspace() {
   const renderAttachment=(item:SavedItem)=>item.type==='image'?<img className="saved-chat-image" src={item.content} alt={item.title}/>:item.type==='video'?<video className="saved-chat-video" src={item.content} controls/>:item.type==='audio'?<audio className="saved-chat-audio" src={item.content} controls/>:item.type==='document'?<div className="saved-chat-file"><span><FileText size={21}/></span><div><b>{item.fileName||item.title}</b><small>{formatBytes(item.size)} · File</small></div></div>:item.type==='link'?<a className="saved-chat-link" href={item.content} target="_blank" rel="noreferrer"><span><Link2 size={18}/></span><div><b>{item.title}</b><small>{item.content}</small></div><ExternalLink size={15}/></a>:null;
   return <section className="saved-chat-shell">
     <header className="saved-chat-header">
+      {onBack && <button className="saved-chat-back-button" onClick={onBack} aria-label="Back to chats"><ArrowLeft size={21}/></button>}
       <div className="saved-chat-avatar"><Bookmark size={21}/></div>
       <div className="saved-chat-identity"><b>Saved Messages</b><span>Personal chat · Only you</span></div>
       <div className="saved-chat-header-actions">
