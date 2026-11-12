@@ -776,10 +776,12 @@ export default function App() {
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setProfileEditorOpen(false); }}>
           <form className="new-chat-modal account-profile-editor" role="dialog" aria-modal="true" aria-label="Edit profile" onSubmit={(event) => { event.preventDefault(); saveAccountProfile(); }}>
             <div className="modal-heading"><h2>Edit profile</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setProfileEditorOpen(false)}><X/></button></div>
-            <div className="account-photo-picker"><div className="account-profile-avatar large">{profileDraft.photo ? <img src={profileDraft.photo} alt="Profile preview"/> : <span>{(profileDraft.name || 'F').slice(0,1).toUpperCase()}</span>}</div><label className="account-photo-button">Change photo<input type="file" accept="image/*" onChange={(event) => chooseProfilePhoto(event.target.files?.[0])}/></label><small>Image up to 2 MB. Stored on this device.</small></div>
-            <label className="account-field">Name<input value={profileDraft.name} maxLength={60} onChange={(event) => setProfileDraft((current) => ({...current,name:event.target.value}))} placeholder="Your name"/></label>
-            <label className="account-field">Username<input value={profileDraft.username} maxLength={32} onChange={(event) => setProfileDraft((current) => ({...current,username:event.target.value.replace(/[^a-zA-Z0-9_]/g,'')}))} placeholder="Choose a username"/></label>
-            <label className="account-field">Bio<textarea value={profileDraft.bio} maxLength={160} rows={3} onChange={(event) => setProfileDraft((current) => ({...current,bio:event.target.value}))} placeholder="A little about you"/></label>
+            <div className="account-editor-body">
+              <div className="account-photo-picker"><div className="account-profile-avatar large">{profileDraft.photo ? <img src={profileDraft.photo} alt="Profile preview"/> : <span>{(profileDraft.name || 'F').slice(0,1).toUpperCase()}</span>}</div><label className="account-photo-button">Change photo<input type="file" accept="image/*" onChange={(event) => chooseProfilePhoto(event.target.files?.[0])}/></label><small>Image up to 2 MB. Stored on this device.</small></div>
+              <label className="account-field">Name<input value={profileDraft.name} maxLength={60} onChange={(event) => setProfileDraft((current) => ({...current,name:event.target.value}))} placeholder="Your name"/></label>
+              <label className="account-field">Username<input value={profileDraft.username} maxLength={32} onChange={(event) => setProfileDraft((current) => ({...current,username:event.target.value.replace(/[^a-zA-Z0-9_]/g,'')}))} placeholder="Choose a username"/></label>
+              <label className="account-field">Bio<textarea value={profileDraft.bio} maxLength={160} rows={3} onChange={(event) => setProfileDraft((current) => ({...current,bio:event.target.value}))} placeholder="A little about you"/></label>
+            </div>
             <div className="account-editor-actions"><button type="button" onClick={() => setProfileEditorOpen(false)}>Cancel</button><button type="submit">Save changes</button></div>
           </form>
         </div>
