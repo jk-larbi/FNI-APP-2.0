@@ -1723,3 +1723,118 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
 .ministry-resource-tabs{overflow-x:auto;flex-wrap:nowrap}
 .ministry-resource-tabs button{white-space:nowrap}
 @media(max-width:600px){.ministry-resource-tools{align-items:stretch}.ministry-resource-tools .ministry-search{flex-basis:100%}.ministry-resource-tools select{flex:1}.ministry-folder-create button{white-space:nowrap}}
+
+
+/* FNI entry and demo authentication */
+.fni-auth-splash,.fni-auth-page{min-height:100svh;position:relative;overflow:hidden;background:#07113c;color:#fff;font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+.fni-auth-splash{display:grid;place-items:center;background:radial-gradient(ellipse at 50% 46%,#244ed3 0%,#122b88 35%,#080f3d 75%,#050a2b 100%)}
+.fni-splash-glow{position:absolute;width:min(90vw,720px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(40,106,255,.35),transparent 68%);filter:blur(24px);animation:fniGlow 2.6s ease-in-out infinite alternate}
+.fni-splash-content{position:relative;z-index:1;text-align:center;animation:fniReveal 1.1s cubic-bezier(.2,.8,.2,1) both}
+.fni-logo-frame{width:176px;height:176px;margin:0 auto 20px;border-radius:50%;overflow:hidden;display:grid;place-items:center;filter:drop-shadow(0 10px 28px rgba(255,198,0,.25));animation:fniLogoIn 1.25s cubic-bezier(.16,1,.3,1) both}
+.fni-logo-frame img{width:100%;height:100%;object-fit:cover}
+.fni-splash-wordmark{font-size:38px;line-height:1;font-weight:850;letter-spacing:8px;color:#ffd32c;margin-left:8px}
+.fni-splash-content>p{font-size:10px;letter-spacing:2.1px;color:rgba(255,255,255,.82);margin:12px 0 25px}
+.fni-splash-loader{height:2px;width:112px;background:rgba(255,255,255,.18);border-radius:10px;margin:auto;overflow:hidden}
+.fni-splash-loader span{display:block;height:100%;width:38%;background:#ffd32c;border-radius:10px;animation:fniLoad 1.6s ease-in-out infinite}
+.fni-splash-footer{position:absolute;bottom:34px;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.58);text-transform:uppercase}
+.fni-auth-page{display:grid;place-items:center;padding:35px 18px;background:radial-gradient(ellipse at 14% 10%,rgba(33,77,198,.48),transparent 40%),radial-gradient(ellipse at 90% 90%,rgba(103,42,161,.36),transparent 38%),#070d31}
+.fni-auth-backdrop{position:absolute;inset:0;opacity:.14;background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(transparent,#000 20%,#000 80%,transparent)}
+.fni-auth-card{position:relative;width:min(100%,468px);padding:30px 34px 24px;border:1px solid rgba(255,255,255,.13);border-radius:24px;background:rgba(11,20,62,.88);box-shadow:0 30px 90px rgba(0,0,0,.35);backdrop-filter:blur(18px);animation:fniReveal .5s ease both}
+.fni-auth-brand{display:flex;align-items:center;gap:12px;margin-bottom:34px}
+.fni-auth-logo{width:48px;height:48px;overflow:hidden;border-radius:50%;border:2px solid #eec52a;flex:none}
+.fni-auth-logo img{width:100%;height:100%;object-fit:cover}
+.fni-auth-brand>div:last-child{display:grid;gap:3px}
+.fni-auth-brand strong{font-size:20px;letter-spacing:3px;color:#ffd43b}
+.fni-auth-brand span{font-size:10px;color:rgba(255,255,255,.65);letter-spacing:.3px}
+.fni-auth-eyebrow,.settings-kicker{font-size:10px;font-weight:750;letter-spacing:1.7px;color:#f3cc46}
+.fni-auth-welcome h1,.fni-auth-heading h1{font-size:34px;line-height:1.12;letter-spacing:-1.1px;margin:12px 0;color:#fff}
+.fni-auth-welcome h1 em{font-style:normal;color:#f5cf45}
+.fni-auth-welcome p,.fni-auth-heading p{font-size:13px;line-height:1.7;color:rgba(255,255,255,.68);margin:0;max-width:340px}
+.fni-auth-actions{display:grid;gap:10px;margin:30px 0 22px}
+.fni-auth-primary,.fni-auth-secondary{width:100%;min-height:50px;border-radius:12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:transform .18s,background .18s}
+.fni-auth-primary{border:0;background:linear-gradient(105deg,#f3ca3c,#e9b92a);color:#171d3b;box-shadow:0 8px 22px rgba(226,183,43,.16)}
+.fni-auth-primary:hover{transform:translateY(-1px);background:linear-gradient(105deg,#ffdc61,#f0c43e)}
+.fni-auth-primary:disabled{opacity:.65;cursor:wait}
+.fni-auth-primary span{font-size:19px}
+.fni-auth-secondary{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.045);color:#fff}
+.fni-admin-entry{width:100%;display:flex;align-items:center;gap:12px;padding:14px 13px;border:1px solid rgba(246,204,64,.24);border-radius:12px;background:rgba(246,204,64,.055);color:#fff;text-align:left;cursor:pointer}
+.fni-admin-entry>span{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:rgba(246,204,64,.14);color:#f6d14f}
+.fni-admin-entry>div{display:grid;gap:3px;flex:1}
+.fni-admin-entry strong{font-size:12px}
+.fni-admin-entry small{font-size:10px;color:rgba(255,255,255,.55)}
+.fni-admin-entry>b{color:#f6d14f;font-size:18px}
+.fni-auth-legal{font-size:10px;line-height:1.6;color:rgba(255,255,255,.4);text-align:center;margin:20px 0 0}
+.fni-auth-back{display:inline-flex;align-items:center;gap:7px;border:0;background:none;color:rgba(255,255,255,.68);font:inherit;font-size:12px;cursor:pointer;padding:0;margin:0 0 25px}
+.fni-auth-heading{margin-bottom:24px}
+.fni-auth-heading h1{font-size:27px;margin:9px 0}
+.fni-auth-form{display:grid;gap:15px}
+.fni-auth-form>label{display:grid;gap:7px;font-size:11px;font-weight:650;color:rgba(255,255,255,.82)}
+.fni-auth-input{height:48px;display:flex;align-items:center;gap:10px;padding:0 13px;border:1px solid rgba(255,255,255,.16);border-radius:11px;background:rgba(255,255,255,.055);color:rgba(255,255,255,.48)}
+.fni-auth-input:focus-within{border-color:#d9b83e;box-shadow:0 0 0 3px rgba(230,190,54,.1)}
+.fni-auth-input input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#fff;font:inherit;font-size:12px}
+.fni-auth-input input::placeholder{color:rgba(255,255,255,.34)}
+.fni-auth-input button{display:grid;place-items:center;border:0;background:none;color:rgba(255,255,255,.55);cursor:pointer}
+.fni-auth-form .fni-auth-primary{margin-top:5px}
+.fni-auth-error{padding:10px 12px;border:1px solid rgba(255,113,113,.35);border-radius:9px;background:rgba(190,50,60,.13);font-size:11px;line-height:1.5;color:#ffb6b6}
+.fni-auth-switch{text-align:center;color:rgba(255,255,255,.58);font-size:11px;margin:19px 0 4px}
+.fni-auth-switch button{border:0;background:none;color:#f4d04a;font:inherit;font-weight:700;cursor:pointer}
+.fni-demo-hint{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:17px;font-size:10px;color:rgba(255,255,255,.56)}
+.fni-demo-hint svg{color:#f4d04a}
+.fni-demo-hint strong{color:#f4d04a;letter-spacing:.6px}
+.fni-auth-foot{display:flex;justify-content:center;align-items:center;gap:9px;margin-top:27px;color:rgba(255,255,255,.34);font-size:8px;letter-spacing:1px}
+.fni-auth-foot i{width:3px;height:3px;border-radius:50%;background:#d9b83e}
+.fni-auth-copyright{position:absolute;bottom:15px;left:0;right:0;text-align:center;color:rgba(255,255,255,.32);font-size:9px}
+@keyframes fniReveal{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fniLogoIn{from{opacity:0;transform:scale(.78) rotate(-8deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes fniGlow{from{transform:scale(.9);opacity:.55}to{transform:scale(1.12);opacity:1}}
+@keyframes fniLoad{0%{transform:translateX(-110%)}100%{transform:translateX(330%)}}
+
+/* Administrator workspace */
+.fni-admin-workspace{padding:24px 26px 40px;max-width:1080px;margin:0 auto}
+.fni-admin-heading{display:flex;align-items:center;justify-content:space-between;margin:4px 0 20px}
+.fni-admin-heading h2{font-size:27px;letter-spacing:-.7px;margin:7px 0 5px;color:var(--text-primary,#17213a)}
+.fni-admin-heading p,.fni-admin-panel-title p{font-size:13px;color:var(--text-secondary,#778198);margin:0}
+.fni-admin-crown{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:rgba(226,184,42,.14);color:#b28b12}
+.fni-admin-notice{display:flex;align-items:flex-start;gap:10px;padding:13px 15px;border:1px solid rgba(205,164,42,.25);border-radius:12px;background:rgba(221,184,61,.08);color:var(--text-secondary,#68738b);font-size:11px;line-height:1.6}
+.fni-admin-notice svg{flex:none;color:#b28b12}
+.fni-admin-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:18px 0}
+.fni-admin-stats>div{display:grid;gap:7px;padding:17px;border:1px solid var(--border,#e7eaf1);border-radius:13px;background:var(--surface,#fff)}
+.fni-admin-stats svg{width:19px;color:#5c61b8}
+.fni-admin-stats strong{font-size:13px;color:var(--text-primary,#17213a)}
+.fni-admin-stats span{font-size:10px;color:var(--text-secondary,#778198)}
+.fni-admin-panel{padding:19px;margin:14px 0;border:1px solid var(--border,#e7eaf1);border-radius:15px;background:var(--surface,#fff)}
+.fni-admin-panel-title{display:flex;justify-content:space-between;align-items:flex-start;color:#5b60b3}
+.fni-admin-panel-title h3,.fni-admin-coming h3{font-size:16px;color:var(--text-primary,#17213a);margin:0 0 5px}
+.fni-admin-panel-title p{font-size:11px}
+.fni-admin-form{display:grid;grid-template-columns:1.2fr 1fr 1.2fr auto;align-items:end;gap:10px;margin-top:18px}
+.fni-admin-form label{display:grid;gap:7px;font-size:10px;font-weight:700;color:var(--text-secondary,#68738b)}
+.fni-admin-form input,.fni-admin-form select,.fni-admin-search input{height:42px;min-width:0;width:100%;padding:0 11px;border:1px solid var(--border,#e3e7ef);border-radius:9px;background:var(--surface,#fff);color:var(--text-primary,#17213a);font:inherit;font-size:11px}
+.fni-admin-form button{height:42px;display:flex;align-items:center;justify-content:center;gap:7px;padding:0 13px;border:0;border-radius:9px;background:#343f9b;color:#fff;font:inherit;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer}
+.fni-admin-search{height:42px;display:flex;align-items:center;gap:9px;padding:0 11px;margin:16px 0 8px;border:1px solid var(--border,#e3e7ef);border-radius:9px;color:var(--text-secondary,#778198)}
+.fni-admin-search input{height:38px;border:0;padding:0;outline:0}
+.fni-admin-assignment{display:flex;align-items:center;gap:11px;padding:12px 2px;border-bottom:1px solid var(--border,#eef0f4)}
+.fni-admin-avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#eceeff;color:#424b9d;font-weight:750;font-size:13px}
+.fni-admin-assignment>div:nth-child(2){display:grid;gap:4px;flex:1}
+.fni-admin-assignment strong{font-size:12px;color:var(--text-primary,#17213a)}
+.fni-admin-assignment span{font-size:10px;color:var(--text-secondary,#778198)}
+.fni-admin-assignment button{width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:#8c93a5;cursor:pointer}
+.fni-admin-assignment button:hover{background:#fff0f0;color:#bd4545}
+.fni-admin-empty{display:grid;justify-items:center;gap:8px;padding:28px 10px;color:var(--text-secondary,#778198);font-size:11px}
+.fni-admin-empty strong{color:var(--text-primary,#17213a);font-size:13px}
+.fni-admin-coming>div{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border,#eef0f4);font-size:11px;color:var(--text-secondary,#68738b)}
+.fni-admin-coming>div:last-child{border-bottom:0}
+.fni-admin-coming b{font-size:9px;color:#9a7a19;background:rgba(220,184,62,.13);padding:4px 7px;border-radius:20px}
+@media(max-width:760px){
+ .fni-auth-page{padding:20px 14px 48px;align-items:center}
+ .fni-auth-card{padding:25px 22px 20px;border-radius:20px}
+ .fni-auth-brand{margin-bottom:27px}
+ .fni-auth-welcome h1{font-size:30px}
+ .fni-logo-frame{width:154px;height:154px}
+ .fni-admin-workspace{padding:18px 15px 100px}
+ .fni-admin-stats{grid-template-columns:1fr 1fr}
+ .fni-admin-stats>div:last-child{grid-column:1/-1}
+ .fni-admin-form{grid-template-columns:1fr 1fr}
+ .fni-admin-form label:first-child,.fni-admin-form label:nth-child(3),.fni-admin-form button{grid-column:1/-1}
+}
+@media(max-width:420px){.fni-admin-form{grid-template-columns:1fr}.fni-admin-form label,.fni-admin-form button{grid-column:1!important}.fni-admin-heading h2{font-size:24px}}
+@media(prefers-reduced-motion:reduce){.fni-auth-splash *,.fni-auth-card{animation:none!important;transition:none!important}}
