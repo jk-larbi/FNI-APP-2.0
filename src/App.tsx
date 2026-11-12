@@ -6,7 +6,7 @@ import AppearanceContactsWorkspace from './components/AppearanceContactsWorkspac
 import NotificationsWorkspace from './components/NotificationsWorkspace';
 import StoriesWorkspace from './components/StoriesWorkspace';
 import {
-  Bell, Bookmark, CalendarDays, ChevronDown, CircleHelp, Compass,
+  Bell, Bookmark, CalendarDays, ChevronDown, CircleHelp, UsersRound,
   Menu, MessageCircle, MoreHorizontal, Plus, Search, Settings,
   ShieldCheck, Users, Video, X, UserRound, LockKeyhole, Smartphone,
   Palette, Folder, Languages, Smile, HardDrive, Headphones, Images,
@@ -20,7 +20,7 @@ type SettingCategory = { id: string; label: string; group: string; description: 
 
 const sections: { id: Section; label: string; icon: typeof MessageCircle }[] = [
   { id: 'chats', label: 'Chats', icon: MessageCircle },
-  { id: 'community', label: 'Community', icon: Compass },
+  { id: 'community', label: 'Community', icon: UsersRound },
   { id: 'cells', label: 'Cell groups', icon: Users },
   { id: 'calls', label: 'Calls & meetings', icon: Video },
 ];
@@ -261,7 +261,7 @@ function App() {
           <div className="search-bar"><Search size={18} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search people, groups or messages" aria-label="Search people, groups or messages" />{search && <button aria-label="Clear search" onClick={() => setSearch('')}><X size={15} /></button>}</div>
           <div className="folder-row" role="tablist" aria-label="Chat filters">{['All chats', 'Personal', 'Groups'].map(item => <button role="tab" aria-selected={folder === item} key={item} className={folder === item ? 'folder active' : 'folder'} onClick={() => setFolder(item)}>{item}</button>)}</div>
         </>}
-        <section className="empty-panel"><div className="empty-art">{section === 'chats' ? <MessageCircle size={27} /> : section === 'community' ? <Compass size={27} /> : section === 'cells' ? <Users size={27} /> : <CalendarDays size={27} />}</div>
+        <section className="empty-panel"><div className="empty-art">{section === 'chats' ? <MessageCircle size={27} /> : section === 'community' ? <UsersRound size={27} /> : section === 'cells' ? <Users size={27} /> : <CalendarDays size={27} />}</div>
           <span className="empty-kicker">{section === 'chats' ? 'YOUR CONVERSATIONS' : section === 'community' ? 'FNI COMMUNITY' : section === 'cells' ? 'CELL GROUPS' : 'FELLOWSHIP MEETINGS'}</span>
           <h3>{section === 'chats' ? 'Your conversations will appear here' : section === 'community' ? 'Your community is getting ready' : section === 'cells' ? 'Your cell groups will appear here' : 'No meetings to show yet'}</h3>
           <p>{section === 'chats' ? 'When your FNI account is connected, you can message members, join group conversations and keep up with announcements.' : section === 'community' ? 'Community spaces and ministry updates will be available once your account is connected.' : section === 'cells' ? 'Approved cell groups, meeting schedules, prayer rooms and group resources will be shown here.' : 'Scheduled services, live meetings and meeting history will be available here.'}</p>
