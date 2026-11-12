@@ -485,12 +485,6 @@ export default function App() {
     setVideoMicOn(next);
   };
 
-  const toggleVideoCamera = () => {
-    const next = !videoCameraOn;
-    videoStream?.getVideoTracks().forEach((track) => { track.enabled = next; });
-    setVideoCameraOn(next);
-  };
-
   const matchingMessages = chatSearch.trim() ? messages.filter((message) => message.text.toLowerCase().includes(chatSearch.trim().toLowerCase()) || (message.mediaName || '').toLowerCase().includes(chatSearch.trim().toLowerCase())) : messages;
   const recentChats = Object.entries(conversations)
     .filter(([chat, items]) => {
