@@ -26,6 +26,7 @@ export default function AuthGate({ onAuthenticated }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const logoSrc = `${import.meta.env.BASE_URL}fni-logo.jpg`;
 
   useEffect(() => {
     const timer = window.setTimeout(() => setScreen('welcome'), 2100);
@@ -85,7 +86,7 @@ export default function AuthGate({ onAuthenticated }: Props) {
   if (screen === 'splash') return <main className="fni-auth-splash">
     <div className="fni-splash-glow" />
     <div className="fni-splash-content">
-      <div className="fni-logo-frame"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="Forerunners Network International logo" /></div>
+      <div className="fni-logo-frame"><img src={logoSrc} alt="Forerunners Network International logo" /></div>
       <div className="fni-splash-wordmark">FNI</div>
       <p>FORERUNNERS NETWORK INTERNATIONAL</p>
       <div className="fni-splash-loader"><span /></div>
@@ -97,7 +98,7 @@ export default function AuthGate({ onAuthenticated }: Props) {
     <div className="fni-auth-backdrop" />
     <section className="fni-auth-card">
       <div className="fni-auth-brand">
-        <div className="fni-auth-logo"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI ministry logo" /></div>
+        <div className="fni-auth-logo"><img src={logoSrc} alt="FNI ministry logo" /></div>
         <div><strong>FNI</strong><span>Forerunners Network International</span></div>
       </div>
       {screen === 'welcome' ? <>
