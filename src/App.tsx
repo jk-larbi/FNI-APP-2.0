@@ -328,8 +328,7 @@ export default function App() {
               </button>;
             })}
           </div>
-        ) : (
-          {section === 'Settings' ? (
+        ) : section === 'Settings' ? (
             <div className="group-approval-panel">
               <div className="group-approval-title"><div><h2>Group approval</h2><p>Review new FNI group creation requests.</p></div><span>{groupApprovalRequests.filter((item) => item.status === 'Pending').length} pending</span></div>
               {groupApprovalRequests.length ? groupApprovalRequests.map((request) => (
@@ -348,7 +347,6 @@ export default function App() {
             <p>{search ? 'Try another name or keyword.' : 'When you connect with people on FNI, you will find them here.'}</p>
             {section === 'Chats' && folder !== 'Groups' && folder !== 'Archived' && <button className="start-chat-button" onClick={() => setNewChatOpen(true)}>Start a conversation</button>}
           </div>
-          )}
         )}
       </section>
 
