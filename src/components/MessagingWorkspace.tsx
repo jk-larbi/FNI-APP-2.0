@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Check, ChevronRight, Lock, MessageCircle, Phone, Plus, Search, Settings2, Shield, Users, X } from 'lucide-react';
+import SavedMessagesWorkspace from './SavedMessagesWorkspace';
+import { ArrowLeft, Bookmark, Check, ChevronRight, Lock, MessageCircle, Phone, Pin, Plus, Search, Settings2, Shield, Users, X } from 'lucide-react';
 
 type PermissionKey = 'addMembers' | 'approveRequests' | 'editInfo' | 'pinDelete' | 'restrictMembers' | 'manageInvites' | 'appointAdmins';
 type Group = {
@@ -36,10 +37,12 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [adminUsername, setAdminUsername] = useState('');
   const [newChatUsername, setNewChatUsername] = useState('');
   const [notice, setNotice] = useState('');
+  const [pinnedChats, setPinnedChats] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('fni-pinned-chats') || '[]'); } catch { return []; } });
   const selected = groups.find(g => g.id === selectedId);
   useEffect(() => { localStorage.setItem('fni-chat-groups', JSON.stringify(groups)); }, [groups]);
+  useEffect(() => { localStorage.setItem('fni-pinned-chats', JSON.stringify(pinnedChats)); }, [pinnedChats]);
   useEffect(() => { try { const globalWallpaper = localStorage.getItem('fni-global-wallpaper') || ''; const individual = JSON.parse(localStorage.getItem('fni-chat-wallpapers') || '{}') as Record<string,string>; const key = selected?.name.toLowerCase() || ''; const wallpaper = (key && individual[key]) || globalWallpaper; document.documentElement.style.setProperty('--fni-chat-wallpaper-image', wallpaper ? (wallpaper.startsWith('linear-gradient') ? wallpaper : 'url(' + wallpaper + ')') : 'none'); } catch { document.documentElement.style.setProperty('--fni-chat-wallpaper-image', 'none'); } }, [selected?.name, selectedId]);
-  const filtered = useMemo(() => tab === 'Personal' ? [] : groups.filter(g => (g.name + ' ' + g.description).toLowerCase().includes(query.toLowerCase())), [groups, query, tab]);
+  const filtered = useMemo(() => tab === 'Personal' ? [] : groups.filter(g => (g.name + ' ' + g.description).toLowerCase().includes(query.toLowerCase())).sort((a,b) => Number(pinnedChats.includes(b.id)) - Number(pinnedChats.includes(a.id))), [groups, query, tab, pinnedChats]);
   const updateGroup = (patch: Partial<Group>) => setGroups(current => current.map(g => g.id === selectedId ? { ...g, ...patch } : g));
   const createGroup = () => {
     if (!groupName.trim()) { setNotice('Enter a group name to continue.'); return; }
@@ -62,6 +65,15 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     updateGroup({ admins: selected.admins.map(a => a.username === username ? { ...a, permissions: { ...a.permissions, [key]: value } } : a) });
   };
   const closeToList = () => { setView('list'); setSelectedId(''); };
+  const togglePinnedChat = (id: string) => {
+    setPinnedChats(current => {
+      if (current.includes(id)) return current.filter(item => item !== id);
+      if (current.length >= 5) { setNotice('You can pin up to 5 chats. Unpin one before adding another.'); return current; }
+      return [...current, id];
+    });
+  };
+
+  if (view === 'saved') return <div className="msg-workspace"><div className="msg-heading"><button className="msg-back" onClick={() => setView('list')}><ArrowLeft size={17}/> Back to chats</button></div><SavedMessagesWorkspace /></div>;
 
   if (view === 'create') return <div className="msg-workspace">
     <div className="msg-heading"><button className="msg-back" onClick={() => setView('list')}><ArrowLeft size={17}/> Back to chats</button><span className="msg-eyebrow">NEW GROUP</span><h2>Create a group</h2><p>Set up the group and decide how members can participate.</p></div>
@@ -98,15 +110,15 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
         <div className="msg-info"><Shield size={17}/><span>Administrator controls cannot exceed the permissions granted by the owner. Owner restrictions remain authoritative.</span></div>
       </section>
     </div>
-    <div className="msg-panel msg-lower-panel"><div className="msg-panel-title"><div><h3>Conversation</h3><p>Messages and live member activity</p></div><MessageCircle size={18}/></div><div className="msg-empty"><MessageCircle size={22}/><b>No messages yet</b><span>Live messaging, member lists, invitations, read receipts and moderation history require the FNI backend. This group setup is saved only in this browser.</span></div></div>
+    <div className="msg-panel msg-lower-panel"><div className="msg-panel-title"><div><h3>Pinned messages</h3><p>Important messages stay easy to find in this group</p></div><Pin size={18}/></div><div className="msg-empty"><Pin size={22}/><b>No pinned messages yet</b><span>Once group messaging is connected, owners and administrators with pin permission can pin as many messages as needed. There is no pin limit inside a group.</span></div></div>\n    <div className="msg-panel msg-lower-panel"><div className="msg-panel-title"><div><h3>Conversation</h3><p>Messages and live member activity</p></div><MessageCircle size={18}/></div><div className="msg-empty"><MessageCircle size={22}/><b>No messages yet</b><span>Live messaging, member lists, invitations, read receipts and moderation history require the FNI backend. This group setup is saved only in this browser.</span></div></div>
     <div className="msg-actions"><button className="msg-secondary" onClick={() => { if (confirm('Delete this locally saved group?')) { setGroups(current => current.filter(g => g.id !== selected.id)); closeToList(); } }}>Delete local group</button><button className="msg-primary" onClick={closeToList}><Check size={16}/> Done</button></div>
   </div>;
 
   return <div className="msg-workspace">
     <div className="msg-heading"><span className="msg-eyebrow">FNI CONNECT</span><h2>Stay connected.</h2><p>Personal conversations and group communication in one place.</p></div>
     <div className="msg-toolbar"><div className="msg-search"><Search size={17}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search people, @usernames, groups or messages"/></div><button className="msg-primary" onClick={() => setView('new-chat')}><Plus size={16}/> New chat</button><button className="msg-primary msg-create-group" onClick={() => setView('create')}><Users size={16}/> New group</button></div>
-    <div className="msg-tabs">{(['All chats','Personal','Groups'] as const).map(t => <button key={t} className={tab===t?'active':''} onClick={() => setTab(t)}>{t}</button>)}</div>
-    {tab !== 'Personal' && filtered.length > 0 ? <div className="msg-group-list">{filtered.map(group => <button className="msg-group-card" key={group.id} onClick={() => {setSelectedId(group.id);setView('group')}}><div className="msg-group-avatar"><Users size={20}/></div><div className="msg-group-copy"><b>{group.name}</b><span>{group.description || 'Group conversation'}</span><small>Owner: You · {group.admins.length} admins · {group.mode === 'Admins only' ? 'Announcements mode' : group.mode === 'Selected members' ? 'Restricted posting' : 'Open posting'}</small></div><ChevronRight size={17}/></button>)}</div> : tab === 'Personal' ? <div className="msg-empty"><MessageCircle size={24}/><b>No personal conversations</b><span>Search for a member by their public username. Your real conversations will appear after account connection.</span><button className="msg-secondary" onClick={() => setView('new-chat')}>Find a member</button></div> : <div className="msg-empty"><Users size={24}/><b>{query ? 'No matching groups' : 'Your groups will appear here'}</b><span>{query ? 'Try another group name or description.' : 'Create a group to set its owner, administrator permissions and posting restrictions. No sample members or conversations are inserted.'}</span><button className="msg-secondary" onClick={() => setView('create')}>Create your first group</button></div>}
+    <div className="msg-pinned-summary">{pinnedChats.length} of 5 chat pins used · Group messages can have unlimited pinned messages</div>\n    <button className="msg-saved-chat" onClick={() => setView('saved')}><div className="msg-saved-avatar"><Bookmark size={19}/></div><div><b>Saved Messages</b><span>Your private space · Notes, files, links and saved items</span></div><span className="msg-saved-open">Open <ChevronRight size={15}/></span></button>\n    <div className="msg-tabs">{(['All chats','Personal','Groups'] as const).map(t => <button key={t} className={tab===t?'active':''} onClick={() => setTab(t)}>{t}</button>)}</div>
+    {tab !== 'Personal' && filtered.length > 0 ? <div className="msg-group-list">{filtered.map(group => <div className="msg-group-card-wrap" key={group.id}><button className="msg-group-card" onClick={() => {setSelectedId(group.id);setView('group')}}><div className="msg-group-avatar"><Users size={20}/></div><div className="msg-group-copy"><b>{pinnedChats.includes(group.id) ? 'Pinned · ' : ''}{group.name}</b><span>{group.description || 'Group conversation'}</span><small>Owner: You · {group.admins.length} admins · {group.mode === 'Admins only' ? 'Announcements mode' : group.mode === 'Selected members' ? 'Restricted posting' : 'Open posting'}</small></div><ChevronRight size={17}/></button><button className={pinnedChats.includes(group.id) ? 'msg-pin-button active' : 'msg-pin-button'} title={pinnedChats.includes(group.id) ? 'Unpin chat' : 'Pin chat'} onClick={() => togglePinnedChat(group.id)}><Pin size={15}/></button></div>)}</div> : tab === 'Personal' ? <div className="msg-empty"><MessageCircle size={24}/><b>No personal conversations</b><span>Search for a member by their public username. Your real conversations will appear after account connection.</span><button className="msg-secondary" onClick={() => setView('new-chat')}>Find a member</button></div> : <div className="msg-empty"><Users size={24}/><b>{query ? 'No matching groups' : 'Your groups will appear here'}</b><span>{query ? 'Try another group name or description.' : 'Create a group to set its owner, administrator permissions and posting restrictions. No sample members or conversations are inserted.'}</span><button className="msg-secondary" onClick={() => setView('create')}>Create your first group</button></div>}
     <div className="msg-footer-note"><Shield size={15}/> Group settings are stored locally in this browser preview. Shared accounts, messages, member invitations and real-time sync require backend services.</div>
     {notice && <div className="msg-toast" role="status">{notice}<button onClick={() => setNotice('')}><X size={14}/></button></div>}
   </div>;
