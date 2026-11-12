@@ -17,11 +17,13 @@ export default function App() {
   const [groupDescription, setGroupDescription] = useState('');
   const [groupMemberInput, setGroupMemberInput] = useState('');
   const [prayerRequestInput, setPrayerRequestInput] = useState('');
+  const [attendanceDate, setAttendanceDate] = useState('');
+  const [attendanceSelection, setAttendanceSelection] = useState<string[]>([]);
   const [meetingDate, setMeetingDate] = useState('');
   const [meetingTime, setMeetingTime] = useState('');
   const [meetingLocation, setMeetingLocation] = useState('');
   const [meetingLink, setMeetingLink] = useState('');
-  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[] }>>(() => {
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[] }>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-groups') || '{}'); }
     catch { return {}; }
   });
@@ -477,6 +479,36 @@ export default function App() {
                   </div>
                 ) : <p className="group-members-empty">No prayer requests yet. Share the group's first request here.</p>}
                 <p className="group-meeting-note">Prayer requests are saved on this device only. Sharing with members and private prayer rooms require the FNI backend.</p>
+              </section>
+            )}
+            {groupDetails[activeChat] && (
+              <section className="group-attendance-section">
+                <div className="shared-media-heading"><strong>Attendance register</strong><span>{groupDetails[activeChat].attendance?.length || 0} records</span></div>
+                <form className="group-attendance-form" onSubmit={(event) => {
+                  event.preventDefault();
+                  if (!attendanceDate) return;
+                  setGroupDetails((current) => {
+                    const previous = current[activeChat].attendance || [];
+                    const nextRecord = { date: attendanceDate, present: attendanceSelection };
+                    return { ...current, [activeChat]: { ...current[activeChat], attendance: [...previous.filter((record) => record.date !== attendanceDate), nextRecord].sort((a, b) => b.date.localeCompare(a.date)) } };
+                  });
+                  setAttendanceSelection([]);
+                }}>
+                  <label>Meeting date<input type="date" value={attendanceDate} onChange={(event) => setAttendanceDate(event.target.value)} required /></label>
+                  <strong className="attendance-select-title">Mark members present</strong>
+                  {(groupDetails[activeChat].members || []).length ? (
+                    <div className="attendance-member-list">
+                      {(groupDetails[activeChat].members || []).map((member) => <label className="attendance-member-option" key={member}><input type="checkbox" checked={attendanceSelection.includes(member)} onChange={(event) => setAttendanceSelection((current) => event.target.checked ? [...current, member] : current.filter((item) => item !== member))} /><span>{member}</span></label>)}
+                    </div>
+                  ) : <p className="group-members-empty">Add group members above before taking attendance.</p>}
+                  <button type="submit" disabled={!attendanceDate || !(groupDetails[activeChat].members || []).length}>Save attendance</button>
+                </form>
+                {(groupDetails[activeChat].attendance || []).length > 0 ? (
+                  <div className="attendance-history-list">
+                    {(groupDetails[activeChat].attendance || []).map((record) => <article className="attendance-history-card" key={record.date}><div><strong>{new Date(`${record.date}T12:00:00`).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</strong><span>{record.present.length} of {groupDetails[activeChat].members?.length || 0} present</span></div><p>{record.present.length ? record.present.join(', ') : 'No members marked present'}</p><button type="button" onClick={() => { setAttendanceDate(record.date); setAttendanceSelection(record.present); }}>Edit record</button></article>)}
+                  </div>
+                ) : <p className="group-members-empty">No attendance records yet. Choose a meeting date to get started.</p>}
+                <p className="group-meeting-note">Attendance is stored on this device only. Member check-in and leader reports require the FNI backend.</p>
               </section>
             )}
             <div className="chat-info-stat"><span>Messages</span><strong>{messages.length}</strong></div>
