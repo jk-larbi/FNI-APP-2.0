@@ -1225,3 +1225,29 @@ img,video{max-width:100%}
 @keyframes splash-rotate{to{rotate:360deg}}
 @media(max-width:620px){.splash-logo-frame{width:min(58vw,176px);height:min(58vw,176px);border-radius:38px}.splash-logo-frame img{border-radius:28px}.splash-wordmark{margin-top:20px;font-size:clamp(48px,14vw,68px)}.splash-full-name{font-size:11px;letter-spacing:.2em}}
 @media(prefers-reduced-motion:reduce){.fni-splash-screen,.splash-content,.splash-logo-frame,.splash-orbit{animation:none!important;transition:none!important}}
+
+
+/* FNI Bible Bot verse lookup and shared scripture cards */
+.bible-bot-panel{flex:none;padding:12px 16px;background:#fff;border-top:1px solid #e5e9ef;box-shadow:0 -5px 18px #1522380a}
+.bible-bot-title{display:flex;align-items:center;gap:10px;color:#285b9e;margin-bottom:10px}
+.bible-bot-title>div{display:flex;flex-direction:column;gap:2px}
+.bible-bot-title strong{font-size:13px;color:#253b5e}
+.bible-bot-title small{font-size:11px;color:#8b95a5}
+.bible-bot-controls{display:flex;gap:8px}
+.bible-bot-controls select{flex:1;min-width:0;height:38px;border:1px solid #dce2eb;border-radius:7px;padding:0 9px;background:#fff;color:#35445a;font-size:12px}
+.bible-bot-controls button,.bible-bot-result button{border:0;border-radius:7px;padding:0 13px;background:#2869bd;color:#fff;font-size:12px;font-weight:600}
+.bible-bot-controls button:disabled{opacity:.55}
+.bible-bot-error{margin:8px 0 0;color:#b54747;font-size:11px;line-height:1.5}
+.bible-bot-result{margin-top:10px;padding:11px 12px;border:1px solid #e3eaf4;border-radius:9px;background:#f7f9fc}
+.bible-bot-result>div{display:flex;align-items:center;gap:8px}
+.bible-bot-result>div strong{font-size:13px;color:#234c83}
+.bible-bot-result>div span{font-size:10px;color:#8a95a5;font-weight:700}
+.bible-bot-result p{max-height:110px;overflow:auto;margin:7px 0 10px;color:#38465a;font-size:12px;line-height:1.55;white-space:pre-wrap}
+.bible-bot-result button{height:35px}
+.bible-verse-message{min-width:min(100%,280px);max-width:100%;padding:3px 0}
+.bible-verse-heading{display:flex;align-items:center;gap:7px;color:#285e9f}
+.bible-verse-heading strong{font-size:13px;color:#244d80}
+.bible-verse-heading span{margin-left:auto;font-size:10px;font-weight:700;color:#718096}
+.bible-verse-message p{margin:8px 0;color:#29394e;font-size:14px;line-height:1.6;white-space:pre-wrap}
+.bible-verse-message small{font-size:10px;color:#7c899a}
+@media(max-width:620px){.bible-bot-panel{padding:10px}.bible-bot-controls select{font-size:11px}.bible-bot-controls button{padding:0 10px;white-space:nowrap}.bible-verse-message{min-width:0}}
