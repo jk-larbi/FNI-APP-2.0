@@ -35,6 +35,10 @@ export default function App() {
   });
   const [chatOptionsOpen, setChatOptionsOpen] = useState(false);
   const [chatInfoOpen, setChatInfoOpen] = useState(false);
+  const [videoRoomOpen, setVideoRoomOpen] = useState(false);
+  const [videoRoomStarted, setVideoRoomStarted] = useState(false);
+  const [videoMicOn, setVideoMicOn] = useState(true);
+  const [videoCameraOn, setVideoCameraOn] = useState(true);
   const [sharedMediaPreview, setSharedMediaPreview] = useState<Message | null>(null);
   const [mutedChats, setMutedChats] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-muted') || '[]'); }
@@ -432,6 +436,10 @@ export default function App() {
             {groupDetails[activeChat] && (
               <section className="group-meeting-section">
                 <div className="shared-media-heading"><strong>Group meeting</strong><span>{groupDetails[activeChat].meeting ? 'Scheduled' : 'Not scheduled'}</span></div>
+                <div className="group-video-actions">
+                  <button type="button" className="start-video-chat-button" onClick={() => { setVideoRoomStarted(false); setVideoMicOn(true); setVideoCameraOn(true); setVideoRoomOpen(true); }}><Video size={17} /> Start Video Chat</button>
+                  {groupDetails[activeChat].meeting?.link && <a className="external-meeting-button" href={groupDetails[activeChat].meeting.link} target="_blank" rel="noreferrer">Join external meeting</a>}
+                </div>
                 {groupDetails[activeChat].meeting && (
                   <div className="group-meeting-summary">
                     <strong>{new Date(`${groupDetails[activeChat].meeting.date}T${groupDetails[activeChat].meeting.time || '00:00'}`).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</strong>
@@ -528,6 +536,24 @@ export default function App() {
             <div className="chat-info-stat"><span>Notifications</span><strong>{mutedChats.includes(activeChat) ? 'Muted' : 'On'}</strong></div>
             <div className="chat-info-actions"><button onClick={() => { setMutedChats((current) => current.includes(activeChat) ? current.filter((chat) => chat !== activeChat) : [...current, activeChat]); }}>{mutedChats.includes(activeChat) ? 'Unmute notifications' : 'Mute notifications'}</button><button onClick={() => setChatInfoOpen(false)}>Done</button></div>
             <p className="chat-info-note">This preview shows information available on this device. Member profiles will appear when FNI accounts are connected.</p>
+          </section>
+        </div>
+      )}
+      {videoRoomOpen && activeChat && (
+        <div className="modal-backdrop video-room-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) { setVideoRoomOpen(false); setVideoRoomStarted(false); } }}>
+          <section className="video-room-modal" role="dialog" aria-modal="true" aria-label="FNI group video chat">
+            <div className="modal-heading"><h2>{videoRoomStarted ? 'Video Chat' : 'Start Video Chat'}</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => { setVideoRoomOpen(false); setVideoRoomStarted(false); }}><X /></button></div>
+            <div className="video-room-stage">
+              <div className="video-room-avatar">{(groupDetails[activeChat]?.name || 'FNI').slice(0,1).toUpperCase()}</div>
+              <strong>{groupDetails[activeChat]?.name || activeChat}</strong>
+              <span>{videoRoomStarted ? 'Meeting room preview is open' : 'Start an online meeting with this group'}</span>
+            </div>
+            <div className="video-room-controls">
+              <button type="button" className={videoMicOn ? '' : 'control-off'} onClick={() => setVideoMicOn((value) => !value)}>{videoMicOn ? 'Mic on' : 'Mic off'}</button>
+              <button type="button" className={videoCameraOn ? '' : 'control-off'} onClick={() => setVideoCameraOn((value) => !value)}>{videoCameraOn ? 'Camera on' : 'Camera off'}</button>
+            </div>
+            {!videoRoomStarted ? <button type="button" className="video-room-primary" onClick={() => setVideoRoomStarted(true)}>Start Video Chat</button> : <button type="button" className="video-room-leave" onClick={() => { setVideoRoomOpen(false); setVideoRoomStarted(false); }}>Leave meeting</button>}
+            <p className="video-room-note">This is the FNI meeting-room interface preview. Live audio, video, member joining and automatic attendance will work when FNI's meeting service and backend are connected.</p>
           </section>
         </div>
       )}
