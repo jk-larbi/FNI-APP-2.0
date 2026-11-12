@@ -602,6 +602,41 @@ export default function App() {
     setPinnedMessageId(null); setReplyTo(null); setEditingMessage(null); setOpenMessageMenu(null);
     setForwardingMessage(null); setForwardRecipient('');
   };
+  useEffect(() => {
+    const reference = bibleReferenceInput.trim();
+    if (!bibleBotOpen || reference.length < 5) {
+      setBibleLookupResult(null);
+      setBibleLookupError('');
+      setBibleLookupLoading(false);
+      return;
+    }
+    if (!['kjv', 'web'].includes(bibleTranslation)) {
+      setBibleLookupResult(null);
+      setBibleLookupLoading(false);
+      setBibleLookupError('Live lookup for this translation needs a licensed Bible text provider. KJV and WEB are available now.');
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      setBibleLookupLoading(true);
+      setBibleLookupError('');
+      setBibleLookupResult(null);
+      try {
+        const response = await fetch('https://bible-api.com/' + encodeURIComponent(reference) + '?translation=' + bibleTranslation);
+        if (!response.ok) throw new Error('No matching verse found. Check the scripture reference.');
+        const data = await response.json();
+        const verseText = String(data.text || '').trim();
+        if (!verseText) throw new Error('No verse text was returned for that reference.');
+        if (!cancelled) setBibleLookupResult({ reference: String(data.reference || reference), text: verseText, translation: bibleTranslation.toUpperCase() });
+      } catch (error) {
+        if (!cancelled) setBibleLookupError(error instanceof Error ? error.message : 'Could not retrieve this verse. Check your connection.');
+      } finally {
+        if (!cancelled) setBibleLookupLoading(false);
+      }
+    }, 500);
+    return () => { cancelled = true; window.clearTimeout(timer); };
+  }, [bibleReferenceInput, bibleTranslation, bibleBotOpen]);
+
   const lookupBibleVerse = async () => {
     const reference = (bibleReferenceInput || bibleCommand?.[1] || '').trim();
     if (!reference) return;
@@ -972,14 +1007,14 @@ export default function App() {
             {(bibleBotOpen || bibleCommand) && <div className="bible-bot-panel">
               <div className="bible-bot-title"><BookOpen size={18}/><div><strong>FNI Bible Bot</strong><small>Find a verse and send it to this chat</small></div><button type="button" className="icon-button" aria-label="Close Bible Bot" onClick={() => { setBibleBotOpen(false); setBibleLookupResult(null); setBibleLookupError(''); }}><X size={16}/></button></div>
               <div className="bible-bot-controls">
-                <input type="text" value={bibleReferenceInput || bibleCommand?.[1]?.trim() || ''} onChange={(event) => { setBibleReferenceInput(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); lookupBibleVerse(); } }} placeholder="Enter a reference, e.g. John 3:16" aria-label="Bible scripture reference" />
+                <input type="text" value={bibleReferenceInput || bibleCommand?.[1]?.trim() || ''} onChange={(event) => { setBibleReferenceInput(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} onKeyDown={(event) => { if (event.key === 'Enter') event.preventDefault(); }} placeholder="Enter a reference, e.g. John 3:16" aria-label="Bible scripture reference" />
                 <select value={bibleTranslation} onChange={(event) => { setBibleTranslation(event.target.value); setBibleLookupResult(null); setBibleLookupError(''); }} aria-label="Bible translation">
                   <option value="kjv">KJV · King James Version</option><option value="nkjv">NKJV · New King James Version</option><option value="esv">ESV · English Standard Version</option><option value="niv">NIV · New International Version</option><option value="nlt">NLT · New Living Translation</option><option value="web">WEB · World English Bible</option>
                 </select>
-                <button type="button" onClick={lookupBibleVerse} disabled={!bibleReferenceInput.trim() || bibleLookupLoading}>{bibleLookupLoading ? 'Searching…' : 'Find verse'}</button>
               </div>
+              {bibleLookupLoading && <p className="bible-bot-searching">Searching scripture…</p>}
               {bibleLookupError && <p className="bible-bot-error">{bibleLookupError}</p>}
-              {bibleLookupResult && <div className="bible-bot-result"><div><strong>{bibleLookupResult.reference}</strong><span>{bibleLookupResult.translation}</span></div><p>{bibleLookupResult.text}</p><button type="button" onClick={sendBibleVerseToGroup}>Send verse to group</button></div>}
+              {bibleLookupResult && <div className="bible-bot-result"><div><strong>{bibleLookupResult.reference}</strong><span>{bibleLookupResult.translation}</span></div><p>{bibleLookupResult.text}</p><button type="button" onClick={sendBibleVerseToGroup}>Tap to send to chat</button></div>}
             </div>}
             <div className="message-composer">
               <div className="attachment-menu-wrap">
