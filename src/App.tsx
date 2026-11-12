@@ -22,7 +22,8 @@ export default function App() {
   const [profileDraft, setProfileDraft] = useState<AccountProfile>(accountProfile);
   const [securityInfoOpen, setSecurityInfoOpen] = useState(false);
   const [passcodeEnabled, setPasscodeEnabled] = useState(() => localStorage.getItem('fni-passcode-enabled') === 'true');
-  const [appLocked, setAppLocked] = useState(() => localStorage.getItem('fni-passcode-enabled') === 'true');
+  const [deviceLockEnabled, setDeviceLockEnabled] = useState(() => localStorage.getItem('fni-device-lock-enabled') === 'true');
+  const [appLocked, setAppLocked] = useState(() => localStorage.getItem('fni-passcode-enabled') === 'true' || localStorage.getItem('fni-device-lock-enabled') === 'true');
   const [passcodeDialogOpen, setPasscodeDialogOpen] = useState(false);
   const [passcodeValue, setPasscodeValue] = useState('');
   const [passcodeConfirm, setPasscodeConfirm] = useState('');
@@ -56,6 +57,72 @@ export default function App() {
     localStorage.removeItem('fni-passcode-salt'); localStorage.removeItem('fni-passcode-hash'); localStorage.removeItem('fni-passcode-enabled');
     setPasscodeEnabled(false); setPasscodeDialogOpen(false); setPasscodeValue(''); setPasscodeConfirm(''); setPasscodeError('');
   };
+
+  const encodeCredentialId = (bytes: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(bytes)));
+  const decodeCredentialId = (value: string) => Uint8Array.from(atob(value), char => char.charCodeAt(0));
+  const enableDeviceLock = async () => {
+    setPasscodeError('');
+    if (!window.isSecureContext || !navigator.credentials || !window.PublicKeyCredential) {
+      setPasscodeError('Device authentication is not supported here. Use the FNI passcode instead.');
+      return;
+    }
+    try {
+      const challenge = crypto.getRandomValues(new Uint8Array(32));
+      const userId = crypto.getRandomValues(new Uint8Array(16));
+      const credential = await navigator.credentials.create({ publicKey: {
+        challenge: challenge as BufferSource,
+        rp: { name: 'FNI', id: window.location.hostname },
+        user: { id: userId as BufferSource, name: 'fni-member@' + window.location.hostname, displayName: 'FNI Member' },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred' },
+        timeout: 60000,
+        attestation: 'none'
+      }});
+      if (!(credential instanceof PublicKeyCredential)) throw new Error('No device credential was created.');
+      localStorage.setItem('fni-device-credential-id', encodeCredentialId(credential.rawId));
+      localStorage.setItem('fni-device-lock-enabled', 'true');
+      setDeviceLockEnabled(true);
+      setPasscodeError('Device authentication is set up on this browser. Lock FNI and test it on this phone.');
+    } catch {
+      setPasscodeError('Could not set up device authentication. Check that this phone has a screen lock and try again.');
+    }
+  };
+  const unlockWithDevice = async () => {
+    const savedId = localStorage.getItem('fni-device-credential-id');
+    if (!savedId) { setPasscodeError('Device authentication is not set up.'); return; }
+    try {
+      const challenge = crypto.getRandomValues(new Uint8Array(32));
+      const assertion = await navigator.credentials.get({ publicKey: {
+        challenge: challenge as BufferSource,
+        allowCredentials: [{ type: 'public-key', id: decodeCredentialId(savedId) as BufferSource }],
+        userVerification: 'required',
+        timeout: 60000
+      }});
+      if (!(assertion instanceof PublicKeyCredential)) throw new Error('Device authentication did not complete.');
+      setAppLocked(false);
+      setUnlockValue('');
+      setPasscodeError('');
+    } catch {
+      setPasscodeError('Device authentication was cancelled or failed. Try again or use your FNI passcode.');
+    }
+  };
+  const disableDeviceLock = () => {
+    localStorage.removeItem('fni-device-credential-id');
+    localStorage.removeItem('fni-device-lock-enabled');
+    setDeviceLockEnabled(false);
+    setPasscodeError('Device authentication has been turned off on this browser.');
+  };
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden' && (localStorage.getItem('fni-passcode-enabled') === 'true' || localStorage.getItem('fni-device-lock-enabled') === 'true')) {
+        setAppLocked(true);
+        setUnlockValue('');
+        setPasscodeError('');
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
   const [profileSaveNotice, setProfileSaveNotice] = useState('');
   const saveAccountProfile = () => {
     const next = { ...profileDraft, name: profileDraft.name.trim() || 'FNI Member', username: profileDraft.username.trim().replace(/^@/, '') };
@@ -591,7 +658,11 @@ export default function App() {
                   <label className="settings-control-row"><span><strong>Who can see my profile photo</strong><small>Choose who can view your photo</small></span><select value={String(preferences.profilePhoto)} onChange={e => updatePreference('profilePhoto', e.target.value)}><option>Everybody</option><option>My contacts</option><option>Nobody</option></select></label>
                   <label className="settings-control-row"><span><strong>Who can see my phone number</strong><small>Choose who can view your number</small></span><select value={String(preferences.phoneNumber)} onChange={e => updatePreference('phoneNumber', e.target.value)}><option>Everybody</option><option>My contacts</option><option>Nobody</option></select></label>
                   <SettingToggle title="Read receipts" description="Show when you have read a message" checked={Boolean(preferences.readReceipts)} onChange={v => updatePreference('readReceipts', v)}/>
-                  <h3>Security</h3><div className="settings-info-row"><LockKeyhole/><span><strong>Passcode lock</strong><small>Lock FNI when you leave your device</small></span><em>Device security setup</em></div>
+                  <h3>Security</h3>
+                  <div className="settings-info-row"><LockKeyhole/><span><strong>Device authentication</strong><small>Use your phone's screen lock, fingerprint or face authentication when supported</small></span>{deviceLockEnabled ? <button type="button" onClick={disableDeviceLock}>Turn off</button> : <button type="button" onClick={enableDeviceLock}>Set up</button>}</div>
+                  <div className="settings-info-row"><KeyRound/><span><strong>FNI passcode lock</strong><small>Use a separate 6–12 digit FNI passcode as a fallback</small></span><button type="button" onClick={() => { setPasscodeValue(''); setPasscodeConfirm(''); setPasscodeError(''); setPasscodeDialogOpen(true); }}>{passcodeEnabled ? 'Manage' : 'Set up'}</button></div>
+                  {(passcodeEnabled || deviceLockEnabled) && <div className="settings-info-row"><LockKeyhole/><span><strong>Lock FNI now</strong><small>Require authentication the next time you open the app</small></span><button type="button" onClick={() => setAppLocked(true)}>Lock now</button></div>}
+                  {passcodeError && <p className="settings-footnote" role="status">{passcodeError}</p>}
                   <div className="settings-info-row"><Eye/><span><strong>Active sessions</strong><small>Review devices signed in to your account</small></span><em>Backend required</em></div>
                   <p className="settings-footnote">These privacy choices are saved on this device in the preview. They will be enforced across accounts after FNI authentication is connected.</p>
                 </div>}
@@ -1307,7 +1378,7 @@ export default function App() {
         {passcodeEnabled ? <><label htmlFor="fni-current-passcode">Current passcode</label><input id="fni-current-passcode" type="password" inputMode="numeric" autoComplete="current-password" maxLength={12} value={passcodeValue} onChange={event => setPasscodeValue(event.target.value.replace(/\D/g,''))} placeholder="Enter current passcode"/><button className="modal-submit" type="submit">Turn off passcode lock</button></> : <><label htmlFor="fni-new-passcode">New passcode (6–12 digits)</label><input id="fni-new-passcode" type="password" inputMode="numeric" autoComplete="new-password" maxLength={12} value={passcodeValue} onChange={event => setPasscodeValue(event.target.value.replace(/\D/g,''))} placeholder="Create passcode"/><label htmlFor="fni-confirm-passcode">Confirm passcode</label><input id="fni-confirm-passcode" type="password" inputMode="numeric" autoComplete="new-password" maxLength={12} value={passcodeConfirm} onChange={event => setPasscodeConfirm(event.target.value.replace(/\D/g,''))} placeholder="Re-enter passcode"/><button className="modal-submit" type="submit">Enable passcode lock</button></>}
         {passcodeError && <p className="settings-footnote" role="alert">{passcodeError}</p>}<p className="settings-footnote">This passcode is stored as a salted hash in this browser. Clearing browser data removes it.</p>
       </form></div>}
-      {appLocked && <div className="fni-lock-screen"><div className="fni-lock-card"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI"/><h2>FNI is locked</h2><p>Enter your passcode to continue</p><form onSubmit={event => { event.preventDefault(); unlockApp(); }}><input autoFocus type="password" inputMode="numeric" autoComplete="current-password" maxLength={12} value={unlockValue} onChange={event => setUnlockValue(event.target.value.replace(/\D/g,''))} placeholder="Passcode" aria-label="Passcode"/><button type="submit" disabled={!unlockValue}>Unlock</button></form>{passcodeError && <small role="alert">{passcodeError}</small>}</div></div>}
+      {appLocked && <div className="fni-lock-screen"><div className="fni-lock-card"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI"/><h2>FNI is locked</h2><p>Verify it's you to continue</p>{deviceLockEnabled && <button type="button" onClick={unlockWithDevice}>Unlock with phone</button>}{passcodeEnabled && <form onSubmit={event => { event.preventDefault(); unlockApp(); }}><input autoFocus type="password" inputMode="numeric" autoComplete="current-password" maxLength={12} value={unlockValue} onChange={event => setUnlockValue(event.target.value.replace(/\D/g,''))} placeholder="FNI passcode" aria-label="FNI passcode"/><button type="submit" disabled={!unlockValue}>Unlock with passcode</button></form>}{passcodeError && <small role="alert">{passcodeError}</small>}<small>Device authentication is a local preview test. Full secure verification requires FNI account services.</small></div></div>}
     </main>
   );
 }
