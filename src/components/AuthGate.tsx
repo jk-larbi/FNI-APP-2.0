@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { ArrowLeft, Eye, EyeOff, ShieldCheck, UserRound, Mail, LockKeyhole } from 'lucide-react';
 
 type DemoIdentity = { name: string; email: string; role: 'member' | 'admin' };
@@ -37,7 +37,7 @@ export default function AuthGate({ onAuthenticated }: Props) {
     onAuthenticated(identity);
   }
 
-  function signup(event: React.FormEvent<HTMLFormElement>) {
+  function signup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');
     const cleanName = name.trim();
@@ -56,7 +56,7 @@ export default function AuthGate({ onAuthenticated }: Props) {
     enter({ name: cleanName, email: cleanEmail, role: 'member' });
   }
 
-  function login(event: React.FormEvent<HTMLFormElement>) {
+  function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');
     const cleanEmail = email.trim().toLowerCase();
@@ -69,7 +69,7 @@ export default function AuthGate({ onAuthenticated }: Props) {
     enter({ name: match.name, email: match.email, role: 'member' });
   }
 
-  function adminLogin(event: React.FormEvent<HTMLFormElement>) {
+  function adminLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');
     setBusy(true);
