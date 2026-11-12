@@ -280,3 +280,57 @@ button{border:0;cursor:pointer}
  .mobile-nav-item span{max-width:100%;overflow:hidden;text-overflow:ellipsis}
  .toast{bottom:calc(78px + env(safe-area-inset-bottom));}
 }
+
+
+/* Functional light theme — applied by the Appearance setting */
+:root[data-theme="light"] body{background:#f4f6fc;color:#18213a}
+:root[data-theme="light"] .app-shell{background:radial-gradient(ellipse at 72% -15%,rgba(99,115,210,.10),transparent 38%),#f4f6fc;color:#18213a}
+:root[data-theme="light"] .sidebar{background:rgba(255,255,255,.94);border-right-color:#dfe4f0}
+:root[data-theme="light"] .topbar{background:rgba(255,255,255,.88);border-bottom-color:#e1e5ef}
+:root[data-theme="light"] .topbar h1,:root[data-theme="light"] .settings-intro h2,:root[data-theme="light"] .settings-detail-head h3,:root[data-theme="light"] .setting-option-copy strong,:root[data-theme="light"] .settings-profile strong{color:#1b2540}
+:root[data-theme="light"] .topbar-title .eyebrow,:root[data-theme="light"] .settings-intro p,:root[data-theme="light"] .settings-detail-head p,:root[data-theme="light"] .setting-option-copy span{color:#66718b}
+:root[data-theme="light"] .settings-menu,:root[data-theme="light"] .settings-detail,:root[data-theme="light"] .settings-profile{background:#fff;border-color:#e0e5f0;box-shadow:0 8px 28px #24345c0a}
+:root[data-theme="light"] .setting-nav{color:#5d6882}
+:root[data-theme="light"] .setting-nav.active{color:#26345b;background:#eef1ff}
+:root[data-theme="light"] .setting-option{border-bottom-color:#edf0f6}
+:root[data-theme="light"] .setting-option select,:root[data-theme="light"] .profile-field input,:root[data-theme="light"] .profile-field textarea{background:#f7f8fc;color:#1c2742;border-color:#dce2ef}
+:root[data-theme="light"] .settings-footnote,:root[data-theme="light"] .profile-guidance,:root[data-theme="light"] .profile-history-note{background:#f7f8fc;border-color:#e3e7f0;color:#64708b}
+:root[data-theme="light"] .settings-footnote span,:root[data-theme="light"] .profile-guidance p,:root[data-theme="light"] .profile-history-note p{color:#64708b}
+:root[data-theme="light"] .settings-detail-head{border-bottom-color:#e8ebf3}
+:root[data-theme="light"] .setting-detail-icon{background:#eef1ff;color:#9a7921;border-color:#dfe4f1}
+:root[data-theme="light"] .mobile-nav{background:rgba(255,255,255,.97);border-top-color:#dfe4ef}
+:root[data-theme="light"] .mobile-nav-item{color:#73809a}
+:root[data-theme="light"] .mobile-nav-item.active{color:#98751d}
+:root[data-theme="light"] .profile-preview-card{background:linear-gradient(155deg,#f1f3ff,#fff);border-color:#e1e5ef}
+:root[data-theme="light"] .profile-preview-card h4,:root[data-theme="light"] .photo-actions strong,:root[data-theme="light"] .profile-section-heading h4,:root[data-theme="light"] .profile-online-setting strong{color:#1b2540}
+:root[data-theme="light"] .profile-field>span{color:#36425e}
+:root[data-theme="light"] .profile-preview-card>p,:root[data-theme="light"] .preview-meta span{color:#65718b}
+:root[data-theme="light"] .setting-action{background:#eef1ff;color:#394d92;border-color:#dce3f5}
+:root[data-theme="light"] .search-bar{background:#fff;border-color:#dfe4ef;color:#67738d}
+:root[data-theme="light"] .search-bar input{color:#1c2742}
+:root[data-theme="light"] .folder{color:#68748e}
+:root[data-theme="light"] .folder.active{background:#e9edff;color:#34477f}
+:root[data-theme="light"] .empty-panel h3{color:#1b2540}
+:root[data-theme="light"] .empty-panel>p,:root[data-theme="light"] .welcome-line p{color:#65718b}
+:root[data-theme="light"] .setup-note{background:#fff;border-color:#e0e5ef;color:#65718b}
+:root[data-theme="light"] .bottom-note{border-top-color:#e3e7ef;color:#73809a}
+:root[data-theme="light"] .toast{background:#fff;color:#1c2742;border-color:#dfe4ef;box-shadow:0 16px 45px #26365c22}
+:root[data-theme="light"] .account-menu{background:#fff;border-color:#dfe4ef}
+:root[data-theme="light"] .account-menu button{color:#26334f}
+:root[data-theme="light"] .ministry-card{background:#f5f6fc;border-color:#e2e6ef}
+:root[data-theme="light"] .ministry-card strong{color:#26334f}
+:root[data-theme="light"] .profile-row{color:#26334f;border-top-color:#e4e8f0}
+:root[data-theme="light"] .action-sheet{background:#fff;color:#1b2540;border-color:#dfe4ef}
+.action-overlay{position:fixed;z-index:60;inset:0;display:grid;place-items:center;padding:18px;background:#050817a8;backdrop-filter:blur(8px)}
+.action-sheet{position:relative;width:min(100%,480px);max-height:min(82dvh,720px);overflow:auto;padding:25px;border:1px solid #ffffff18;border-radius:18px;background:#171e38;color:#f1f3ff;box-shadow:0 25px 90px #0008}
+.action-close{position:absolute;right:14px;top:14px;width:34px;height:34px;display:grid;place-items:center;border-radius:9px;background:#ffffff0c;color:inherit}
+.action-sheet h3{margin:9px 0;color:inherit;font:700 20px Manrope,sans-serif}
+.action-sheet>p{color:#8f9bb8;font-size:12px;line-height:1.7}
+.action-empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:25px 14px;margin:17px 0;border:1px solid #ffffff12;border-radius:13px;background:#ffffff06;text-align:center}
+.action-empty svg{color:#d4b65f}
+.action-empty strong{font-size:13px}
+.action-empty span{max-width:330px;color:#8995b2;font-size:11px;line-height:1.7}
+.sticker-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:18px 0}
+.sticker-preview button{padding:12px;border:1px solid #ffffff14;border-radius:10px;background:#ffffff08;color:inherit;font-size:11px}
+.action-done{width:100%;height:42px;margin-top:14px;border-radius:10px;background:linear-gradient(110deg,#315bdc,#553da6);color:white;font-weight:600}
+@media(max-width:760px){.action-sheet{padding:22px 17px;border-radius:16px}.action-overlay{align-items:end;padding:0}.action-sheet{width:100%;max-height:88dvh;border-radius:20px 20px 0 0;padding-bottom:calc(20px + env(safe-area-inset-bottom))}}
