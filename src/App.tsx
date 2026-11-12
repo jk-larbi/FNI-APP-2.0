@@ -3,7 +3,7 @@ import { Menu, Search, Plus, MessageCircle, Users, Phone, Settings, ChevronDown,
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups';
-type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string };
+type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; reactions?: string[] };
 
 export default function App() {
   const [section, setSection] = useState<Section>('Chats');
@@ -17,6 +17,8 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [openMessageMenu, setOpenMessageMenu] = useState<number | null>(null);
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const [mentionOpen, setMentionOpen] = useState(false);
   const attachmentInput = useRef<HTMLInputElement>(null);
 
   const navigation = [
@@ -53,6 +55,13 @@ export default function App() {
     document.body.appendChild(link);
     link.click();
     link.remove();
+    setOpenMessageMenu(null);
+  };
+
+  const addEmoji = (emoji: string) => { setDraft((current) => current + emoji); setEmojiOpen(false); };
+
+  const addReaction = (messageId: number, emoji: string) => {
+    setMessages((current) => current.map((message) => message.id === messageId ? { ...message, reactions: message.reactions?.includes(emoji) ? message.reactions.filter((item) => item !== emoji) : [...(message.reactions || []), emoji] } : message));
     setOpenMessageMenu(null);
   };
 
@@ -139,6 +148,7 @@ export default function App() {
                   <div className="message-action-wrap">
                     <button className="message-more-button" aria-label="Message actions" onClick={() => setOpenMessageMenu(openMessageMenu === message.id ? null : message.id)}><MoreVertical size={17} /></button>
                     {openMessageMenu === message.id && <div className="message-action-menu">
+                      <div className="reaction-choices">{['👍','❤️','😂','😮','🙏','🔥'].map((emoji) => <button key={emoji} aria-label="Add reaction" onClick={() => addReaction(message.id, emoji)}>{emoji}</button>)}</div>
                       <button onClick={() => { setReplyTo(message); setOpenMessageMenu(null); }}>Reply</button>
                       {message.mediaType ? (
                         <button onClick={() => saveMedia(message)}>Save {message.mediaType === 'video' ? 'video' : 'photo'}</button>
@@ -151,7 +161,8 @@ export default function App() {
                       {message.replyTo && <div className="quoted-message">{message.replyTo}</div>}
                       {message.mediaType === 'photo' && message.mediaUrl && <img className="message-media" src={message.mediaUrl} alt={message.mediaName || 'Shared photo'} />}
                       {message.mediaType === 'video' && message.mediaUrl && <video className="message-media" src={message.mediaUrl} controls playsInline />}
-                      {message.text && <div>{message.text}</div>}<span>{message.time} <b>✓✓</b></span>
+                      {message.text && <div>{message.text.split(/(@[\w.]+)/g).map((part, index) => part.startsWith('@') ? <strong className="message-mention" key={index}>{part}</strong> : part)}</div>}<span>{message.time} <b>✓✓</b></span>
+                      {message.reactions && message.reactions.length > 0 && <div className="message-reactions">{message.reactions.map((emoji) => <button key={emoji} onClick={() => addReaction(message.id, emoji)}>{emoji}</button>)}</div>}
                     </div>
                   </div>
                 </div>
@@ -161,8 +172,13 @@ export default function App() {
             <div className="message-composer">
               <button className="composer-icon" aria-label="Attach photo or video" title="Attach photo or video" onClick={() => attachmentInput.current?.click()}><Paperclip /></button>
               <input ref={attachmentInput} className="attachment-input" type="file" accept="image/*,video/*" onChange={(event) => { attachMedia(event.target.files?.[0]); event.target.value = ''; }} />
-              <textarea value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }} placeholder="Message" rows={1} />
-              <button className="composer-icon emoji-button" aria-label="Emoji"><Smile /></button>
+              <div className="composer-input-wrap">
+                <textarea value={draft} onChange={(event) => { setDraft(event.target.value); const tail = event.target.value.split(/\s/).pop() || ''; setMentionOpen(tail.startsWith('@') && tail.length > 0); }} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } if (event.key === 'Escape') { setMentionOpen(false); setEmojiOpen(false); } }} placeholder="Message" rows={1} />
+                {mentionOpen && activeChat && <div className="mention-suggestions"><button onClick={() => { setDraft((current) => current.replace(/@[\w.]*$/, activeChat + ' ')); setMentionOpen(false); }}>{activeChat}<span>FNI member in this chat</span></button></div>}
+              </div>
+              <div className="emoji-picker-wrap"><button className="composer-icon emoji-button" aria-label="Emoji" onClick={() => setEmojiOpen((open) => !open)}><Smile /></button>
+                {emojiOpen && <div className="emoji-picker">{['😀','😂','🥹','😍','😊','🙏','❤️','👍','🔥','🎉','😢','😮','👏','✨','💯','🤝','🙌','💙','🤣','😉'].map((emoji) => <button key={emoji} onClick={() => addEmoji(emoji)}>{emoji}</button>)}</div>}
+              </div>
               <button className="send-button" aria-label="Send message" onClick={sendMessage} disabled={!draft.trim()}><Send size={19} /></button>
             </div>
             <div className="local-preview-note">Messages are currently stored only in this preview. Connect the FNI messaging service to deliver them.</div>
