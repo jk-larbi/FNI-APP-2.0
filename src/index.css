@@ -4796,3 +4796,72 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
   .fni-group-conversation .fni-group-chat-entry{padding-right:42px!important}
   .fni-group-conversation .fni-group-chat-entry .fni-chat-message-tools{right:1px!important}
 }
+
+
+/* Opened FNI conversations are an app-level screen, not a card inside Messages. */
+@supports selector(.app-shell:has(.fni-group-conversation)){
+  .app-shell:has(.fni-group-conversation) .topbar,
+  .app-shell:has(.fni-group-conversation) .mobile-nav{
+    display:none!important;
+  }
+  .app-shell:has(.fni-group-conversation) .main-panel{
+    padding:0!important;
+    margin:0!important;
+    width:100%!important;
+    max-width:none!important;
+    min-height:100dvh!important;
+    overflow:visible!important;
+  }
+}
+.msg-fullscreen-workspace.fni-group-conversation{
+  position:fixed!important;
+  inset:0!important;
+  z-index:200!important;
+  width:100vw!important;
+  max-width:none!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  max-height:100dvh!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+.msg-fullscreen-workspace.fni-group-conversation .fni-group-chat-header{
+  flex:0 0 60px!important;
+  width:100%!important;
+}
+.msg-fullscreen-workspace.fni-group-conversation .fni-group-chat-messages{
+  flex:1 1 0!important;
+  min-height:0!important;
+  width:100%!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+}
+.msg-fullscreen-workspace.fni-group-conversation .fni-group-chat-compose{
+  flex:0 0 auto!important;
+  width:100%!important;
+  margin:0!important;
+}
+@media(max-width:760px){
+  .msg-fullscreen-workspace.fni-group-conversation{
+    top:var(--fni-chat-visual-offset,0px)!important;
+    bottom:auto!important;
+    height:var(--fni-chat-visual-height,100dvh)!important;
+    min-height:0!important;
+    max-height:var(--fni-chat-visual-height,100dvh)!important;
+    padding:env(safe-area-inset-top) 0 0!important;
+  }
+  .msg-fullscreen-workspace.fni-group-conversation .fni-group-chat-header{
+    flex-basis:calc(58px + env(safe-area-inset-top))!important;
+    height:calc(58px + env(safe-area-inset-top))!important;
+    padding:env(safe-area-inset-top) 10px 0!important;
+  }
+  .msg-fullscreen-workspace.fni-group-conversation .fni-group-chat-compose{
+    padding-bottom:max(7px,env(safe-area-inset-bottom))!important;
+  }
+}
