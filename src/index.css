@@ -1878,3 +1878,7 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
 .fni-auth-logo{border-radius:10px;border:1px solid rgba(245,204,38,.7)}
 .fni-auth-logo img{object-fit:cover}
 @media(max-width:480px){.fni-logo-frame{width:min(72vw,270px);margin-bottom:22px}.fni-splash-wordmark{font-size:27px}}
+
+.fni-account-switch{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:0 12px;border:1px solid var(--border,#e4e7ef);border-radius:9px;background:var(--surface,#fff);color:var(--text-secondary,#68738b);font:inherit;font-size:11px;font-weight:650;white-space:nowrap;cursor:pointer}
+.fni-account-switch:hover{border-color:#c9a83c;color:#9b7815;background:rgba(224,187,58,.07)}
+@media(max-width:560px){.settings-profile{flex-wrap:wrap}.fni-account-switch{margin:10px 0 0 0;width:100%}}
