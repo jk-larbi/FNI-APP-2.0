@@ -934,3 +934,5 @@ button{cursor:pointer}
 .chat-settings-panel .settings-info-row button{padding:7px 10px;border:1px solid #d9e4f2;border-radius:7px;background:transparent}
 .app-shell[data-theme="dark"] .chat-settings-panel .settings-info-row button{border-color:#40536a;color:#70b5f8}
 .app-shell[data-theme="dark"][data-chat-density="compact"] .recent-chat-row{border-color:#29323d}
+
+.app-shell .message-bubble .message-meta-hidden{display:none}
