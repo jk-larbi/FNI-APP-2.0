@@ -3301,3 +3301,33 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
  .meeting-tool-card{padding:11px}
  .meeting-attendance-list{max-height:180px}
 }
+
+
+/* FNI emoji and sticker tray */
+.fni-group-chat-compose .fni-chat-compose-tool{background:transparent;color:#71809a}
+.fni-group-chat-compose .fni-chat-compose-tool[aria-pressed="true"]{background:#e9eefb;color:#173b8f}
+.fni-ios-emoji-panel{max-height:190px;overflow-y:auto;overscroll-behavior:contain;grid-template-columns:repeat(8,minmax(0,1fr))}
+.fni-ios-emoji-panel button{display:grid;place-items:center;min-width:0;min-height:36px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;line-height:1}
+.fni-sticker-panel{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;max-height:228px;overflow-y:auto;overscroll-behavior:contain;padding:10px;border-top:1px solid var(--fni-line,#e3e7f0);background:var(--fni-surface,#fff)}
+.fni-sticker-panel-heading{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:0 2px 3px}
+.fni-sticker-panel-heading b{font-size:11px;color:var(--fni-text,#192033)}
+.fni-sticker-panel-heading span{font-size:9px;color:var(--fni-muted,#687187)}
+.fni-sticker-tile{display:flex;min-width:0;min-height:72px;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:7px 3px;border:1px solid var(--fni-line,#e3e7f0);border-radius:11px;background:var(--fni-surface-2,#f5f7fb)}
+.fni-sticker-tile>span{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;font-size:31px;line-height:1.15;filter:drop-shadow(0 2px 1px rgba(20,30,55,.12))}
+.fni-sticker-tile small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fni-muted,#687187);font-size:8px}
+.fni-sticker-tile:hover{border-color:#9aaddc;background:#edf2ff}
+.fni-group-chat-bubble.fni-group-chat-sticker-bubble{min-width:0;padding:3px 5px;border:0;background:transparent;box-shadow:none}
+.fni-group-chat-sticker{margin:0!important;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;font-size:58px!important;line-height:1.15!important;text-shadow:0 2px 3px rgba(20,30,55,.12)}
+.fni-group-chat-sticker-bubble .fni-chat-message-meta{padding:0 3px;color:var(--fni-muted,#687187)}
+:root[data-theme="dark"] .fni-sticker-panel{background:#222634;border-color:#383e50}
+:root[data-theme="dark"] .fni-sticker-panel-heading b{color:#f4f5fa}
+:root[data-theme="dark"] .fni-sticker-tile{background:#2b3040;border-color:#383e50}
+:root[data-theme="dark"] .fni-sticker-tile:hover{background:#303b59;border-color:#536b9f}
+:root[data-theme="dark"] .fni-group-chat-compose .fni-chat-compose-tool[aria-pressed="true"]{background:#303b59;color:#c6d5ff}
+@media(max-width:760px){
+ .fni-sticker-panel{grid-template-columns:repeat(4,minmax(0,1fr));max-height:190px;gap:5px;padding:8px}
+ .fni-sticker-tile{min-height:64px}
+ .fni-sticker-tile>span{font-size:27px}
+ .fni-group-chat-sticker{font-size:52px!important}
+ .fni-ios-emoji-panel{max-height:170px}
+}
