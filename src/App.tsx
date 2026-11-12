@@ -18,6 +18,10 @@ export default function App() {
     catch { return {}; }
   });
   const [chatOptionsOpen, setChatOptionsOpen] = useState(false);
+  const [mutedChats, setMutedChats] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('fni-local-muted') || '[]'); }
+    catch { return []; }
+  });
   const [archivedChats, setArchivedChats] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-archived') || '[]'); }
     catch { return []; }
@@ -56,6 +60,9 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem('fni-local-archived', JSON.stringify(archivedChats)); } catch { /* storage may be unavailable */ }
   }, [archivedChats]);
+  useEffect(() => {
+    try { localStorage.setItem('fni-local-muted', JSON.stringify(mutedChats)); } catch { /* storage may be unavailable */ }
+  }, [mutedChats]);
   useEffect(() => {
     const textOnly: Record<string, Message[]> = {};
     Object.entries(conversations).forEach(([chat, items]) => {
@@ -226,7 +233,7 @@ export default function App() {
               const latest = items[items.length - 1];
               return <button className={`recent-chat-row ${activeChat === chat ? 'selected' : ''}`} key={chat} onClick={() => { setActiveChat(chat); setUnreadChats((current) => ({ ...current, [chat]: false })); setReplyTo(null); setEditingMessage(null); setOpenMessageMenu(null); setChatOptionsOpen(false); }}>
                 <span className="recent-chat-avatar">{chat.replace('@','').slice(0,1).toUpperCase()}</span>
-                <span className="recent-chat-copy"><strong>{chat}</strong><span>{latest?.text || (latest?.mediaType === 'photo' ? 'Photo' : latest?.mediaType === 'video' ? 'Video' : 'No messages yet')}</span></span>
+                <span className="recent-chat-copy"><strong>{chat}{mutedChats.includes(chat) && <span className="muted-chat-indicator" title="Muted"> · Muted</span>}</strong><span>{latest?.text || (latest?.mediaType === 'photo' ? 'Photo' : latest?.mediaType === 'video' ? 'Video' : 'No messages yet')}</span></span>
                 <span className="recent-chat-meta"><span className="recent-chat-time">{latest?.time || ''}</span>{unreadChats[chat] && <span className="unread-chat-badge">1</span>}</span>
               </button>;
             })}
@@ -255,7 +262,7 @@ export default function App() {
                 <button className="icon-button" aria-label="Chat options" aria-expanded={chatOptionsOpen} onClick={() => setChatOptionsOpen((open) => !open)}><MoreVertical /></button>
               </div>
             </header>
-            {chatOptionsOpen && <div className="chat-options-menu"><button onClick={() => { setUnreadChats((current) => ({ ...current, [activeChat]: true })); setActiveChat(''); setChatOptionsOpen(false); }}>Mark as unread</button><button onClick={() => { setArchivedChats((current) => current.includes(activeChat) ? current.filter((chat) => chat !== activeChat) : [...current, activeChat]); setActiveChat(''); setChatOptionsOpen(false); setFolder(archivedChats.includes(activeChat) ? 'All chats' : 'Archived'); }}>{archivedChats.includes(activeChat) ? 'Unarchive chat' : 'Archive chat'}</button></div>}
+            {chatOptionsOpen && <div className="chat-options-menu"><button onClick={() => { setUnreadChats((current) => ({ ...current, [activeChat]: true })); setActiveChat(''); setChatOptionsOpen(false); }}>Mark as unread</button><button onClick={() => { setMutedChats((current) => current.includes(activeChat) ? current.filter((chat) => chat !== activeChat) : [...current, activeChat]); setChatOptionsOpen(false); }}>{mutedChats.includes(activeChat) ? 'Unmute chat' : 'Mute chat'}</button><button onClick={() => { setArchivedChats((current) => current.includes(activeChat) ? current.filter((chat) => chat !== activeChat) : [...current, activeChat]); setActiveChat(''); setChatOptionsOpen(false); setFolder(archivedChats.includes(activeChat) ? 'All chats' : 'Archived'); }}>{archivedChats.includes(activeChat) ? 'Unarchive chat' : 'Archive chat'}</button></div>}
             {chatSearchOpen && <div className="chat-search-bar"><Search size={17} /><input autoFocus value={chatSearch} onChange={(event) => setChatSearch(event.target.value)} placeholder="Search in conversation" /><span>{chatSearch.trim() ? `${matchingMessages.length} found` : ''}</span><button aria-label="Close search" onClick={() => { setChatSearchOpen(false); setChatSearch(''); }}><X size={17} /></button></div>}
             {pinnedMessageId !== null && messages.find((item) => item.id === pinnedMessageId) && (
               <button
