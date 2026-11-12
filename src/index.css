@@ -3331,3 +3331,74 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
  .fni-group-chat-sticker{font-size:52px!important}
  .fni-ios-emoji-panel{max-height:170px}
 }
+
+
+/* Mobile chat: keep the conversation visible above the on-screen keyboard. */
+@media (max-width:760px) {
+  .msg-fullscreen-workspace.fni-group-conversation {
+    position:fixed!important;
+    top:var(--fni-chat-visual-offset,0px)!important;
+    left:0!important;
+    right:0!important;
+    bottom:auto!important;
+    width:100vw!important;
+    height:var(--fni-chat-visual-height,100dvh)!important;
+    min-height:0!important;
+    max-height:var(--fni-chat-visual-height,100dvh)!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+    padding:env(safe-area-inset-top) 0 0!important;
+    margin:0!important;
+    z-index:100!important;
+    border:0!important;
+    border-radius:0!important;
+  }
+  .fni-group-conversation .fni-group-chat-header {
+    flex:0 0 calc(53px + env(safe-area-inset-top))!important;
+    height:calc(53px + env(safe-area-inset-top))!important;
+    min-height:calc(53px + env(safe-area-inset-top))!important;
+    padding:env(safe-area-inset-top) 9px 0!important;
+  }
+  .fni-group-conversation .fni-group-chat-messages {
+    flex:1 1 0!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:contain;
+    padding:8px 9px 12px!important;
+    scroll-padding-bottom:12px;
+  }
+  .fni-group-conversation .fni-group-chat-compose {
+    position:relative!important;
+    z-index:3!important;
+    flex:0 0 auto!important;
+    width:100%!important;
+    min-height:50px!important;
+    padding:5px 7px max(5px,env(safe-area-inset-bottom))!important;
+    margin:0!important;
+    background:var(--fni-surface,#fff)!important;
+  }
+  .fni-group-conversation .fni-group-chat-compose input {
+    min-width:0!important;
+    height:39px!important;
+    font-size:16px!important;
+    line-height:1.2!important;
+  }
+  .fni-group-conversation.keyboard-visible .fni-group-chat-compose {
+    padding-bottom:5px!important;
+  }
+  .fni-group-conversation .fni-chat-replying,
+  .fni-group-conversation .fni-ios-emoji-panel,
+  .fni-group-conversation .fni-sticker-panel,
+  .fni-group-conversation .fni-chat-mention-panel {
+    flex:0 0 auto!important;
+    max-height: min(28vh,190px)!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+  }
+  .fni-group-conversation .fni-group-chat-local-note {display:none!important}
+}
