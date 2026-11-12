@@ -89,7 +89,11 @@ export default function App() {
     .filter(([chat, items]) => {
       const isArchived = archivedChats.includes(chat);
       const matchesFolder = folder === 'Archived' ? isArchived : !isArchived && (folder === 'All chats' || (folder === 'Personal' && chat.startsWith('@')) || (folder === 'Groups' && !chat.startsWith('@')));
-      return matchesFolder && (chat.toLowerCase().includes(search.toLowerCase()) || (items[items.length - 1]?.text || '').toLowerCase().includes(search.toLowerCase()));
+      const query = search.trim().toLowerCase();
+      const matchesConversation = !query || chat.toLowerCase().includes(query) || items.some((message) =>
+        message.text.toLowerCase().includes(query) || (message.mediaName || '').toLowerCase().includes(query)
+      );
+      return matchesFolder && matchesConversation;
     })
     .sort((a, b) => (b[1][b[1].length - 1]?.id || 0) - (a[1][a[1].length - 1]?.id || 0));
 
@@ -235,7 +239,7 @@ export default function App() {
               const latest = items[items.length - 1];
               return <button className={`recent-chat-row ${activeChat === chat ? 'selected' : ''}`} key={chat} onClick={() => { setActiveChat(chat); setUnreadChats((current) => ({ ...current, [chat]: false })); setReplyTo(null); setEditingMessage(null); setOpenMessageMenu(null); setChatOptionsOpen(false); }}>
                 <span className="recent-chat-avatar">{chat.replace('@','').slice(0,1).toUpperCase()}</span>
-                <span className="recent-chat-copy"><strong>{chat}{mutedChats.includes(chat) && <span className="muted-chat-indicator" title="Muted"> · Muted</span>}</strong><span>{latest?.text || (latest?.mediaType === 'photo' ? 'Photo' : latest?.mediaType === 'video' ? 'Video' : 'No messages yet')}</span></span>
+                <span className="recent-chat-copy"><strong>{chat}{mutedChats.includes(chat) && <span className="muted-chat-indicator" title="Muted"> · Muted</span>}</strong><span>{search.trim() ? ([...items].reverse().find((message) => message.text.toLowerCase().includes(search.trim().toLowerCase()) || (message.mediaName || '').toLowerCase().includes(search.trim().toLowerCase()))?.text || [...items].reverse().find((message) => (message.mediaName || '').toLowerCase().includes(search.trim().toLowerCase()))?.mediaName || latest?.text || (latest?.mediaType === 'photo' ? 'Photo' : latest?.mediaType === 'video' ? 'Video' : 'No messages yet')) : (latest?.text || (latest?.mediaType === 'photo' ? 'Photo' : latest?.mediaType === 'video' ? 'Video' : 'No messages yet'))}</span></span>
                 <span className="recent-chat-meta"><span className="recent-chat-time">{latest?.time || ''}</span>{unreadChats[chat] && <span className="unread-chat-badge">1</span>}</span>
               </button>;
             })}
