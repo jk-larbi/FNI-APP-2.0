@@ -74,11 +74,11 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   };
   const handleChatContextAction = (action: string, chatId: string) => {
     setChatContextMenu(null);
-    if (action === 'Open') { if (chatId === 'saved-messages') { setView('saved'); } else { setSelectedId(chatId); setView('group-chat'); } }
+    if (action === 'Open') { if (chatId === 'saved-messages') { setView('saved'); } else if (personalChats.some(chat => chat.id === chatId)) { const person = personalChats.find(chat => chat.id === chatId); setNotice(person ? 'Direct messaging with @' + person.username + ' will open when FNI member accounts and messaging are connected.' : 'Personal chat unavailable.'); } else { setSelectedId(chatId); setView('group-chat'); } }
     if (action === 'Pin') togglePinnedChat(chatId);
     if (action === 'Archive') { setArchivedChats(c => tab === 'Archived' ? c.filter(id => id !== chatId) : [...new Set([...c, chatId])]); setNotice(tab === 'Archived' ? 'Chat restored.' : 'Chat archived.'); }
     if (action === 'Mark as Read') { setReadChats(c => [...new Set([...c, chatId])]); setNotice('Marked as read.'); }
-    if (action === 'Delete') { if (!confirm('Delete this chat from this browser preview?')) return; setGroups(c => c.filter(g => g.id !== chatId)); setPinnedChats(c => c.filter(id => id !== chatId)); setArchivedChats(c => c.filter(id => id !== chatId)); setReadChats(c => c.filter(id => id !== chatId)); if (chatId === 'saved-messages') localStorage.removeItem('fni-personal-cloud-items'); setNotice('Chat deleted.'); }
+    if (action === 'Delete') { if (!confirm('Delete this chat from this browser preview?')) return; setGroups(c => c.filter(g => g.id !== chatId)); setPersonalChats(c => c.filter(chat => chat.id !== chatId)); setPinnedChats(c => c.filter(id => id !== chatId)); setArchivedChats(c => c.filter(id => id !== chatId)); setReadChats(c => c.filter(id => id !== chatId)); if (chatId === 'saved-messages') localStorage.removeItem('fni-personal-cloud-items'); setNotice('Chat deleted.'); }
     if (action === 'Select') { setSelectionMode(true); setSelectedChats([chatId]); }
   };
   const chatRowTouchHandlers = (chatId: string) => ({
