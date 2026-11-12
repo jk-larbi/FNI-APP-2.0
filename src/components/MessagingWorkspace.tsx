@@ -150,10 +150,6 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     <div className="fni-chat-search"><Search size={18}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search people, @usernames or messages" aria-label="Search chats"/></div>
     <div className="msg-tabs fni-chat-tabs" role="tablist" aria-label="Chat folders">{(['All chats','Personal','Groups'] as const).map(t => <button role="tab" aria-selected={tab===t} key={t} className={tab===t?'active':''} onClick={() => setTab(t)}>{t}</button>)}</div>
     <div className="fni-chat-list">
-      {tab !== 'Groups' && <button className="fni-chat-row fni-saved-row" onClick={() => setView('saved')}>
-        <div className="fni-chat-avatar fni-saved-avatar"><Bookmark size={21}/></div>
-        <div className="fni-chat-row-copy"><div className="fni-chat-row-top"><b>Saved Messages</b><time>Personal</time></div><div className="fni-chat-row-bottom"><span>{savedPreview}</span><small><Lock size={11}/> Only you</small></div></div>
-      </button>}
       {tab !== 'Personal' && filtered.map(group => <div className="fni-chat-row-wrap" key={group.id}>
         <button className="fni-chat-row" onClick={() => {setSelectedId(group.id);setView('group-chat')}}>
           <div className="fni-chat-avatar fni-group-chat-avatar"><Users size={20}/></div>
@@ -161,6 +157,10 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
         </button>
         <button className={pinnedChats.includes(group.id) ? 'fni-chat-pin active' : 'fni-chat-pin'} title={pinnedChats.includes(group.id) ? 'Unpin chat' : 'Pin chat'} onClick={() => togglePinnedChat(group.id)}><Pin size={14}/></button>
       </div>)}
+      {tab !== 'Groups' && <button className="fni-chat-row fni-saved-row" onClick={() => setView('saved')}>
+        <div className="fni-chat-avatar fni-saved-avatar"><Bookmark size={21}/></div>
+        <div className="fni-chat-row-copy"><div className="fni-chat-row-top"><b>Saved Messages</b><time> </time></div><div className="fni-chat-row-bottom"><span>{savedPreview}</span><small><Lock size={11}/> Only you</small></div></div>
+      </button>}
       {tab === 'Personal' && <div className="fni-chat-list-empty"><MessageCircle size={22}/><b>No personal chats yet</b><span>Your conversations with FNI members will appear here when you start chatting. No sample contacts are added.</span><button className="msg-secondary" onClick={() => setView('new-chat')}>New message</button></div>}
       {tab === 'Groups' && !filtered.length && <div className="fni-chat-list-empty"><Users size={22}/><b>No group chats yet</b><span>Groups you create or join will appear here.</span><button className="msg-secondary" onClick={() => setView('create')}>Create group</button></div>}
       {query && !filtered.length && tab !== 'Personal' && <div className="fni-chat-list-empty"><Search size={20}/><b>No matching chats</b><span>Try another name or keyword.</span></div>}
