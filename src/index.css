@@ -488,3 +488,24 @@ button{cursor:pointer}
 .group-media-item img,.group-media-item video{display:block;width:100%;height:100%;object-fit:cover}
 .group-media-video-mark{position:absolute;top:6px;left:6px;padding:3px 5px;border-radius:4px;background:#111a;color:#fff;font-size:9px;font-weight:700}
 .group-media-file-name{position:absolute;right:0;bottom:0;left:0;overflow:hidden;padding:15px 6px 5px;background:linear-gradient(transparent,#000b);color:#fff;font-size:9px;text-align:left;text-overflow:ellipsis;white-space:nowrap}
+
+
+/* FNI group approval review */
+.group-approval-panel{width:100%;max-width:760px;margin:0 auto;padding:24px 20px;overflow:auto}
+.group-approval-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.group-approval-title h2{margin:0;color:var(--text,#263445);font-size:19px;font-weight:650}
+.group-approval-title p{margin:5px 0 0;color:#8792a1;font-size:12px}
+.group-approval-title>span{padding:6px 9px;border-radius:20px;background:#edf4fc;color:#286db4;font-size:11px;font-weight:600;white-space:nowrap}
+.group-approval-card{margin-bottom:11px;padding:14px;border:1px solid var(--border-color,#e7eaf0);border-radius:10px;background:var(--surface,#fff)}
+.group-approval-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.group-approval-card-head strong{color:var(--text,#263445);font-size:14px}
+.group-approval-card-head>span{font-size:10px;font-weight:650}
+.approval-pending{color:#b7791f}.approval-approved{color:#278354}.approval-declined{color:#c34d4d}
+.group-approval-card p{margin:9px 0;color:#697586;font-size:12px;line-height:1.5}
+.group-approval-card time{color:#929baa;font-size:10px}
+.group-approval-actions{display:flex;gap:8px;margin-top:13px}
+.group-approval-actions button{min-height:36px;padding:0 13px;border:0;border-radius:7px;background:#2878d0;color:#fff;font:inherit;font-size:11px;font-weight:600;cursor:pointer}
+.group-approval-actions button+button{border:1px solid #eadede;background:transparent;color:#bd4b4b}
+.group-approval-empty,.group-approval-note{color:#8993a1;font-size:12px;line-height:1.6}
+.group-approval-note{margin-top:18px;padding-top:12px;border-top:1px solid var(--border-color,#e8eaf0);font-size:10px}
+@media(max-width:600px){.group-approval-panel{padding:18px 14px}.group-approval-title h2{font-size:17px}}
