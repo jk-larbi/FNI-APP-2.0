@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import SavedMessagesWorkspace from './SavedMessagesWorkspace';
-import { Archive, ArrowLeft, AtSign, Bookmark, Check, CheckCheck, ChevronRight, Lock, MessageCircle, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Trash2, Users, X } from 'lucide-react';
+import { Archive, ArrowLeft, AtSign, Bookmark, Check, CheckCheck, ChevronRight, Lock, MessageCircle, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, X } from 'lucide-react';
 
 type PermissionKey = 'addMembers' | 'approveRequests' | 'editInfo' | 'pinDelete' | 'restrictMembers' | 'manageInvites' | 'appointAdmins';
-type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; replyTo?: string; reactions?: string[]; mentions?: string[]; };
+type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; replyTo?: string; reactions?: string[]; mentions?: string[]; sticker?: boolean; };
 type Group = {
   id: string; name: string; description: string; createdAt: string;
   mode: 'Everyone' | 'Admins only' | 'Selected members';
@@ -38,6 +38,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [groupDraft, setGroupDraft] = useState('');
   const [replyTarget, setReplyTarget] = useState<GroupMessage | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [stickerOpen, setStickerOpen] = useState(false);
   const [mentionOpen, setMentionOpen] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
@@ -79,6 +80,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   };
   const closeToList = () => { setView('list'); setSelectedId(''); setGroupDraft(''); };
   const sendGroupMessage = () => { const text = groupDraft.trim(); if (!text || !selected) return; const mentions = [...text.matchAll(/@([a-zA-Z0-9_.-]+)/g)].map(match => match[1]); setGroupMessages(current => [...current, { id: crypto.randomUUID(), groupId: selected.id, text, createdAt: new Date().toISOString(), replyTo: replyTarget?.id, reactions: [], mentions }]); setGroupDraft(''); setReplyTarget(null); setEmojiOpen(false); setMentionOpen(false); };
+  const sendSticker = (sticker: string) => { if (!selected) return; setGroupMessages(current => [...current, { id: crypto.randomUUID(), groupId: selected.id, text: sticker, createdAt: new Date().toISOString(), reactions: [], sticker: true }]); setStickerOpen(false); setEmojiOpen(false); setMentionOpen(false); };
   const toggleChatSelection = (id: string) => setSelectedChats(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const visibleChatIds = [...filtered.map(group => group.id), ...(tab === 'All chats' && !archivedChats.includes('saved-messages') ? ['saved-messages'] : tab === 'Personal' && !archivedChats.includes('saved-messages') ? ['saved-messages'] : tab === 'Archived' && archivedChats.includes('saved-messages') ? ['saved-messages'] : [])];
   const toggleSelectAll = () => setSelectedChats(current => visibleChatIds.every(id => current.includes(id)) ? current.filter(id => !visibleChatIds.includes(id)) : [...new Set([...current, ...visibleChatIds])]);
@@ -139,9 +141,9 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
         : groupMessages.filter(message => message.groupId === selected.id).map(message => {
           const parent = groupMessages.find(item => item.id === message.replyTo);
           return <article className="fni-group-chat-entry" key={message.id}>
-            <div className="fni-group-chat-bubble">
+            <div className={`fni-group-chat-bubble${message.sticker ? ' fni-group-chat-sticker-bubble' : ''}`}>
               {parent && <button className="fni-chat-reply-preview" onClick={() => document.getElementById('fni-message-'+parent.id)?.scrollIntoView({behavior:'smooth',block:'center'})}><b>You replied to</b><span>{parent.text}</span></button>}
-              <p id={'fni-message-'+message.id}>{message.text.split(/(@[a-zA-Z0-9_.-]+)/g).map((part,index) => part.startsWith('@') ? <strong className="fni-chat-mention" key={index}>{part}</strong> : part)}</p>
+              <p className={message.sticker ? 'fni-group-chat-sticker' : undefined} id={'fni-message-'+message.id}>{message.text.split(/(@[a-zA-Z0-9_.-]+)/g).map((part,index) => part.startsWith('@') ? <strong className="fni-chat-mention" key={index}>{part}</strong> : part)}</p>
               <div className="fni-chat-message-meta"><time>{new Date(message.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</time><span>✓✓</span></div>
               {!!message.reactions?.length && <div className="fni-chat-reactions">{message.reactions.map(emoji=><button key={emoji} onClick={()=>setGroupMessages(items=>items.map(item=>item.id===message.id?{...item,reactions:item.reactions?.filter(value=>value!==emoji)}:item))}>{emoji}</button>)}</div>}
             </div>
@@ -154,10 +156,12 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     </div>
     {replyTarget && <div className="fni-chat-replying"><div><b>Replying to your message</b><span>{replyTarget.text}</span></div><button type="button" onClick={()=>setReplyTarget(null)} aria-label="Cancel reply"><X size={17}/></button></div>}
     {emojiOpen && <div className="fni-ios-emoji-panel" role="group" aria-label="Emoji picker">{['😀','😃','😄','😁','😆','🥹','😂','🤣','😊','😍','🥰','😘','😎','😭','🙏','👏','👍','👎','❤️','🧡','💛','💚','💙','💜','🔥','🎉','✨','🙌','🤍','💯','🤝','🕊️'].map(emoji=><button type="button" key={emoji} onClick={()=>setGroupDraft(value=>value+emoji)}>{emoji}</button>)}</div>}
+    {stickerOpen && <div className="fni-sticker-panel" role="group" aria-label="FNI sticker pack"><div className="fni-sticker-panel-heading"><b>FNI Stickers</b><span>Tap a sticker to send</span></div>{[{emoji:'🙏',label:'Praying for you'},{emoji:'🙌',label:'Hallelujah'},{emoji:'❤️',label:'God loves you'},{emoji:'✨',label:'Blessed'},{emoji:'🕊️',label:'Peace'},{emoji:'🔥',label:'On fire'},{emoji:'👏',label:'Well done'},{emoji:'💪',label:'Stay strong'},{emoji:'🌟',label:'Keep shining'},{emoji:'📖',label:'Word of God'},{emoji:'🤍',label:'Grace'},{emoji:'🎉',label:'Praise God'}].map(sticker=><button type="button" className="fni-sticker-tile" key={sticker.label} onClick={()=>sendSticker(sticker.emoji)}><span>{sticker.emoji}</span><small>{sticker.label}</small></button>)}</div>}
     {mentionOpen && <div className="fni-chat-mention-panel"><span>Insert a mention</span>{['you',...selected.admins.map(admin=>admin.username)].map(name=><button type="button" key={name} onClick={()=>{setGroupDraft(value=>value+'@'+name+' ');setMentionOpen(false)}}>@{name}</button>)}</div>}
     <form className="fni-group-chat-compose" onSubmit={event => { event.preventDefault(); sendGroupMessage(); }}>
-      <button type="button" className="fni-chat-compose-tool" aria-label="Insert mention" onClick={()=>{setMentionOpen(value=>!value);setEmojiOpen(false)}}><AtSign size={19}/></button>
-      <button type="button" className="fni-chat-compose-tool" aria-label="Open emoji picker" onClick={()=>{setEmojiOpen(value=>!value);setMentionOpen(false)}}><Smile size={19}/></button>
+      <button type="button" className="fni-chat-compose-tool" aria-label="Insert mention" onClick={()=>{setMentionOpen(value=>!value);setEmojiOpen(false);setStickerOpen(false)}}><AtSign size={19}/></button>
+      <button type="button" className="fni-chat-compose-tool" aria-label="Open emoji picker" onClick={()=>{setEmojiOpen(value=>!value);setMentionOpen(false);setStickerOpen(false)}}><Smile size={19}/></button>
+      <button type="button" className="fni-chat-compose-tool" aria-label="Open FNI stickers" aria-pressed={stickerOpen} onClick={()=>{setStickerOpen(value=>!value);setEmojiOpen(false);setMentionOpen(false)}}><Sticker size={19}/></button>
       <input value={groupDraft} onChange={event => setGroupDraft(event.target.value)} placeholder="Message the group..." aria-label="Message the group"/>
       <button type="submit" disabled={!groupDraft.trim()} aria-label="Send message"><Send size={18}/></button>
     </form>
