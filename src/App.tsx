@@ -47,7 +47,10 @@ export default function App() {
 
   const matchingMessages = chatSearch.trim() ? messages.filter((message) => message.text.toLowerCase().includes(chatSearch.trim().toLowerCase()) || (message.mediaName || '').toLowerCase().includes(chatSearch.trim().toLowerCase())) : messages;
   const recentChats = Object.entries(conversations)
-    .filter(([chat, items]) => folder !== 'Groups' && (chat.toLowerCase().includes(search.toLowerCase()) || (items[items.length - 1]?.text || '').toLowerCase().includes(search.toLowerCase())))
+    .filter(([chat, items]) => {
+      const matchesFolder = folder === 'All chats' || (folder === 'Personal' && chat.startsWith('@')) || (folder === 'Groups' && !chat.startsWith('@'));
+      return matchesFolder && (chat.toLowerCase().includes(search.toLowerCase()) || (items[items.length - 1]?.text || '').toLowerCase().includes(search.toLowerCase()));
+    })
     .sort((a, b) => (b[1][b[1].length - 1]?.id || 0) - (a[1][a[1].length - 1]?.id || 0));
 
   const navigation = [
@@ -197,9 +200,9 @@ export default function App() {
         ) : (
           <div className="empty-list">
             <div className="empty-icon"><MessageCircle size={27} strokeWidth={1.5} /></div>
-            <h2>{search ? 'No matches found' : section === 'Chats' ? 'No conversations yet' : section === 'Contacts' ? 'Your contacts will appear here' : section === 'Calls' ? 'No recent calls' : 'Your settings will appear here'}</h2>
+            <h2>{search ? 'No matches found' : section === 'Chats' ? (folder === 'Groups' ? 'No groups yet' : 'No conversations yet') : section === 'Contacts' ? 'Your contacts will appear here' : section === 'Calls' ? 'No recent calls' : 'Your settings will appear here'}</h2>
             <p>{search ? 'Try another name or keyword.' : 'When you connect with people on FNI, you will find them here.'}</p>
-            {section === 'Chats' && <button className="start-chat-button" onClick={() => setNewChatOpen(true)}>Start a conversation</button>}
+            {section === 'Chats' && folder !== 'Groups' && <button className="start-chat-button" onClick={() => setNewChatOpen(true)}>Start a conversation</button>}
           </div>
         )}
       </section>
