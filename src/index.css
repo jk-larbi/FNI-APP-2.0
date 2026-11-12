@@ -390,3 +390,21 @@ button{cursor:pointer}
 .attendance-history-card>div span{font-size:10px;color:#2878d0;white-space:nowrap}
 .attendance-history-card p{margin:7px 0;color:#788391;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
 .attendance-history-card>button{padding:5px 8px;border:0;border-radius:6px;background:#edf4fc;color:#286db4;font:inherit;font-size:10px;cursor:pointer}
+
+
+/* FNI group video chat entry and room preview */
+.group-video-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}
+.start-video-chat-button,.external-meeting-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 13px;border:0;border-radius:8px;background:#2878d0;color:#fff;font:inherit;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer}
+.external-meeting-button{background:#edf4fc;color:#286db4}
+.video-room-backdrop{z-index:120}
+.video-room-modal{width:min(440px,calc(100vw - 28px));padding:18px;border-radius:14px;background:var(--surface,#fff);color:var(--text,#263445);box-shadow:0 20px 70px #10182835}
+.video-room-stage{display:flex;min-height:230px;flex-direction:column;align-items:center;justify-content:center;gap:9px;margin:14px 0;padding:24px;border-radius:12px;background:#171d2b;color:#fff;text-align:center}
+.video-room-avatar{display:grid;width:76px;height:76px;place-items:center;border-radius:50%;background:#315b9a;color:#fff;font-size:30px;font-weight:600}
+.video-room-stage strong{font-size:16px}
+.video-room-stage span{color:#c3cad5;font-size:12px}
+.video-room-controls{display:flex;justify-content:center;gap:9px;margin:12px 0}
+.video-room-controls button{min-height:38px;padding:0 15px;border:1px solid #dfe3ea;border-radius:8px;background:transparent;color:inherit;font:inherit;font-size:12px;cursor:pointer}
+.video-room-controls button.control-off{background:#fceeee;border-color:#f1d0d0;color:#b53c3c}
+.video-room-primary,.video-room-leave{width:100%;min-height:42px;border:0;border-radius:8px;background:#2878d0;color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.video-room-leave{background:#d94c4c}
+.video-room-note{margin:12px 2px 0;color:#8993a1;font-size:11px;line-height:1.5;text-align:center}
