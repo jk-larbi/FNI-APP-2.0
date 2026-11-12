@@ -1254,3 +1254,14 @@ img,video{max-width:100%}
 /* Verse numbering, swipe-to-reply and personal sticker packs */
 .bible-numbered-verses,.bible-numbered-sent{display:flex;flex-direction:column;gap:6px;margin:8px 0}.bible-numbered-verses p,.bible-numbered-sent p{display:flex;align-items:flex-start;gap:9px;margin:0;max-height:none;overflow:visible}.bible-numbered-verses p b,.bible-numbered-sent p b{flex:0 0 23px;display:grid;place-items:center;min-height:22px;border-radius:6px;background:#e4edf9;color:#245b98;font-size:11px}.bible-numbered-verses p span,.bible-numbered-sent p span{flex:1;color:#38465a;font-size:12px;line-height:1.55}.bible-numbered-sent p span{font-size:14px;color:#29394e}.message-mention{border:0;padding:0;background:transparent;cursor:pointer}.sticker-picker{width:min(300px,86vw);max-height:350px;display:flex;flex-direction:column}.sticker-picker-heading{display:flex;justify-content:space-between;align-items:center;padding:2px 2px 8px;border-bottom:1px solid #edf0f4;color:#34445a;font-size:12px}.sticker-picker-heading button{border:0;border-radius:7px;padding:6px 9px;background:#e7effb;color:#245b98;font-size:11px;font-weight:700}.sticker-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;overflow:auto;padding-top:8px}.sticker-grid button{min-height:58px;display:grid;place-items:center;border:0;border-radius:8px;background:#f5f7fa;font-size:29px}.sticker-grid img{width:100%;height:64px;object-fit:contain}.sent-custom-sticker{display:block;width:min(190px,55vw);max-height:190px;object-fit:contain;margin:3px 0}.message-bubble{touch-action:pan-y}
 @media(max-width:620px){.emoji-picker{right:-48px;bottom:calc(100% + 10px);max-height:48dvh}.emoji-grid{grid-template-columns:repeat(7,minmax(0,1fr))}.sticker-picker{max-height:48dvh}}
+
+/* FNI calls, meeting recording and Saved Messages */
+.video-room-live-actions{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.video-room-record{border:1px solid #cbd5e1;border-radius:24px;padding:11px 18px;background:#fff;color:#263b59;font-weight:650}
+.video-room-recording-status{margin:0;text-align:center;color:#c43d4b;font-size:12px;font-weight:650}
+.video-room-record.recording-active,.recording-active{border:0;border-radius:24px;padding:11px 18px;background:#c43d4b;color:#fff;font-weight:700}
+.saved-recording-card{display:flex;flex-direction:column;gap:9px;min-width:min(260px,70vw);padding:11px;border:1px solid #dce5f0;border-radius:12px;background:#f7f9fc;color:#263b59}
+.saved-recording-card>div{display:flex;flex-direction:column;gap:3px}
+.saved-recording-card strong{font-size:13px;overflow-wrap:anywhere}
+.saved-recording-card small{font-size:10px;color:#718096}
+.saved-recording-card video,.saved-recording-card audio{display:block;width:100%;max-width:420px;border-radius:8px}
