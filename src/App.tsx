@@ -241,7 +241,7 @@ function App() {
                   <div className="setting-option-copy"><strong>{option.label}</strong>{option.description && <span>{option.description}</span>}</div>
                   {option.kind === 'toggle' ? <button className={enabled ? 'switch on' : 'switch'} role="switch" aria-checked={enabled} aria-label={option.label} onClick={() => setToggles(prev => ({...prev, [key]: !enabled}))}><span /></button>
                     : option.kind === 'select' ? <select value={selected} aria-label={option.label} onChange={e => setChoices(prev => ({...prev, [key]: e.target.value}))}>{option.choices?.map(choice => <option key={choice}>{choice}</option>)}</select>
-                    : <button className="setting-action" onClick={() => setActiveAction(option.label)}>Open <ChevronRight size={15} /></button>}
+                    : <button className="setting-action" onClick={() => activeSetting.id === 'calls' ? setSection('calls') : setActiveAction(option.label)}>Open <ChevronRight size={15} /></button>}
                 </div>;
               })}
             </div>
