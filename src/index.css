@@ -334,3 +334,11 @@ button{border:0;cursor:pointer}
 .sticker-preview button{padding:12px;border:1px solid #ffffff14;border-radius:10px;background:#ffffff08;color:inherit;font-size:11px}
 .action-done{width:100%;height:42px;margin-top:14px;border-radius:10px;background:linear-gradient(110deg,#315bdc,#553da6);color:white;font-weight:600}
 @media(max-width:760px){.action-sheet{padding:22px 17px;border-radius:16px}.action-overlay{align-items:end;padding:0}.action-sheet{width:100%;max-height:88dvh;border-radius:20px 20px 0 0;padding-bottom:calc(20px + env(safe-area-inset-bottom))}}
+
+.local-entry{width:100%;display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.local-entry input{width:100%;min-height:40px;padding:10px 11px;border:1px solid #ffffff18;border-radius:9px;background:#0f172d;color:#f0f2ff;font:inherit;font-size:11px}
+.local-entry button{min-height:38px;padding:0 12px;border-radius:9px;background:linear-gradient(110deg,#315bdc,#553da6);color:white;font-size:10px;font-weight:600}
+.local-record{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border:1px solid #ffffff12;border-radius:9px;background:#ffffff07;color:#cbd4ed;text-align:left;font-size:10px;overflow-wrap:anywhere}
+.local-record button{flex-shrink:0;padding:5px 8px;border-radius:7px;background:#ffffff0d;color:#d9bd6a;font-size:9px}
+:root[data-theme="light"] .local-entry input{background:#f7f8fc;color:#1c2742;border-color:#dce2ef}
+:root[data-theme="light"] .local-record{background:#f7f8fc;color:#35415c;border-color:#e2e7f0}
