@@ -46,7 +46,7 @@ export default function App() {
   const language = String(preferences.language || 'Automatic') === 'Automatic' ? detectedLanguage : String(preferences.language);
   const translations: Record<string, Record<string, string>> = {
     French: {
-      Chats: 'Discussions', Contacts: 'Contacts', Calls: 'Appels', 'FNI Community': 'Communauté FNI', Settings: 'Paramètres',
+      Chats: 'Discussions', Contacts: 'Contacts', Calls: 'Appels', Settings: 'Paramètres',
       'All chats': 'Toutes les discussions', Personal: 'Personnels', Groups: 'Groupes', Archived: 'Archivés',
       Account: 'Compte', 'Privacy and Security': 'Confidentialité et sécurité', 'Notifications and Sounds': 'Notifications et sons',
       Appearance: 'Apparence', 'Chat Settings': 'Paramètres des discussions', 'Data and Storage': 'Données et stockage',
@@ -58,7 +58,7 @@ export default function App() {
       'English is the default interface language.': 'L’anglais est la langue par défaut de l’interface.'
     },
     Twi: {
-      Chats: 'Nkɔmmɔbɔ', Contacts: 'Nkurɔfo', Calls: 'Frɛ', 'FNI Community': 'FNI Kuw', Settings: 'Nhyehyɛe',
+      Chats: 'Nkɔmmɔbɔ', Contacts: 'Nkurɔfo', Calls: 'Frɛ', Settings: 'Nhyehyɛe',
       'All chats': 'Nkɔmmɔbɔ nyinaa', Personal: 'Ankorankoro', Groups: 'Akuo', Archived: 'Wɔakora so',
       Account: 'Akontaabu', 'Privacy and Security': 'Kokoam nsɛm ne ahobammɔ', 'Notifications and Sounds': 'Amanneɛbɔ ne nnyigyei',
       Appearance: 'Nhwɛbea', 'Chat Settings': 'Nkɔmmɔbɔ nhyehyɛe', 'Data and Storage': 'Data ne nneɛma a wɔakora so',
