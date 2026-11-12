@@ -1552,3 +1552,111 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
   .ministry-feature-strip{grid-template-columns:1fr}
   .ministry-toast{bottom:calc(82px + env(safe-area-inset-bottom))}
 }
+
+
+/* FNI Ministry feature workspaces — shared app design tokens */
+.ministry-workspace{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--fni-text);font-size:14px}
+.ministry-workspace button,.ministry-workspace input,.ministry-workspace select,.ministry-workspace textarea{font:inherit}
+.ministry-workspace h2,.ministry-workspace h3,.ministry-workspace p{font-family:inherit}
+.ministry-page-title-row{align-items:center}
+.ministry-page-title-row>div{min-width:0}
+.ministry-page-title-row h2{font-size:clamp(23px,3vw,30px);line-height:1.2}
+.ministry-page-title-row p{max-width:620px;font-size:13px}
+.ministry-media-feature,.ministry-event-banner,.ministry-forum-banner,.ministry-prayer-banner,.ministry-checkin-card,.ministry-giving-banner{
+  display:flex;align-items:center;gap:20px;padding:22px;border:1px solid var(--fni-line);border-radius:16px;
+  background:linear-gradient(115deg,color-mix(in srgb,var(--fni-blue) 10%,var(--fni-surface)),color-mix(in srgb,var(--fni-purple) 8%,var(--fni-surface)));
+  box-shadow:var(--fni-shadow);color:var(--fni-text)
+}
+.ministry-media-art{width:190px;min-height:150px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;border-radius:12px;background:linear-gradient(145deg,color-mix(in srgb,var(--fni-blue) 23%,var(--fni-surface-2)),color-mix(in srgb,var(--fni-purple) 18%,var(--fni-surface-2)));color:var(--fni-blue)}
+.ministry-media-emblem{width:62px;height:62px;display:grid;place-items:center;border-radius:50%;background:var(--fni-surface);box-shadow:var(--fni-shadow)}
+.ministry-media-art>span{font-size:9px;font-weight:750;letter-spacing:.15em}
+.ministry-media-copy{min-width:0}
+.ministry-media-copy h3,.ministry-event-banner h3,.ministry-forum-banner h3,.ministry-prayer-banner h3,.ministry-checkin-card h3,.ministry-giving-banner h3{margin:6px 0;font-size:21px;font-weight:650;letter-spacing:-.03em;color:var(--fni-text)}
+.ministry-media-copy p,.ministry-event-banner p,.ministry-forum-banner p,.ministry-prayer-banner p,.ministry-checkin-card p,.ministry-giving-banner p{margin:0 0 14px;color:var(--fni-muted);font-size:13px;line-height:1.65}
+.ministry-feature-strip{margin-top:14px}
+.ministry-feature-strip>div{min-height:104px;padding:16px;gap:9px}
+.ministry-feature-strip>div>svg{width:34px;height:34px;padding:8px;border-radius:10px}
+.ministry-feature-strip strong{font-size:12px}
+.ministry-feature-strip span{font-size:11px;line-height:1.5}
+.ministry-section-heading h3{font-size:19px}
+.ministry-section-heading p{font-size:12px}
+.ministry-draft-card{padding:15px;gap:13px}
+.ministry-draft-type{width:39px;height:39px;border-radius:11px}
+.ministry-draft-copy strong{font-size:13px}
+.ministry-draft-copy span,.ministry-draft-copy small{font-size:11px}
+.ministry-draft-copy p{font-size:12px;line-height:1.6}
+.ministry-empty{padding:35px 18px}
+.ministry-empty strong{font-size:14px}
+.ministry-empty p{max-width:420px;font-size:12px;line-height:1.6}
+.ministry-service-note{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:13px 15px;border:1px solid var(--fni-line);border-radius:10px;background:var(--fni-surface-2);color:var(--fni-muted);font-size:11px;line-height:1.6}
+.ministry-service-note svg{flex-shrink:0;color:var(--fni-blue)}
+.ministry-banner-icon,.ministry-prayer-symbol,.ministry-giving-mark,.ministry-checkin-icon{width:54px;height:54px;display:grid;place-items:center;flex-shrink:0;border-radius:15px;background:color-mix(in srgb,var(--fni-blue) 12%,var(--fni-surface));color:var(--fni-blue)}
+.ministry-event-banner h3,.ministry-forum-banner h3,.ministry-prayer-banner h3{margin:5px 0}
+.ministry-stats-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:13px}
+.ministry-stats-row>div{display:grid;grid-template-columns:24px 1fr;align-items:center;gap:4px 10px;padding:15px;border:1px solid var(--fni-line);border-radius:12px;background:var(--fni-surface)}
+.ministry-stats-row svg{grid-row:span 2;color:var(--fni-blue)}
+.ministry-stats-row strong{font-size:15px;color:var(--fni-text)}
+.ministry-stats-row span{font-size:11px;color:var(--fni-muted)}
+.ministry-tabs{display:flex;gap:5px;width:max-content;max-width:100%;margin:17px 0;padding:4px;border:1px solid var(--fni-line);border-radius:999px;background:var(--fni-surface-2)}
+.ministry-tabs button{padding:8px 15px;border:0;border-radius:999px;background:transparent;color:var(--fni-muted);font-size:12px;cursor:pointer}
+.ministry-tabs button.active{background:var(--fni-surface);color:var(--fni-blue);font-weight:650;box-shadow:var(--fni-shadow)}
+.ministry-resource-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:21px 23px;border:1px solid var(--fni-line);border-radius:15px;background:linear-gradient(115deg,color-mix(in srgb,var(--fni-purple) 11%,var(--fni-surface)),color-mix(in srgb,var(--fni-blue) 9%,var(--fni-surface)));color:var(--fni-blue)}
+.ministry-resource-verse{max-width:580px;color:var(--fni-text);font-family:Georgia,serif;font-size:clamp(16px,2.3vw,21px);line-height:1.5}
+.ministry-resource-verse small{display:block;margin-top:10px;color:var(--fni-muted);font-family:Inter,sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em}
+.ministry-forum-categories{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0}
+.ministry-forum-categories button{padding:8px 13px;border:1px solid var(--fni-line);border-radius:999px;background:var(--fni-surface);color:var(--fni-muted);font-size:11px;cursor:pointer}
+.ministry-forum-categories button.selected{border-color:var(--fni-blue);background:color-mix(in srgb,var(--fni-blue) 9%,var(--fni-surface));color:var(--fni-blue)}
+.ministry-prayer-banner{background:linear-gradient(115deg,color-mix(in srgb,var(--fni-purple) 12%,var(--fni-surface)),color-mix(in srgb,var(--fni-blue) 8%,var(--fni-surface)))}
+.ministry-prayer-symbol{background:color-mix(in srgb,var(--fni-purple) 12%,var(--fni-surface));color:var(--fni-purple)}
+.ministry-prayer-prompt{display:flex;align-items:center;gap:9px;margin:13px 0;padding:12px 14px;border:1px solid var(--fni-line);border-radius:10px;background:var(--fni-surface-2);color:var(--fni-muted);font-size:12px}
+.ministry-prayer-prompt svg{flex-shrink:0;color:var(--fni-purple)}
+.ministry-checkin-card{display:block}
+.ministry-checkin-top{display:flex;justify-content:space-between;gap:16px;align-items:center}
+.ministry-checkin-stats{display:flex;gap:35px;margin-top:18px;padding-top:15px;border-top:1px solid var(--fni-line)}
+.ministry-checkin-stats div{display:flex;flex-direction:column;gap:3px}
+.ministry-checkin-stats strong{font-size:18px;color:var(--fni-text)}
+.ministry-checkin-stats span{font-size:10px;color:var(--fni-muted)}
+.ministry-giving-banner{display:block;text-align:center;padding:27px}
+.ministry-giving-mark{margin:0 auto 12px}
+.ministry-giving-banner h3{font-size:24px}
+.ministry-giving-banner p{max-width:560px;margin:0 auto}
+.ministry-giving-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:13px}
+.ministry-giving-options>div{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 10px;border:1px solid var(--fni-line);border-radius:12px;background:var(--fni-surface)}
+.ministry-giving-option-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--fni-surface-2);color:var(--fni-blue)}
+.ministry-giving-options strong{font-size:12px;color:var(--fni-text)}
+.ministry-giving-options small{font-size:10px;color:var(--fni-muted)}
+.ministry-payment-methods{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-top:15px;padding:13px 15px;border:1px solid var(--fni-line);border-radius:10px;background:var(--fni-surface)}
+.ministry-payment-methods strong{margin-right:auto;font-size:11px;color:var(--fni-muted)}
+.ministry-payment-methods span{padding:5px 8px;border:1px solid var(--fni-line);border-radius:6px;color:var(--fni-text);font-size:10px;font-weight:700}
+.ministry-entry-form{margin-top:16px;padding:19px;border:1px solid var(--fni-line);border-radius:14px;background:var(--fni-surface);box-shadow:var(--fni-shadow)}
+.ministry-entry-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.ministry-entry-head h3{margin:5px 0 0;font-size:17px;font-weight:650;color:var(--fni-text)}
+.ministry-entry-head>button{width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--fni-line);border-radius:8px;background:var(--fni-surface-2);color:var(--fni-muted)}
+.ministry-entry-fields{display:grid;grid-template-columns:1fr;gap:12px}
+.ministry-entry-fields>label{display:flex;flex-direction:column;gap:7px;color:var(--fni-text);font-size:12px;font-weight:600}
+.ministry-entry-fields input,.ministry-entry-fields select,.ministry-entry-fields textarea{width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--fni-line);border-radius:9px;outline:none;background:var(--fni-surface-2);color:var(--fni-text);font-size:13px}
+.ministry-entry-fields textarea{resize:vertical;min-height:92px}
+.ministry-entry-fields input:focus,.ministry-entry-fields select:focus,.ministry-entry-fields textarea:focus{border-color:var(--fni-blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--fni-blue) 12%,transparent)}
+.ministry-entry-fields .ministry-checkbox{display:flex;flex-direction:row;align-items:center;gap:9px;font-weight:500}
+.ministry-checkbox input{width:16px;min-height:16px;accent-color:var(--fni-blue)}
+.ministry-no-results{grid-column:1/-1;padding:20px;border:1px dashed var(--fni-line);border-radius:12px;color:var(--fni-muted);font-size:12px;text-align:center}
+@media(max-width:760px){
+ .ministry-media-feature,.ministry-event-banner,.ministry-forum-banner,.ministry-prayer-banner{align-items:flex-start;gap:13px;padding:16px}
+ .ministry-media-art{width:92px;min-height:110px}
+ .ministry-media-emblem{width:48px;height:48px}
+ .ministry-media-copy h3,.ministry-event-banner h3,.ministry-forum-banner h3,.ministry-prayer-banner h3{font-size:17px}
+ .ministry-media-copy p,.ministry-event-banner p,.ministry-forum-banner p,.ministry-prayer-banner p{font-size:11px}
+ .ministry-media-copy .ministry-primary-action{white-space:normal;text-align:left}
+ .ministry-feature-strip>div{min-height:0}
+ .ministry-stats-row{gap:8px}
+ .ministry-giving-options{gap:7px}
+ .ministry-giving-options>div{padding:13px 6px}
+ .ministry-giving-options strong{font-size:11px}
+ .ministry-giving-options small{font-size:9px;text-align:center}
+ .ministry-payment-methods{gap:6px}
+ .ministry-payment-methods strong{width:100%}
+ .ministry-entry-form{padding:15px}
+ .ministry-checkin-stats{gap:22px}
+ .ministry-page-title-row{align-items:flex-start}
+ .ministry-page-title-row .ministry-primary-action{align-self:flex-start}
+}
