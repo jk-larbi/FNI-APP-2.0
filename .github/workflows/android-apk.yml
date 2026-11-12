@@ -32,17 +32,19 @@ jobs:
           java-version: '21'
 
       - name: Set up Android SDK
-        run: |
-          echo "ANDROID_HOME=${ANDROID_HOME:-$ANDROID_SDK_ROOT}" >> "$GITHUB_ENV"
-          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-$ANDROID_HOME}" >> "$GITHUB_ENV"
-          sdkmanager --version
+        uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            platform-tools
+            platforms;android-35
+            build-tools;35.0.0
 
       - name: Install required Android SDK packages
         run: |
           yes | sdkmanager --licenses
           sdkmanager --install "platform-tools"
-          sdkmanager --install "platforms;android-36"
-          sdkmanager --install "build-tools;36.0.0"
+          sdkmanager --install "platforms;android-35"
+          sdkmanager --install "build-tools;35.0.0"
 
       - name: Install JavaScript dependencies
         run: npm install
