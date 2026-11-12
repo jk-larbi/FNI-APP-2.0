@@ -18,6 +18,7 @@ export default function App() {
     catch { return {}; }
   });
   const [chatOptionsOpen, setChatOptionsOpen] = useState(false);
+  const [chatInfoOpen, setChatInfoOpen] = useState(false);
   const [mutedChats, setMutedChats] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-muted') || '[]'); }
     catch { return []; }
@@ -254,7 +255,7 @@ export default function App() {
             <header className="active-chat-header">
               <button className="icon-button chat-back-button" aria-label="Back to chats" onClick={() => setActiveChat('')}><ArrowLeft /></button>
               <div className="chat-person-avatar">{activeChat.replace('@','').slice(0,1).toUpperCase()}</div>
-              <div className="chat-person-details"><strong>{activeChat}</strong><span>FNI member</span></div>
+              <button className="chat-person-details chat-info-trigger" onClick={() => setChatInfoOpen(true)} aria-label="View chat information"><strong>{activeChat}</strong><span>FNI member</span></button>
               <div className="active-chat-actions">
                 <button className="icon-button" aria-label="Search messages" title="Search messages" onClick={() => { setChatSearchOpen((open) => !open); setChatSearch(''); }}><Search /></button>
                 <button className="icon-button" aria-label="Voice call"><PhoneCall /></button>
@@ -337,6 +338,19 @@ export default function App() {
         )}
       </section>
 
+      {chatInfoOpen && activeChat && (
+        <div className="modal-backdrop chat-info-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setChatInfoOpen(false); }}>
+          <section className="chat-info-modal" role="dialog" aria-modal="true" aria-label="Chat information">
+            <div className="modal-heading"><h2>Chat information</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setChatInfoOpen(false)}><X /></button></div>
+            <div className="chat-info-profile"><div className="chat-info-avatar">{activeChat.replace('@','').slice(0,1).toUpperCase()}</div><strong>{activeChat}</strong><span>FNI member</span></div>
+            <div className="chat-info-stat"><span>Messages</span><strong>{messages.length}</strong></div>
+            <div className="chat-info-stat"><span>Photos and videos</span><strong>{messages.filter((message) => !!message.mediaType).length}</strong></div>
+            <div className="chat-info-stat"><span>Notifications</span><strong>{mutedChats.includes(activeChat) ? 'Muted' : 'On'}</strong></div>
+            <div className="chat-info-actions"><button onClick={() => { setMutedChats((current) => current.includes(activeChat) ? current.filter((chat) => chat !== activeChat) : [...current, activeChat]); }}>{mutedChats.includes(activeChat) ? 'Unmute notifications' : 'Mute notifications'}</button><button onClick={() => setChatInfoOpen(false)}>Done</button></div>
+            <p className="chat-info-note">This preview shows information available on this device. Member profiles will appear when FNI accounts are connected.</p>
+          </section>
+        </div>
+      )}
       {forwardingMessage && (
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setForwardingMessage(null); }}>
           <form className="new-chat-modal" onSubmit={(event) => { event.preventDefault(); confirmForward(); }}>
