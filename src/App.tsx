@@ -222,7 +222,7 @@ function App() {
         </div>
       </header>
 
-      {section === 'calls' ? <CallingWorkspace initialGroup={callGroup} onClearInitialGroup={() => setCallGroup('')} /> : section === 'settings' ? <div className="settings-page">
+      {section === 'calls' ? null : section === 'settings' ? <div className="settings-page">
         <div className="settings-intro"><div><span className="settings-kicker">YOUR FNI EXPERIENCE</span><h2>{t('Settings')}</h2><p>Manage your account, privacy, preferences and ministry experience.</p></div><div className="settings-profile"><div className="profile-avatar">F</div><div><strong>FNI Member</strong><span>Account setup pending</span></div></div></div>
         <div className="settings-layout">
           <aside className="settings-menu">
@@ -262,6 +262,7 @@ function App() {
         </section>
         <div className="bottom-note"><Bookmark size={15} /><span>FNI is a private space for fellowship, growth and service.</span></div>
       </div>}
+      <CallingWorkspace isVisible={section === 'calls'} initialGroup={callGroup} onClearInitialGroup={() => setCallGroup('')} onNavigateToCalls={() => setSection('calls')} />
       <nav className="mobile-nav" aria-label="Mobile navigation">
         {sections.map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'mobile-nav-item active' : 'mobile-nav-item'} onClick={() => { setSection(item.id); setMenuOpen(false); }}><Icon size={19} /><span>{t(item.label === 'Cell groups' ? 'Cell groups' : item.label === 'Chats' ? 'Chats' : item.label)}</span></button>; })}
         <button className={section === 'settings' ? 'mobile-nav-item active' : 'mobile-nav-item'} onClick={openSettings} aria-current={section === 'settings' ? 'page' : undefined}><Settings size={19} /><span>Settings</span></button>
