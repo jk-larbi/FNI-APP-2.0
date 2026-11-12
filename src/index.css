@@ -3615,3 +3615,31 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
 @media (prefers-reduced-motion:reduce){
   .mobile-more-sheet{animation:none!important}
 }
+
+/* Message context actions: touch long-press and desktop right-click. */
+.fni-message-menu-dismiss{position:fixed;inset:0;z-index:160;background:transparent;cursor:default}
+.fni-message-context-menu{position:fixed;z-index:161;width:208px;max-height:min(78vh,430px);overflow-y:auto;padding:6px;background:#fff;border:1px solid #e5e9f0;border-radius:13px;box-shadow:0 12px 36px #101b3326;overscroll-behavior:contain}
+.fni-message-context-menu button{display:flex;width:100%;min-height:40px;align-items:center;gap:11px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:#253149;text-align:left;font-size:13px;font-weight:500}
+.fni-message-context-menu button:hover,.fni-message-context-menu button:focus-visible{background:#f1f4fa;outline:none}
+.fni-message-context-menu button svg{color:#66748c;flex:0 0 auto}
+.fni-message-context-menu button.danger{color:#c43b48}
+.fni-message-context-menu button.danger svg{color:#c43b48}
+.fni-group-chat-entry{position:relative;touch-action:pan-y}
+.fni-group-chat-entry.is-message-selected .fni-group-chat-bubble{outline:2px solid #5278d5;outline-offset:2px;background:#e9f0ff}
+.fni-message-pinned-label{display:flex;align-items:center;gap:5px;margin:0 0 6px;color:#173b8f;font-size:10px;font-weight:700}
+.fni-chat-message-media{display:block;max-width:min(100%,340px);max-height:360px;object-fit:contain;border-radius:10px;margin:0 0 7px}
+.fni-message-selection-bar{position:relative;z-index:5;display:flex;align-items:center;gap:10px;padding:9px 12px;background:#173b8f;color:#fff;font-size:12px}
+.fni-message-selection-bar span{flex:1;font-weight:650}
+.fni-message-selection-bar button{padding:7px 10px;border:1px solid #ffffff55;border-radius:8px;background:#ffffff12;color:#fff;font-size:11px}
+:root[data-theme="dark"] .fni-message-context-menu{background:#222634;border-color:#383e50;box-shadow:0 12px 36px #0008}
+:root[data-theme="dark"] .fni-message-context-menu button{color:#f4f5fa}
+:root[data-theme="dark"] .fni-message-context-menu button:hover,:root[data-theme="dark"] .fni-message-context-menu button:focus-visible{background:#303b59}
+:root[data-theme="dark"] .fni-message-context-menu button svg{color:#a7aec0}
+:root[data-theme="dark"] .fni-message-pinned-label{color:#e6bb52}
+@media(max-width:760px){
+ .fni-message-context-menu{width:min(220px,calc(100vw - 16px));border-radius:14px;padding:7px}
+ .fni-message-context-menu button{min-height:43px;font-size:14px}
+ .fni-message-context-menu button svg{width:18px;height:18px}
+ .fni-message-selection-bar{padding-bottom:max(9px,env(safe-area-inset-bottom))}
+ .fni-chat-message-media{max-width:min(76vw,330px);max-height:42vh}
+}
