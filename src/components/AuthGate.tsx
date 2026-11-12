@@ -117,7 +117,7 @@ export default function AuthGate({ onAuthenticated }: Props) {
           {error && <div className="fni-auth-error" role="alert">{error}</div>}
           <button className="fni-auth-primary" type="submit" disabled={busy}>{busy?'Checking access…':screen==='signup'?'Create account':screen==='login'?'Log in':'Access administration'} <span>→</span></button>
         </form>
-        {screen === 'signup' ? <p className="fni-auth-switch">Already part of FNI? <button onClick={()=>go('login')}>Log in</button></p> : screen === 'login' ? <p className="fni-auth-switch">New to FNI? <button onClick={()=>go('signup')}>Create an account</button></p> : <div className="fni-demo-hint"><ShieldCheck size={15}/> Demo administrator: <strong>fniadmin@gmail.com / admin123</strong></div>}
+        {screen === 'signup' ? <><p className="fni-auth-switch">Already part of FNI? <button onClick={()=>go('login')}>Log in</button></p><button className="fni-auth-secondary fni-demo-bypass" type="button" onClick={() => enter({ name: 'FNI Guest', email: 'guest@fni.demo', role: 'member' })}>Explore FNI demo <span>→</span></button><p className="fni-auth-legal">Explore the app without creating an account. Demo activity is stored only on this device.</p></> : screen === 'login' ? <p className="fni-auth-switch">New to FNI? <button onClick={()=>go('signup')}>Create an account</button></p> : <div className="fni-demo-hint"><ShieldCheck size={15}/> Demo administrator: <strong>fniadmin@gmail.com / admin123</strong></div>}
       </>}
       <div className="fni-auth-foot"><span>FNI CONNECT</span><i/> <span>COMMUNITY • FAITH • PURPOSE</span></div>
     </section>
