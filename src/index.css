@@ -1288,3 +1288,31 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
 .msg-pin-button{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border:1px solid var(--border,#e6e8ed);border-radius:9px;background:var(--surface,#fff);color:var(--text-muted,#747985);cursor:pointer}
 .msg-pin-button.active{background:var(--accent-soft,#edf3ff);border-color:var(--accent,#2463d3);color:var(--accent,#2463d3)}
 @media(max-width:680px){.msg-saved-chat{padding:11px}.msg-saved-chat span{font-size:10px}.msg-pin-button{width:34px;flex-basis:34px}}
+
+
+/* Saved Messages: dark surfaces and high-contrast text */
+.saved-cloud{color:#eef1ff}
+.saved-cloud-head h2,.saved-section-title h3,.saved-item-title,.saved-empty b{color:#f2f4ff}
+.saved-cloud-head p,.saved-section-title p,.saved-usage,.saved-usage span,.saved-item-copy p,.saved-item-copy small,.saved-file-name,.saved-empty p,.saved-cloud-foot{color:#aab4d0}
+.saved-usage,.saved-note-editor,.saved-folder-create,.saved-folder-list,.saved-search,.saved-sort,.saved-empty,.saved-notice{background:#151b30;border-color:#303a59;color:#e8ecff}
+.saved-note-editor input,.saved-note-editor textarea,.saved-folder-create input,.saved-editor-bottom select,.saved-search input{background:#0e1426;border-color:#35405f;color:#f1f4ff}
+.saved-note-editor input::placeholder,.saved-note-editor textarea::placeholder,.saved-folder-create input::placeholder,.saved-search input::placeholder{color:#8793b2}
+.saved-folder-list>button,.saved-folder>button:first-child{color:#c5cde3}
+.saved-folder-list button span{color:#98a5c5}
+.saved-folder-list>button.active,.saved-folder.active>button:first-child{background:#26365f;color:#e8edff}
+.saved-folder-delete,.saved-section-title>button,.saved-icon-button{color:#aab4d0}
+.saved-sort{color:#c5cde3}
+.saved-filter-row button{border-color:#35405f;color:#c5cde3;background:#151b30}
+.saved-filter-row button.active{background:#315bdc;border-color:#315bdc;color:#fff}
+.saved-item-list{border-color:#303a59}
+.saved-item{border-color:#303a59}
+.saved-item-icon{background:#26365f;color:#a9c0ff}
+.saved-item-icon.image,.saved-item-icon.video{background:#30274f;color:#c5aaff}
+.saved-item-icon.document{background:#49391e;color:#f0ce78}
+.saved-item-actions button{color:#aab4d0}
+.saved-item-actions button:hover{background:#26304a;color:#fff}
+.saved-empty>div{background:#26365f;color:#b9caff}
+.saved-cloud-foot{background:#151b30;border:1px solid #303a59}
+.saved-notice{box-shadow:0 8px 28px #0007}
+.saved-notice button{color:#c5cde3}
+.saved-file-preview{background:#0e1426}
