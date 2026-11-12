@@ -3,7 +3,7 @@ import { Menu, Search, Plus, MessageCircle, Users, Phone, Settings, ChevronDown,
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups';
-type Message = { id: number; text: string; time: string };
+type Message = { id: number; text: string; time: string; replyTo?: string };
 
 export default function App() {
   const [section, setSection] = useState<Section>('Chats');
@@ -14,7 +14,7 @@ export default function App() {
   const [username, setUsername] = useState('');
   const [activeChat, setActiveChat] = useState('');
   const [draft, setDraft] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);\n  const [replyTo, setReplyTo] = useState<Message | null>(null);\n  const [openMessageMenu, setOpenMessageMenu] = useState<number | null>(null);
 
   const navigation = [
     { label: 'Chats' as const, icon: MessageCircle },
@@ -110,9 +110,23 @@ export default function App() {
               {messages.length === 0 ? (
                 <div className="first-message-note"><span>Conversation started</span><p>Send a message to begin.</p></div>
               ) : messages.map((message) => (
-                <div className="message-row outgoing" key={message.id}><div className="message-bubble">{message.text}<span>{message.time} <b>✓✓</b></span></div></div>
+                <div className="message-row outgoing" key={message.id}>
+                  <div className="message-action-wrap">
+                    <button className="message-more-button" aria-label="Message actions" onClick={() => setOpenMessageMenu(openMessageMenu === message.id ? null : message.id)}><MoreVertical size={17} /></button>
+                    {openMessageMenu === message.id && <div className="message-action-menu">
+                      <button onClick={() => { setReplyTo(message); setOpenMessageMenu(null); }}>Reply</button>
+                      <button onClick={() => { void navigator.clipboard?.writeText(message.text); setOpenMessageMenu(null); }}>Copy text</button>
+                      <button className="delete-action" onClick={() => { setMessages((current) => current.filter((item) => item.id !== message.id)); setOpenMessageMenu(null); }}>Delete</button>
+                    </div>}
+                    <div className="message-bubble">
+                      {message.replyTo && <div className="quoted-message">{message.replyTo}</div>}
+                      {message.text}<span>{message.time} <b>✓✓</b></span>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
+            {replyTo && <div className="reply-preview"><div><strong>Replying to your message</strong><span>{replyTo.text}</span></div><button onClick={() => setReplyTo(null)} aria-label="Cancel reply"><X size={17} /></button></div>}
             <div className="message-composer">
               <button className="composer-icon" aria-label="Attach file"><Paperclip /></button>
               <textarea value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }} placeholder="Message" rows={1} />
