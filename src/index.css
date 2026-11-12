@@ -1675,3 +1675,6 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
  .ministry-stats-row>div{min-width:0}
  .ministry-update-emoji{font-size:18px}
 }
+
+.ministry-external-link{display:inline-flex;align-items:center;gap:4px;width:max-content;max-width:100%;margin:3px 0 5px;color:var(--fni-blue);font-size:11px;font-weight:650;text-decoration:none}
+.ministry-external-link:hover{text-decoration:underline}
