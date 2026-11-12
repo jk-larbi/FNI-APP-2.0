@@ -2011,3 +2011,171 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
 .fni-admin-audit-row span,.fni-admin-audit-row time { color:var(--muted,#777); font-size:12px; line-height:1.45; }
 .fni-admin-audit-row time { flex:0 0 auto; text-align:right; }
 @media(max-width:640px) { .fni-admin-links { grid-template-columns:1fr; } .fni-admin-audit-row { flex-direction:column; gap:5px; } .fni-admin-audit-row time { text-align:left; } }
+
+
+/* FNI THEME CONSISTENCY AUDIT
+   Semantic colour layer only: preserve the existing layout, spacing, components and branding. */
+:root{
+  --fni-bg:#F4F5F8;--fni-app-bg:#F4F5F8;--fni-surface:#FFFFFF;--fni-surface-2:#F7F8FA;
+  --fni-elevated:#FFFFFF;--fni-text:#20232B;--fni-muted:#747985;--fni-line:#E6E8ED;
+  --fni-border:#E6E8ED;--fni-blue:#2463D3;--fni-primary:#2463D3;--fni-purple:#30245F;
+  --fni-gold:#D9A52B;--fni-accent:#D9A52B;--fni-green:#239B67;--fni-red:#D34B4B;
+}
+:root[data-theme="dark"]{
+  --fni-bg:#12141B;--fni-app-bg:#12141B;--fni-surface:#1C202A;--fni-surface-2:#252A35;
+  --fni-elevated:#343B49;--fni-text:#F2F3F7;--fni-muted:#A1A8B5;--fni-line:#343A46;
+  --fni-border:#343A46;--fni-blue:#6F96F0;--fni-primary:#6F96F0;--fni-purple:#8A7AC5;
+  --fni-gold:#D9B65D;--fni-accent:#D9B65D;--fni-green:#55C995;--fni-red:#F08080;
+}
+html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:light}
+:root[data-theme="dark"]{color-scheme:dark}
+.app-shell,.main-panel,.content,.settings-page,.ac-workspace,.fni-admin-workspace,
+.calling-workspace,.notifications-workspace,.media-hub-page,.ministry-workspace,
+.biblebot-workspace,.saved-cloud,.fni-stories,.msg-workspace{
+  color:var(--fni-text);
+}
+.app-shell{background:var(--fni-bg)}
+/* Common cards and nested surfaces */
+.fni-admin-panel,.fni-admin-stats>button,.fni-admin-stats>div,
+.ac-panel,.ac-theme-item,.ac-consent-card,.ac-contact-item,
+.media-hub-card,.ministry-area-card,.ministry-draft-card,.ministry-checkin-card,
+.ministry-modal,.notification-item,.notification-test-panel,.notification-pref-section,
+.muted-record,.call-panel,.call-start-panel,.call-history-panel,.rooms-list-panel,
+.meeting-stage-panel,.meeting-side-panel,.meeting-room-footer,.incoming-call-card,
+.saved-item,.saved-note-editor,.saved-folder-list,.story-composer,.story-viewer,
+.biblebot-passage,.biblebot-compare,.biblebot-topic-results,.biblebot-empty{
+  background:var(--fni-surface)!important;
+  color:var(--fni-text);
+  border-color:var(--fni-line)!important;
+}
+.fni-admin-heading h2,.fni-admin-panel h3,.fni-admin-panel-title h3,
+.ac-heading h2,.ac-panel-heading h3,.ac-subheading h4,
+.media-hub-heading h2,.media-hub-card-copy strong,
+.ministry-page-heading h2,.ministry-section-heading h3,.ministry-area-copy strong,
+.ministry-draft-copy strong,.ministry-modal-head h3,
+.notifications-heading h2,.notification-item-copy strong,
+.calling-heading h2,.call-panel-title h3,.call-history-copy strong,
+.meeting-room-heading h2,.saved-section-title h3,.saved-item-title,
+.fni-stories-head h2,.story-composer h3,.biblebot-intro h3,
+.biblebot-passage-head strong,.msg-heading h2,.msg-panel-title h3,
+.msg-group-copy strong,.msg-admin-head strong{
+  color:var(--fni-text);
+}
+.fni-admin-panel p,.fni-admin-panel small,.fni-admin-empty span,
+.ac-heading p,.ac-panel-heading p,.ac-subheading>span,.ac-small-note,.ac-empty-note,
+.ac-contact-empty span,.ac-contact-meta,.media-hub-card-copy span,.media-hub-footnote,
+.ministry-page-heading p,.ministry-area-copy small,.ministry-draft-copy span,
+.ministry-governance p,.ministry-permission-note,.ministry-service-note,
+.ministry-form-hint,.notification-item-copy span,.notification-local-note,
+.notification-pref-copy span,.call-hint,.call-muted-copy,.call-system-note,
+.call-permission-note,.call-stage-disclaimer,.saved-cloud-foot,.saved-item-copy span,
+.saved-empty span,.stories-bottom,.fni-story-hint,.biblebot-footnote,
+.biblebot-empty p,.biblebot-command-hint,.msg-hint,.msg-info,.msg-footer-note{
+  color:var(--fni-muted);
+}
+/* Inputs, selects, textareas, search controls and placeholders */
+.app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.app-shell textarea,.app-shell select,
+.fni-auth-page input:not([type="checkbox"]):not([type="radio"]),
+.fni-admin-form input,.fni-admin-form select,.fni-admin-search input,
+.ac-theme-name input,.ac-individual-row input,.ac-contact-search input,
+.ac-manual-contact input,.ac-username-search input,
+.notification-test-fields input,.quiet-hours-fields input,
+.mute-conversation-form input,.call-field input,.call-field select,
+.call-inline-entry input,.biblebot-search input{
+  background:var(--fni-surface-2);
+  color:var(--fni-text);
+  border-color:var(--fni-line);
+  caret-color:var(--fni-blue);
+}
+.app-shell input::placeholder,.app-shell textarea::placeholder,
+.fni-auth-page input::placeholder,.fni-admin-workspace input::placeholder,
+.ac-workspace input::placeholder,.ac-workspace textarea::placeholder,
+.calling-workspace input::placeholder,.calling-workspace textarea::placeholder,
+.biblebot-search input::placeholder{
+  color:var(--fni-muted);opacity:1;
+}
+.app-shell input:focus-visible,.app-shell textarea:focus-visible,.app-shell select:focus-visible,
+.app-shell button:focus-visible,.fni-auth-page input:focus-visible,
+.fni-auth-page button:focus-visible,.fni-admin-workspace button:focus-visible,
+.ac-workspace button:focus-visible,.calling-workspace button:focus-visible,
+.notifications-workspace button:focus-visible,.ministry-workspace button:focus-visible,
+.saved-cloud button:focus-visible,.fni-stories button:focus-visible{
+  outline:2px solid var(--fni-blue);outline-offset:2px;
+}
+.app-shell button:disabled,.app-shell input:disabled,.app-shell select:disabled,
+.app-shell textarea:disabled{opacity:.52;cursor:not-allowed}
+.app-shell hr,.fni-admin-panel,.ac-panel,.media-hub-card,.ministry-draft-card,
+.notification-item,.call-panel,.saved-item{border-color:var(--fni-line)}
+/* Module-specific quiet surfaces */
+.fni-admin-notice,.fni-admin-empty,.fni-admin-search,.ac-preview,
+.ac-contact-empty,.ac-notice,.ministry-governance,.ministry-permission-note,
+.ministry-service-note,.ministry-form-hint,.ministry-entry-form,
+.notification-empty,.notification-local-note,.notification-inline-notice,
+.notification-pref-row,.muted-empty,.call-notice,.call-hint,.call-device-summary,
+.call-permission-note,.call-system-note,.call-empty,.call-privacy-panel,
+.saved-empty,.saved-notice,.biblebot-command-hint,.biblebot-error,
+.biblebot-empty,.msg-empty,.msg-info,.msg-footer-note{
+  background:var(--fni-surface-2);
+  color:var(--fni-muted);
+  border-color:var(--fni-line);
+}
+.fni-admin-assignment,.fni-admin-audit-row,.ac-setting-row,.ac-contact-item,
+.notification-pref-row,.notification-control-row,.call-history-row,
+.call-setting-row,.saved-item,.story-archive-row{
+  border-color:var(--fni-line);
+}
+.fni-admin-avatar,.ac-contact-avatar,.media-hub-mark,.ministry-area-icon,
+.ministry-checkin-icon,.notification-pref-icon,.call-person-avatar,
+.call-history-icon,.saved-file-preview,.saved-saved-avatar{
+  border-color:var(--fni-line);
+}
+.fni-admin-links>button,.fni-admin-stats>button,.fni-admin-form button,
+.ac-secondary,.ac-text-button,.ac-upload-button,.ac-import-button,
+.setting-action,.call-secondary,.call-control,.call-back,
+.ministry-secondary-action,.notification-settings-button,
+.saved-icon-button,.profile-text-button{
+  color:var(--fni-text);
+  border-color:var(--fni-line);
+}
+.fni-admin-links>button:hover,.fni-admin-stats>button:hover,
+.ac-theme-item:hover,.media-hub-card:hover,.ministry-area-card:hover,
+.ministry-draft-card:hover,.notification-item:hover,.saved-item:hover{
+  border-color:var(--fni-blue);
+}
+.ac-tabs button,.ac-theme-modes button,.ac-contact-tabs button,
+.ministry-tabs button,.ministry-resource-tabs button,
+.notification-tabs button,.calling-tabs button,.msg-tabs button,
+.story-kind-tabs button,.folder{
+  color:var(--fni-muted);
+}
+.ac-tabs button.active,.ac-theme-modes button.selected,
+.ac-contact-tabs button.active,.ministry-tabs button.active,
+.ministry-resource-tabs button.active,.notification-tabs button.active,
+.calling-tabs button.active,.msg-tabs button.active,.story-kind-tabs button.active,
+.folder.active{
+  color:var(--fni-blue);
+  background:color-mix(in srgb,var(--fni-blue) 11%,var(--fni-surface));
+  border-color:color-mix(in srgb,var(--fni-blue) 30%,var(--fni-line));
+}
+.ac-preview-bubbles .incoming{background:var(--fni-incoming);color:var(--fni-incoming-text)}
+.ac-preview-bubbles .outgoing{background:var(--fni-outgoing);color:var(--fni-outgoing-text)}
+/* Keep semantic status colours distinct from theme surfaces. */
+.fni-admin-notice svg,.ac-notice svg,.notification-inline-notice svg{color:var(--fni-blue)}
+:root[data-theme="light"] .fni-auth-page{color:#20232B}
+:root[data-theme="light"] .fni-auth-card{background:#FFFFFF;color:#20232B;border-color:#E6E8ED}
+:root[data-theme="light"] .fni-auth-heading h1,:root[data-theme="light"] .fni-auth-welcome h1{color:#20232B}
+:root[data-theme="light"] .fni-auth-heading p,:root[data-theme="light"] .fni-auth-welcome p{color:#626B7B}
+:root[data-theme="light"] .fni-auth-form label{color:#36425E}
+:root[data-theme="light"] .fni-auth-input{background:#F7F8FA;border-color:#DCE2EF;color:#20232B}
+:root[data-theme="light"] .fni-auth-input input{background:transparent;color:#20232B}
+:root[data-theme="light"] .fni-auth-back,:root[data-theme="light"] .fni-auth-switch{color:#526078}
+:root[data-theme="dark"] .fni-auth-page{color:#F2F3F7}
+:root[data-theme="dark"] .fni-auth-card{background:#1C202A;color:#F2F3F7;border-color:#343A46}
+:root[data-theme="dark"] .fni-auth-heading h1,:root[data-theme="dark"] .fni-auth-welcome h1{color:#F2F3F7}
+:root[data-theme="dark"] .fni-auth-heading p,:root[data-theme="dark"] .fni-auth-welcome p{color:#A1A8B5}
+:root[data-theme="dark"] .fni-auth-form label{color:#D9DEEA}
+:root[data-theme="dark"] .fni-auth-input{background:#252A35;border-color:#343A46;color:#F2F3F7}
+:root[data-theme="dark"] .fni-auth-input input{background:transparent;color:#F2F3F7}
+:root[data-theme="dark"] .fni-auth-back,:root[data-theme="dark"] .fni-auth-switch{color:#B9C2D5}
+@media(prefers-reduced-motion:reduce){.app-shell *,.fni-auth-page *{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
