@@ -11,6 +11,14 @@ function SettingToggle({ title, description, checked, onChange }: { title: strin
 }
 
 export default function App() {
+  const [splashVisible, setSplashVisible] = useState(true);
+  const [splashLeaving, setSplashLeaving] = useState(false);
+  useEffect(() => {
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const leaveTimer = window.setTimeout(() => setSplashLeaving(true), reduced ? 450 : 1900);
+    const hideTimer = window.setTimeout(() => setSplashVisible(false), reduced ? 650 : 2550);
+    return () => { window.clearTimeout(leaveTimer); window.clearTimeout(hideTimer); };
+  }, []);
   const [section, setSection] = useState<Section>('Chats');
   const [settingsCategory, setSettingsCategory] = useState('Account');
   const [settingsMobileDetail, setSettingsMobileDetail] = useState(false);
@@ -618,6 +626,18 @@ export default function App() {
 
   return (
     <main data-theme={resolvedTheme.toLowerCase()} data-chat-density={preferences.compactChatList ? 'compact' : 'comfortable'} data-message-size={String(preferences.chatTextSize || 'Normal').toLowerCase()} className={`app-shell ${section === 'Settings' ? 'settings-mode' : ''} ${section === 'FNI Community' ? 'community-mode' : ''}`}>
+      {splashVisible && <div className={`fni-splash-screen ${splashLeaving ? 'is-leaving' : ''}`} role="status" aria-label="FNI is starting">
+        <div className="splash-orbit splash-orbit-one" />
+        <div className="splash-orbit splash-orbit-two" />
+        <div className="splash-content">
+          <div className="splash-logo-frame"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI logo" /></div>
+          <div className="splash-wordmark">FNI</div>
+          <div className="splash-full-name">FORERUNNERS NETWORK<br/>INTERNATIONAL</div>
+          <div className="splash-rule"><span /></div>
+          <p className="splash-tagline">Faith. Fellowship. Forward.</p>
+        </div>
+        <div className="splash-footer"><span /> CONNECTING THE FORERUNNERS <span /></div>
+      </div>}
       <aside className={`navigation-drawer ${menuOpen ? 'drawer-open' : ''}`}>
         <div className="drawer-heading">
           <div className="brand-lockup">
