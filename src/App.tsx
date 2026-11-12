@@ -15,6 +15,11 @@ export default function App() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [meetingNotifications, setMeetingNotifications] = useState<{ id: number; title: string; body: string; time: string; read: boolean; groupId: string }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-meeting-notifications') || '[]'); } catch { return []; } });
   const [newGroupOpen, setNewGroupOpen] = useState(false);
+  const [findGroupsOpen, setFindGroupsOpen] = useState(false);
+  const [groupDirectorySearch, setGroupDirectorySearch] = useState('');
+  const [inviteCodeInput, setInviteCodeInput] = useState('');
+  const [groupJoinRequests, setGroupJoinRequests] = useState<{ id: string; groupId: string; groupName: string; requester: string; createdAt: string; status: 'Pending' | 'Approved' | 'Declined' }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-join-requests') || '[]'); } catch { return []; } });
+
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [groupMemberInput, setGroupMemberInput] = useState('');
@@ -90,6 +95,7 @@ export default function App() {
     try { localStorage.setItem('fni-local-groups', JSON.stringify(groupDetails)); } catch { /* storage may be unavailable */ }
   }, [groupDetails]);
   useEffect(() => { try { localStorage.setItem('fni-group-approval-requests', JSON.stringify(groupApprovalRequests)); } catch { /* storage may be unavailable */ } }, [groupApprovalRequests]);
+  useEffect(() => { try { localStorage.setItem('fni-group-join-requests', JSON.stringify(groupJoinRequests)); } catch { /* storage may be unavailable */ } }, [groupJoinRequests]);
   useEffect(() => { try { localStorage.setItem('fni-group-approval-log', JSON.stringify(groupApprovalLog)); } catch { /* storage may be unavailable */ } }, [groupApprovalLog]);
   useEffect(() => { try { localStorage.setItem('fni-meeting-notifications', JSON.stringify(meetingNotifications)); } catch { /* storage may be unavailable */ } }, [meetingNotifications]);
   useEffect(() => {
@@ -191,17 +197,40 @@ export default function App() {
     if (!name) return;
     const id = `group-${Date.now()}`;
     const inviteCode = Math.random().toString(36).slice(2, 10).toUpperCase();
-    setGroupDetails((current) => ({ ...current, [id]: { name, description: groupDescription.trim(), members: [], moderators: [], allowMembersToJoin: true, requireJoinApproval: false, discoverable: true, inviteCode } }));
+    setGroupDetails((current) => ({ ...current, [id]: { name, description: groupDescription.trim(), members: ['You'], moderators: [], allowMembersToJoin: true, requireJoinApproval: false, discoverable: true, inviteCode, createdBy: 'You' } }));
     setConversations((current) => ({ ...current, [id]: [] }));
-    setSection('Chats');
-    setFolder('Groups');
-    setActiveChat(id);
-    setNewGroupOpen(false);
-    setNewActionOpen(false);
-    setGroupName('');
-    setGroupDescription('');
-    setReplyTo(null);
+    setSection('Chats'); setFolder('Groups'); setActiveChat(id);
+    setNewGroupOpen(false); setNewActionOpen(false); setGroupName(''); setGroupDescription(''); setReplyTo(null);
   };
+
+  const joinGroup = (groupId: string) => {
+    const group = groupDetails[groupId];
+    if (!group || group.allowMembersToJoin === false) return;
+    if ((group.members || []).includes('You')) {
+      setActiveChat(groupId); setSection('Chats'); setFolder('Groups'); setFindGroupsOpen(false); return;
+    }
+    if (group.requireJoinApproval) {
+      const existing = groupJoinRequests.find((request) => request.groupId === groupId && request.requester === 'You' && request.status === 'Pending');
+      if (!existing) setGroupJoinRequests((current) => [{ id: `join-${Date.now()}`, groupId, groupName: group.name, requester: 'You', createdAt: new Date().toLocaleString(), status: 'Pending' }, ...current]);
+    } else {
+      setGroupDetails((current) => ({ ...current, [groupId]: { ...current[groupId], members: Array.from(new Set([...(current[groupId].members || []), 'You'])) } }));
+      setConversations((current) => ({ ...current, [groupId]: current[groupId] || [] }));
+      setActiveChat(groupId); setSection('Chats'); setFolder('Groups'); setFindGroupsOpen(false);
+    }
+  };
+
+  const joinByInviteCode = () => {
+    const code = inviteCodeInput.trim().toUpperCase();
+    const match = Object.entries(groupDetails).find(([, group]) => group.inviteCode?.toUpperCase() === code);
+    if (!match) return;
+    joinGroup(match[0]);
+    setInviteCodeInput('');
+  };
+
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get('join');
+    if (code) { setInviteCodeInput(code); setFindGroupsOpen(true); }
+  }, []);
 
   const startChat = () => {
     const handle = username.trim().replace(/^@/, '');
@@ -318,7 +347,7 @@ export default function App() {
           <div className="list-title-row">
             <button className="icon-button menu-button" aria-label="Open menu" onClick={() => setMenuOpen(true)}><Menu /></button>
             <div><h1>{section}</h1><p>FORERUNNERS NETWORK INTERNATIONAL</p></div>
-            <div className="header-actions-wrap"><div className="notification-wrap"><button className="icon-button notification-button" aria-label="Notifications" title="Notifications" aria-expanded={notificationsOpen} onClick={() => setNotificationsOpen((open) => !open)}><Bell />{meetingNotifications.some((item) => !item.read) && <span className="notification-count">{meetingNotifications.filter((item) => !item.read).length}</span>}</button>{notificationsOpen && <div className="notifications-popover"><div className="notifications-heading"><strong>Notifications</strong><button type="button" onClick={() => setMeetingNotifications((current) => current.map((item) => ({ ...item, read: true })))}>Mark all read</button></div>{meetingNotifications.length ? meetingNotifications.map((item) => <button type="button" className={"notification-item " + (item.read ? "" : "notification-unread")} key={item.id} onClick={() => { setMeetingNotifications((current) => current.map((notice) => notice.id === item.id ? { ...notice, read: true } : notice)); setActiveChat(item.groupId); setSection("Chats"); setFolder("Groups"); setNotificationsOpen(false); }}><strong>{item.title}</strong><span>{item.body}</span><time>{item.time}</time></button>) : <p className="notifications-empty">You’re all caught up.</p>}</div>}</div><div className="new-action-wrap"><button className="icon-button new-chat-button" aria-label="Create chat" title="Create chat or group" aria-expanded={newActionOpen} onClick={() => setNewActionOpen((open) => !open)}><Plus /></button>{newActionOpen && <div className="new-action-menu"><button onClick={() => { setNewChatOpen(true); setNewActionOpen(false); }}>New message</button><button onClick={() => { setNewGroupOpen(true); setNewActionOpen(false); }}>New group</button></div>}</div></div>
+            <div className="header-actions-wrap"><div className="notification-wrap"><button className="icon-button notification-button" aria-label="Notifications" title="Notifications" aria-expanded={notificationsOpen} onClick={() => setNotificationsOpen((open) => !open)}><Bell />{meetingNotifications.some((item) => !item.read) && <span className="notification-count">{meetingNotifications.filter((item) => !item.read).length}</span>}</button>{notificationsOpen && <div className="notifications-popover"><div className="notifications-heading"><strong>Notifications</strong><button type="button" onClick={() => setMeetingNotifications((current) => current.map((item) => ({ ...item, read: true })))}>Mark all read</button></div>{meetingNotifications.length ? meetingNotifications.map((item) => <button type="button" className={"notification-item " + (item.read ? "" : "notification-unread")} key={item.id} onClick={() => { setMeetingNotifications((current) => current.map((notice) => notice.id === item.id ? { ...notice, read: true } : notice)); setActiveChat(item.groupId); setSection("Chats"); setFolder("Groups"); setNotificationsOpen(false); }}><strong>{item.title}</strong><span>{item.body}</span><time>{item.time}</time></button>) : <p className="notifications-empty">You’re all caught up.</p>}</div>}</div><div className="new-action-wrap"><button className="icon-button new-chat-button" aria-label="Create chat" title="Create chat or group" aria-expanded={newActionOpen} onClick={() => setNewActionOpen((open) => !open)}><Plus /></button>{newActionOpen && <div className="new-action-menu"><button onClick={() => { setNewChatOpen(true); setNewActionOpen(false); }}>New message</button><button onClick={() => { setNewGroupOpen(true); setNewActionOpen(false); }}>New group</button><button onClick={() => { setFindGroupsOpen(true); setNewActionOpen(false); }}>Find groups</button></div>}</div></div>
           </div>
           <label className="search-box">
             <Search size={18} />
@@ -468,6 +497,12 @@ export default function App() {
                 <label className="attendance-member-option"><input type="checkbox" checked={groupDetails[activeChat].requireJoinApproval === true} onChange={(event) => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], requireJoinApproval: event.target.checked } }))} /><span>Approve new member requests</span></label>
                 <div className="group-invite-link"><span>Invite code: <strong>{groupDetails[activeChat].inviteCode || 'Not generated'}</strong></span><button type="button" onClick={() => { const code = groupDetails[activeChat].inviteCode || ''; const link = window.location.origin + window.location.pathname + '?join=' + code; if (navigator.clipboard?.writeText) navigator.clipboard.writeText(link); }}>Copy invite link</button></div>
                 <p className="group-insights-note">These controls are saved in this preview. Search discovery, invite validation and join requests will work across accounts once FNI has its backend.</p>
+              </section>
+            )}
+            {groupDetails[activeChat] && (
+              <section className="group-members-section group-join-requests">
+                <div className="shared-media-heading"><strong>Join requests</strong><span>{groupJoinRequests.filter((request) => request.groupId === activeChat && request.status === 'Pending').length} pending</span></div>
+                {groupJoinRequests.filter((request) => request.groupId === activeChat && request.status === 'Pending').length ? groupJoinRequests.filter((request) => request.groupId === activeChat && request.status === 'Pending').map((request) => <div className="group-join-request-row" key={request.id}><div><strong>{request.requester}</strong><time>{request.createdAt}</time></div><button type="button" onClick={() => { setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], members: Array.from(new Set([...(current[activeChat].members || []), request.requester])) } })); setGroupJoinRequests((current) => current.map((item) => item.id === request.id ? { ...item, status: 'Approved' } : item)); }}>Approve</button><button type="button" onClick={() => setGroupJoinRequests((current) => current.map((item) => item.id === request.id ? { ...item, status: 'Declined' } : item))}>Decline</button></div>) : <p className="group-members-empty">No pending join requests.</p>}
               </section>
             )}
             {groupDetails[activeChat] && (
@@ -764,6 +799,22 @@ export default function App() {
             <p>This is a local preview. Delivery to another FNI member will be available when messaging is connected.</p>
             <button className="modal-submit" type="submit" disabled={!forwardRecipient.trim()}>Forward message</button>
           </form>
+        </div>
+      )}
+      {findGroupsOpen && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setFindGroupsOpen(false); }}>
+          <section className="new-chat-modal find-groups-modal" role="dialog" aria-modal="true" aria-label="Find groups">
+            <div className="modal-heading"><h2>Find groups</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setFindGroupsOpen(false)}><X /></button></div>
+            <label htmlFor="group-directory-search">Search public groups</label>
+            <input id="group-directory-search" autoFocus value={groupDirectorySearch} onChange={(event) => setGroupDirectorySearch(event.target.value)} placeholder="Search by group name or description" />
+            <div className="find-group-results">{Object.entries(groupDetails).filter(([, group]) => group.discoverable !== false && (group.name.toLowerCase().includes(groupDirectorySearch.toLowerCase()) || group.description.toLowerCase().includes(groupDirectorySearch.toLowerCase()))).map(([id, group]) => {
+              const alreadyJoined = (group.members || []).includes('You');
+              const pending = groupJoinRequests.some((request) => request.groupId === id && request.requester === 'You' && request.status === 'Pending');
+              return <article className="find-group-result" key={id}><div className="find-group-avatar">{group.name.slice(0,1).toUpperCase()}</div><div className="find-group-result-copy"><strong>{group.name}</strong><span>{group.description || 'FNI community group'}</span><small>{(group.members || []).length} members</small></div><button type="button" disabled={alreadyJoined || pending || group.allowMembersToJoin === false} onClick={() => joinGroup(id)}>{alreadyJoined ? 'Joined' : pending ? 'Requested' : group.allowMembersToJoin === false ? 'Closed' : group.requireJoinApproval ? 'Request' : 'Join'}</button></article>;
+            })}{!Object.entries(groupDetails).some(([, group]) => group.discoverable !== false && (group.name.toLowerCase().includes(groupDirectorySearch.toLowerCase()) || group.description.toLowerCase().includes(groupDirectorySearch.toLowerCase()))) && <p className="group-members-empty">No discoverable groups found.</p>}</div>
+            <div className="find-group-invite"><strong>Join with an invite code</strong><form onSubmit={(event) => { event.preventDefault(); joinByInviteCode(); }}><input value={inviteCodeInput} onChange={(event) => setInviteCodeInput(event.target.value)} placeholder="Enter invite code" aria-label="Invite code" /><button type="submit" disabled={!inviteCodeInput.trim()}>Continue</button></form><p>Invite links open this panel with the group code filled in.</p></div>
+            <p className="group-insights-note">This preview searches groups saved on this device. A shared public directory and cross-device invite validation require the FNI backend.</p>
+          </section>
         </div>
       )}
       {newGroupOpen && (
