@@ -434,3 +434,46 @@ button{cursor:pointer}
 .video-room-screen .video-room-primary,.video-room-screen .video-room-leave{width:min(280px,100%);min-height:44px;border-radius:22px}
 .video-room-screen .video-room-note{max-width:600px;margin:0;color:#8f9bad;font-size:11px}
 @media(max-width:600px){.video-room-topbar{min-height:58px;padding:8px 13px}.video-room-content{padding:12px}.video-room-screen .video-room-stage{width:100%;min-height:220px;aspect-ratio:4/5;max-height:calc(100vh - 260px)}.video-room-footer{padding:12px 12px max(14px,env(safe-area-inset-bottom))}.video-room-screen .video-room-controls{width:100%}.video-room-screen .video-room-controls button{flex:1;min-width:0}}
+
+
+/* Adaptive FNI video stage: follow the available screen shape */
+.video-room-content{width:100%;box-sizing:border-box}
+.video-room-screen .video-room-stage{
+  width:min(100%,1100px);
+  height:auto;
+  min-height:0;
+  max-height:none;
+  aspect-ratio:16/9;
+  flex:0 1 auto;
+}
+.local-video-preview{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#11151d;
+}
+@media (orientation:portrait){
+  .video-room-screen .video-room-content{justify-content:center}
+  .video-room-screen .video-room-stage{
+    width:min(100%,680px);
+    max-height:calc(100dvh - 255px);
+    aspect-ratio:4/5;
+  }
+}
+@media (orientation:landscape){
+  .video-room-screen .video-room-content{justify-content:center;padding:12px 20px}
+  .video-room-screen .video-room-stage{
+    width:min(100%,calc((100dvh - 185px) * 16 / 9));
+    max-height:calc(100dvh - 185px);
+    aspect-ratio:16/9;
+  }
+  .video-room-screen .video-room-intro{gap:3px}
+  .video-room-screen .video-room-footer{padding-top:9px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
+}
+@media (min-width:900px){
+  .video-room-screen .video-room-stage{
+    width:min(100%,1200px);
+    max-height:calc(100dvh - 220px);
+  }
+}
