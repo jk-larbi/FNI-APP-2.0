@@ -6,6 +6,7 @@ import AppearanceContactsWorkspace from './components/AppearanceContactsWorkspac
 import NotificationsWorkspace from './components/NotificationsWorkspace';
 import StoriesWorkspace from './components/StoriesWorkspace';
 import SavedMessagesWorkspace from './components/SavedMessagesWorkspace';
+import BibleBotWorkspace from './components/BibleBotWorkspace';
 import {
   Bell, Bookmark, CalendarDays, ChevronDown, CircleHelp, UsersRound,
   Menu, MessageCircle, MoreHorizontal, Plus, Search, Settings,
@@ -121,6 +122,10 @@ const settingCategories: SettingCategory[] = [
     { label: 'Allow replies', kind: 'toggle', defaultOn: true },
     { label: 'Save moments to profile', kind: 'toggle' },
     { label: 'My moments archive', kind: 'action' },
+  ]},
+  { id: 'biblebot', label: 'FNI Bible Bot', group: 'MINISTRY', description: 'Search Scripture, compare available Bible translations and share passages.', icon: Bookmark, options: [
+    { label: 'Open Bible Bot', description: 'Look up Bible references and discover passages by topic.', kind: 'action' },
+    { label: 'Bot commands', description: 'Explore reference lookup, topic search and translation commands.', kind: 'action' },
   ]},
   { id: 'saved', label: 'Saved Messages & Personal Cloud', group: 'COMMUNICATION', description: 'Privately save messages, notes, links, photos and files.', icon: Bookmark, options: [
     { label: 'Open Saved Messages & Personal Cloud', description: 'Manage your saved items, collections and personal files.', kind: 'action' },
@@ -307,6 +312,7 @@ function App() {
 : activeAction.toLowerCase().includes('sticker') || activeAction.toLowerCase().includes('reaction') || activeAction.toLowerCase().includes('gif') ? <div className="sticker-preview"><button onClick={() => setNotice('Like reaction selected for preview.')}>👍 Like</button><button onClick={() => setNotice('Love reaction selected for preview.')}>❤️ Love</button><button onClick={() => setNotice('Prayer reaction selected for preview.')}>🙏 Prayer</button><button onClick={() => setNotice('Amen reaction selected for preview.')}>Amen</button><button onClick={() => setNotice('Praise reaction selected for preview.')}>Praise</button><button onClick={() => setNotice('Celebration reaction selected for preview.')}>🎉 Celebrate</button><p>Sticker pack installation and GIF search will be connected to the media service later.</p></div>
 : activeAction.toLowerCase().includes('cache') || activeAction.toLowerCase().includes('storage') ? <div className="workspace-form"><div className="workspace-callout"><HardDrive size={16}/><span>Browser storage is currently used for local preferences and drafts. This preview does not download or cache shared media.</span></div><button className="setting-action" onClick={()=>{['fni-settings-toggles','fni-settings-choices','fni-saved-items','fni-moments','fni-meeting-drafts','fni-ministry-settings','fni-chat-folders','fni-blocked-members','fni-report-drafts'].forEach(k=>localStorage.removeItem(k));setSavedItems([]);setMoments([]);setMeetingDrafts([]);setMinistryData({});setFolderNames([]);setBlockedMembers([]);setReportDrafts([]);setToggles({});setChoices({});setNotice('Local FNI preview data cleared.');setActiveAction('');}}>Clear local preview data</button></div>
 : activeAction.toLowerCase().includes('export') ? <div className="workspace-form"><p>Export the preferences and local drafts stored in this browser.</p><button className="setting-action" onClick={()=>{const payload={toggles,choices,savedItems,moments,meetingDrafts,ministryData,folderNames,blockedMembers,reportDrafts};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='fni-local-data-export.json';link.click();URL.revokeObjectURL(url);}}>Download local data export</button></div>
+: activeAction.toLowerCase().includes('bible bot') || activeAction.toLowerCase().includes('bot commands') ? <BibleBotWorkspace onNotice={setNotice} />
 : activeAction.toLowerCase().includes('about') ? <div className="workspace-form"><strong>FNI — Forerunners Network International</strong><p>Community, communication and connection in one mobile-first experience.</p><span>Frontend preview. Backend services are not connected yet.</span></div>
 : activeAction.toLowerCase().includes('help') ? <div className="workspace-form"><p>For support, prepare a description of the issue you experienced.</p><textarea value={actionDraft} onChange={e=>setActionDraft(e.target.value)} placeholder="Describe the issue..." rows={4}/><button className="setting-action" onClick={()=>{setNotice(actionDraft.trim()?'Support request draft saved locally.':'Describe the issue first.');}}>Save support draft</button></div>
 : <div className="workspace-form"><div className="workspace-callout"><ShieldCheck size={16}/><span>This action requires a secure FNI account connection. No password, account deletion or sensitive security change is simulated in this frontend preview.</span></div><p>When the backend is connected, this screen will support the appropriate verification and confirmation flow.</p></div>}<button className="action-done" onClick={() => setActiveAction('')}>Done</button></section></div>}
