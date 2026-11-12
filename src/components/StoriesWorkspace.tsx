@@ -8,7 +8,8 @@ function loadStories():Story[]{try{return (JSON.parse(localStorage.getItem(KEY)|
 export default function StoriesWorkspace({onReply,compact=false}:{onReply?:()=>void;compact?:boolean}){
  const [stories,setStories]=useState<Story[]>(loadStories);
  const [composer,setComposer]=useState(false),[viewer,setViewer]=useState<string|null>(null),[draft,setDraft]=useState(''),[caption,setCaption]=useState(''),[kind,setKind]=useState<'text'|'image'|'video'>('text'),[media,setMedia]=useState(''),[backgroundIndex,setBackgroundIndex]=useState(0),[audience,setAudience]=useState('My Contacts'),[replies,setReplies]=useState(true),[share,setShare]=useState(false),[privacy,setPrivacy]=useState(false),[archive,setArchive]=useState(false),[paused,setPaused]=useState(false),[reply,setReply]=useState(''),[notice,setNotice]=useState('');
- const fileRef=useRef<HTMLInputElement>(null);\n const touchStartX=useRef<number|null>(null);\n const myPhoto=localStorage.getItem('fni-profile-photo')||'';
+ const fileRef=useRef<HTMLInputElement>(null);
+ const touchStartX=useRef<number|null>(null);\n const myPhoto=localStorage.getItem('fni-profile-photo')||'';
  useEffect(()=>{localStorage.setItem(KEY,JSON.stringify(stories.map(s=>({...s,media:s.kind==='text'?undefined:s.media}))));},[stories]);
  const mine=stories.filter(s=>s.mine),others=stories.filter(s=>!s.mine);
   const recentUpdates=others.filter(s=>!s.viewers.includes('You'));
@@ -17,6 +18,9 @@ export default function StoriesWorkspace({onReply,compact=false}:{onReply?:()=>v
  const ownerStories=useMemo(()=>current?stories.filter(s=>s.owner===current.owner&&s.expiresAt>Date.now()):[],[stories,current]);
  const [storyIndex,setStoryIndex]=useState(0);
  useEffect(()=>{if(viewer){const i=ownerStories.findIndex(s=>s.id===viewer);setStoryIndex(Math.max(0,i));}},[viewer]);
+ useEffect(()=>{if(!viewer||paused||!ownerStories[storyIndex]||ownerStories[storyIndex].kind==='video')return;const timer=window.setTimeout(()=>{if(storyIndex<ownerStories.length-1)setStoryIndex(i=>i+1);else setViewer(null);},6500);return()=>window.clearTimeout(timer);},[viewer,paused,storyIndex,ownerStories]);
+ useEffect(()=>{const item=ownerStories[storyIndex];if(viewer&&item&&!item.mine&&!item.viewers.includes('You'))setStories(v=>v.map(s=>s.id===item.id?{...s,viewers:[...s.viewers,'You']}:s));},[viewer,storyIndex,ownerStories]);
+ function handleTouchEnd(event:React.TouchEvent){if(touchStartX.current===null)return;const delta=event.changedTouches[0].clientX-touchStartX.current;touchStartX.current=null;if(Math.abs(delta)>45){if(delta<0)next();else previous();}}
  function publish(){if(!draft.trim()&&kind==='text'||kind!=='text'&&!media){setNotice(kind==='text'?'Write something before sharing.':'Choose a photo or video first.');return;}
  const item:Story={id:crypto.randomUUID(),owner:'You',avatar:'F',kind,text:draft.trim(),caption:caption.trim(),media:kind==='text'?'':media,background:backgrounds[backgroundIndex],createdAt:Date.now(),expiresAt:Date.now()+86400000,audience,viewers:[],reactions:[],replies,share,mine:true};
  setStories(v=>[item,...v]);setComposer(false);setDraft('');setCaption('');setMedia('');setKind('text');setBackgroundIndex(0);setNotice('Your story has been added on this device.');}
