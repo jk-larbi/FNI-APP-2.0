@@ -43,6 +43,7 @@ export default function App() {
   const [videoError, setVideoError] = useState('');
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const [sharedMediaPreview, setSharedMediaPreview] = useState<Message | null>(null);
+  const [groupMedia, setGroupMedia] = useState<Record<string, Message[]>>({});
   const [mutedChats, setMutedChats] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('fni-local-muted') || '[]'); }
     catch { return []; }
@@ -504,6 +505,34 @@ export default function App() {
                   {groupDetails[activeChat].meeting && <button type="button" className="group-meeting-cancel" onClick={() => { setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: undefined } })); setMeetingDate(''); setMeetingTime(''); setMeetingLocation(''); setMeetingLink(''); }}>Remove meeting</button>}
                 </form>
                 <p className="group-meeting-note">Meeting details are saved on this device only. Member notifications and live meeting rooms require the FNI backend.</p>
+              </section>
+            )}
+            {groupDetails[activeChat] && (
+              <section className="group-media-section">
+                <div className="shared-media-heading"><strong>Group media</strong><span>{groupMedia[activeChat]?.length || 0} files</span></div>
+                <label className="group-media-upload">
+                  <Paperclip size={16} /> Share photos or videos
+                  <input type="file" accept="image/*,video/*" multiple onChange={(event) => {
+                    const files = Array.from(event.target.files || []);
+                    const additions = files.filter((file) => file.type.startsWith('image/') || file.type.startsWith('video/')).map((file) => ({
+                      id: Date.now() + Math.random(), text: file.name, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      mediaUrl: URL.createObjectURL(file), mediaType: file.type.startsWith('video/') ? 'video' as const : 'photo' as const, mediaName: file.name
+                    }));
+                    if (additions.length) setGroupMedia((current) => ({ ...current, [activeChat]: [...additions, ...(current[activeChat] || [])] }));
+                    event.currentTarget.value = '';
+                  }} />
+                </label>
+                {(groupMedia[activeChat] || []).length ? (
+                  <div className="group-media-grid">
+                    {(groupMedia[activeChat] || []).map((media) => (
+                      <button type="button" className="group-media-item" key={media.id} onClick={() => setSharedMediaPreview(media)} aria-label={'Preview ' + media.mediaName}>
+                        {media.mediaType === 'photo' ? <img src={media.mediaUrl} alt={media.mediaName || 'Group photo'} /> : <><video src={media.mediaUrl} muted playsInline preload="metadata" /><span className="group-media-video-mark">VIDEO</span></>}
+                        <span className="group-media-file-name">{media.mediaName}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : <p className="group-members-empty">Photos and videos shared with this group will appear here.</p>}
+                <p className="group-meeting-note">Media is available in this browser session only. Sharing it with other members requires the FNI backend.</p>
               </section>
             )}
             {groupDetails[activeChat] && (
