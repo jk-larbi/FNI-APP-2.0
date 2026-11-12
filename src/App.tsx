@@ -369,6 +369,8 @@ export default function App() {
   const [attachmentMenuOpen, setAttachmentMenuOpen] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<File[]>([]);
   const [attachmentCaption, setAttachmentCaption] = useState('');
+  const [attachmentPreviewUrls, setAttachmentPreviewUrls] = useState<string[]>([]);
+  useEffect(() => { const urls = pendingAttachments.map((file) => URL.createObjectURL(file)); setAttachmentPreviewUrls(urls); return () => urls.forEach((url) => URL.revokeObjectURL(url)); }, [pendingAttachments]);
 
   useEffect(() => {
     if (localVideoRef.current && videoStream) localVideoRef.current.srcObject = videoStream;
@@ -891,7 +893,7 @@ export default function App() {
             {pendingAttachments.length > 0 && <div className="attachment-preview-sheet" role="dialog" aria-label="Review attachments">
               <div className="attachment-preview-heading"><strong>Review attachments</strong><button type="button" aria-label="Close preview" onClick={() => { setPendingAttachments([]); setAttachmentCaption(''); }}><X /></button></div>
               <div className="attachment-preview-items">{pendingAttachments.map((file,index) => <div className="attachment-preview-item" key={index}>
-                {file.type.startsWith('image/') ? <img src={URL.createObjectURL(file)} alt={file.name} /> : file.type.startsWith('video/') ? <video src={URL.createObjectURL(file)} controls playsInline /> : <FileText />}
+                {file.type.startsWith('image/') ? <img src={attachmentPreviewUrls[index] || ''} alt={file.name} /> : file.type.startsWith('video/') ? <video src={attachmentPreviewUrls[index] || ''} controls playsInline /> : <FileText />}
                 <span>{file.name}<small>{(file.size/1024/1024).toFixed(2)} MB</small></span>
                 <button type="button" aria-label={'Remove '+file.name} onClick={() => setPendingAttachments((current) => current.filter((_,i)=>i!==index))}>×</button>
               </div>)}</div>
