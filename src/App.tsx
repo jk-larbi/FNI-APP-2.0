@@ -13,6 +13,22 @@ export default function App() {
   const [section, setSection] = useState<Section>('Chats');
   const [settingsCategory, setSettingsCategory] = useState('Account');
   const [settingsMobileDetail, setSettingsMobileDetail] = useState(false);
+  const [storageReport, setStorageReport] = useState<{ localBytes: number; originUsage?: number; originQuota?: number } | null>(null);
+  const inspectStorage = async () => {
+    let localBytes = 0;
+    try {
+      const entries = Object.keys(localStorage).filter(key => key.startsWith('fni-') || key === 'fni-settings').map(key => [key, localStorage.getItem(key) || '']);
+      localBytes = new Blob(entries.map(([key, value]) => String(key) + ':' + String(value))).size;
+    } catch { /* local storage may be unavailable */ }
+    let originUsage: number | undefined;
+    let originQuota: number | undefined;
+    try {
+      const estimate = await navigator.storage?.estimate();
+      originUsage = estimate?.usage;
+      originQuota = estimate?.quota;
+    } catch { /* storage estimate is not supported in every browser */ }
+    setStorageReport({ localBytes, originUsage, originQuota });
+  };
   const [preferences, setPreferences] = useState(() => {
     try {
       return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, compactChatList: false, chatTextSize: 'Normal', showMessageTimestamps: true, mentionSuggestions: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, ...JSON.parse(localStorage.getItem('fni-settings') || '{}') };
@@ -489,12 +505,20 @@ export default function App() {
                   <p className="settings-footnote">Chat preferences are saved on this device. Your message composer, text size, chat density, timestamps and mention suggestions now respond to these settings. Preferences stay on this device until account syncing is added.</p>
                 </div>}
                 {settingsCategory === 'Data and Storage' && <div className="settings-section">
-                  <h3>Automatic media download</h3><SettingToggle title="Photos" description="Automatically download photos" checked={Boolean(preferences.autoDownloadPhotos)} onChange={v => updatePreference('autoDownloadPhotos', v)}/>
-                  <SettingToggle title="Videos" description="Automatically download videos" checked={Boolean(preferences.autoDownloadVideos)} onChange={v => updatePreference('autoDownloadVideos', v)}/>
-                  <h3>Storage and data</h3><SettingToggle title="Data saver" description="Prefer lower data usage for media" checked={Boolean(preferences.dataSaver)} onChange={v => updatePreference('dataSaver', v)}/>
-                  <SettingToggle title="Save incoming media to gallery" description="Keep received media in your device gallery" checked={Boolean(preferences.saveToGallery)} onChange={v => updatePreference('saveToGallery', v)}/>
-                  <div className="settings-info-row"><Download/><span><strong>Storage usage</strong><small>Review cached files and downloaded media</small></span><em>Device tools later</em></div>
-                  <p className="settings-footnote">Download preferences are saved locally; automatic downloads and cache controls will be wired to native app storage.</p>
+                  <h3>Automatic media download</h3>
+                  <SettingToggle title="Photos" description="Allow automatic photo downloads when incoming media sync is connected" checked={Boolean(preferences.autoDownloadPhotos)} onChange={v => updatePreference('autoDownloadPhotos', v)}/>
+                  <SettingToggle title="Videos" description="Allow automatic video downloads when incoming media sync is connected" checked={Boolean(preferences.autoDownloadVideos)} onChange={v => updatePreference('autoDownloadVideos', v)}/>
+                  <h3>Storage and data</h3>
+                  <SettingToggle title="Data saver" description="Prefer lower data usage when incoming media sync is available" checked={Boolean(preferences.dataSaver)} onChange={v => updatePreference('dataSaver', v)}/>
+                  <SettingToggle title="Save incoming media to gallery" description="Save received media to Photos or your device gallery when supported" checked={Boolean(preferences.saveToGallery)} onChange={v => updatePreference('saveToGallery', v)}/>
+                  <div className="settings-info-row"><Download/><span><strong>Storage usage</strong><small>Review FNI's saved settings and browser storage usage</small></span><button type="button" onClick={inspectStorage}>Review</button></div>
+                  {storageReport && <div className="storage-report" aria-live="polite">
+                    <div><span>FNI data saved in this browser</span><strong>{storageReport.localBytes < 1024 ? storageReport.localBytes + ' B' : (storageReport.localBytes / 1024).toFixed(1) + ' KB'}</strong></div>
+                    {storageReport.originUsage !== undefined && <div><span>Website storage used by this browser</span><strong>{storageReport.originUsage < 1048576 ? (storageReport.originUsage / 1024).toFixed(1) + ' KB' : (storageReport.originUsage / 1048576).toFixed(2) + ' MB'}</strong></div>}
+                    {storageReport.originQuota !== undefined && <div><span>Available website storage quota</span><strong>{storageReport.originQuota < 1048576 ? (storageReport.originQuota / 1024).toFixed(1) + ' KB' : (storageReport.originQuota / 1048576).toFixed(2) + ' MB'}</strong></div>}
+                    <small>Browser estimates are for this website's origin and may include data from other FNI features.</small>
+                  </div>}
+                  <p className="settings-footnote">These preferences are saved on this device. This preview does not yet receive other members' media, automatically download incoming photos or videos, or write directly to an iPhone or Android gallery. Those actions need connected messaging and native app support.</p>
                 </div>}
                 {settingsCategory === 'Devices' && <div className="settings-section">
                   <h3>Active sessions</h3><div className="settings-info-row"><Smartphone/><span><strong>This device</strong><small>Current browser session · Active now</small></span><em className="settings-status">Current</em></div>
