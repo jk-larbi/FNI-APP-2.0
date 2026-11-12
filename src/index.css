@@ -235,3 +235,7 @@ button{cursor:pointer}
 .pinned-message-banner strong { color: #3390ec; font-size: 12px; white-space: nowrap; }
 .pinned-message-banner span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; font-size: 13px; }
 .pinned-message-banner svg { flex: 0 0 auto; opacity: .65; }
+
+
+.forward-message-preview { padding: 12px 14px; margin: 12px 0 18px; border-left: 3px solid #3390ec; border-radius: 6px; background: var(--surface, #f4f6f9); color: var(--text, #333); font-size: 14px; overflow-wrap: anywhere; }
+.forwarded-label { margin-bottom: 6px; color: #3390ec; font-size: 12px; font-weight: 600; }
