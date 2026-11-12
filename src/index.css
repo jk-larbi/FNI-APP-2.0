@@ -1316,3 +1316,61 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
 .saved-notice{box-shadow:0 8px 28px #0007}
 .saved-notice button{color:#c5cde3}
 .saved-file-preview{background:#0e1426}
+
+
+/* FNI Bible Bot */
+.biblebot-workspace{display:flex;flex-direction:column;gap:14px;min-width:0}
+.biblebot-intro{display:flex;align-items:center;gap:13px;padding:15px;border:1px solid var(--border,#e6e8ed);border-radius:14px;background:linear-gradient(120deg,rgba(48,36,95,.08),rgba(36,99,211,.05))}
+.biblebot-avatar{width:46px;height:46px;display:grid;place-items:center;flex:none;border-radius:13px;background:#30245f;color:#fff}
+.biblebot-eyebrow,.biblebot-history>span{font-size:10px;font-weight:750;letter-spacing:.11em;color:#8b79bd}
+.biblebot-intro h3{margin:3px 0;font-size:17px;color:var(--text,#20232b)}
+.biblebot-intro p{margin:0;font-size:12px;color:var(--muted,#747985)}
+.biblebot-version-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.biblebot-version-row>div{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:650;color:var(--muted,#747985)}
+.biblebot-version-row select{max-width:65%;min-width:0;padding:9px 28px 9px 10px;border:1px solid var(--border,#e6e8ed);border-radius:9px;background:var(--surface,#fff);color:var(--text,#20232b);font-size:12px}
+.biblebot-search{display:flex;align-items:center;gap:9px;padding:5px 6px 5px 12px;border:1px solid var(--border,#e6e8ed);border-radius:12px;background:var(--surface,#fff);color:var(--muted,#747985)}
+.biblebot-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text,#20232b);font-size:13px;padding:9px 0}
+.biblebot-search button{width:36px;height:36px;border:0;border-radius:9px;background:#30245f;color:white;display:grid;place-items:center;cursor:pointer}
+.biblebot-search button:disabled{opacity:.6}
+.biblebot-spin{animation:biblebot-spin .9s linear infinite}
+@keyframes biblebot-spin{to{transform:rotate(360deg)}}
+.biblebot-command-hint{display:flex;flex-wrap:wrap;gap:6px}
+.biblebot-command-hint code{font-size:10px;padding:5px 7px;border-radius:6px;background:var(--surface-secondary,#f2f3f7);color:var(--muted,#747985)}
+.biblebot-error{padding:10px 12px;border-radius:9px;background:rgba(190,55,55,.08);color:#b33b3b;font-size:12px}
+.biblebot-passage{padding:15px;border:1px solid var(--border,#e6e8ed);border-radius:13px;background:var(--surface,#fff);color:var(--text,#20232b)}
+.biblebot-passage-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.biblebot-passage-head>div>span{font-size:9px;font-weight:750;letter-spacing:.1em;color:#8b79bd}
+.biblebot-passage h4{margin:4px 0 0;font-size:16px}
+.biblebot-tag{padding:4px 7px;border-radius:6px;background:rgba(36,99,211,.09);color:#2463d3;font-size:10px;font-weight:750}
+.biblebot-passage>p,.biblebot-compare p{font-size:14px;line-height:1.75;white-space:pre-line;margin:13px 0;color:var(--text,#20232b)}
+.biblebot-passage-actions{display:flex;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid var(--border,#e6e8ed)}
+.biblebot-passage-actions button,.biblebot-topic-results article>button{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border,#e6e8ed);border-radius:8px;padding:8px 10px;background:transparent;color:var(--text,#20232b);font-size:11px;font-weight:650;cursor:pointer}
+.biblebot-passage-actions button:disabled{opacity:.5}
+.biblebot-compare{margin-top:12px;padding:12px;border-radius:9px;background:var(--surface-secondary,#f4f5f8)}
+.biblebot-compare>span{font-size:10px;font-weight:750;color:#8b79bd}
+.biblebot-compare p{margin-bottom:0}
+.biblebot-empty{padding:22px 14px;text-align:center;border:1px dashed var(--border,#e6e8ed);border-radius:13px}
+.biblebot-empty>div{width:42px;height:42px;margin:0 auto 10px;display:grid;place-items:center;border-radius:12px;background:rgba(48,36,95,.09);color:#67539d}
+.biblebot-empty strong{font-size:14px;color:var(--text,#20232b)}
+.biblebot-empty>p{max-width:340px;margin:7px auto 13px;font-size:12px;line-height:1.55;color:var(--muted,#747985)}
+.biblebot-topics{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}
+.biblebot-topics button{border:1px solid var(--border,#e6e8ed);border-radius:20px;padding:6px 10px;background:var(--surface,#fff);color:var(--text,#20232b);font-size:11px;cursor:pointer}
+.biblebot-topic-results{display:flex;flex-direction:column;gap:9px}
+.biblebot-topic-heading{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text,#20232b)}
+.biblebot-topic-heading span{font-size:10px;color:var(--muted,#747985)}
+.biblebot-passage.compact{padding:12px}
+.biblebot-passage.compact h4{font-size:14px}
+.biblebot-passage.compact>p{font-size:13px;line-height:1.6}
+.biblebot-history{display:flex;flex-direction:column;gap:7px}
+.biblebot-history>span{margin-bottom:2px}
+.biblebot-history button{display:flex;align-items:center;gap:8px;padding:8px 2px;border:0;border-bottom:1px solid var(--border,#e6e8ed);background:transparent;text-align:left;color:var(--text,#20232b);font-size:11px;cursor:pointer}
+.biblebot-version-list{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--border,#e6e8ed);border-radius:11px}
+.biblebot-version-list>strong{font-size:12px;margin-bottom:4px}
+.biblebot-version-list button{display:flex;justify-content:space-between;gap:8px;padding:8px;border:0;border-radius:7px;background:var(--surface-secondary,#f4f5f8);color:var(--text,#20232b);font-size:11px;text-align:left}
+.biblebot-version-list button span{color:#8b79bd;font-weight:700}
+.biblebot-version-list small,.biblebot-footnote{font-size:10px;line-height:1.55;color:var(--muted,#747985)}
+.biblebot-footnote{padding:10px 11px;border-left:2px solid #d9a52b;background:rgba(217,165,43,.07);border-radius:0 8px 8px 0}
+[data-theme="dark"] .biblebot-intro{background:linear-gradient(120deg,rgba(110,88,173,.16),rgba(36,99,211,.12))}
+[data-theme="dark"] .biblebot-command-hint code,[data-theme="dark"] .biblebot-compare,[data-theme="dark"] .biblebot-version-list button{background:#252936;color:#dce0eb}
+[data-theme="dark"] .biblebot-passage,[data-theme="dark"] .biblebot-search,[data-theme="dark"] .biblebot-version-row select{background:#1c202a;color:#f2f3f7;border-color:#343b49}
+@media(max-width:520px){.biblebot-version-row{align-items:flex-start;flex-direction:column}.biblebot-version-row select{max-width:100%;width:100%}.biblebot-passage-actions button{flex:1;justify-content:center}}
