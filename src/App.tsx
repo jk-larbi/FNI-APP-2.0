@@ -15,7 +15,7 @@ export default function App() {
   const [settingsMobileDetail, setSettingsMobileDetail] = useState(false);
   const [preferences, setPreferences] = useState(() => {
     try {
-      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, ...JSON.parse(localStorage.getItem('fni-settings') || '{}') };
+      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, compactChatList: false, chatTextSize: 'Normal', linkPreviews: true, emojiSuggestions: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, ...JSON.parse(localStorage.getItem('fni-settings') || '{}') };
     } catch {
       return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false };
     }
@@ -362,7 +362,7 @@ export default function App() {
   };
 
   return (
-    <main data-theme={resolvedTheme.toLowerCase()} className={`app-shell ${section === 'Settings' ? 'settings-mode' : ''}`}>
+    <main data-theme={resolvedTheme.toLowerCase()} data-chat-density={preferences.compactChatList ? 'compact' : 'comfortable'} data-message-size={String(preferences.chatTextSize || 'Normal').toLowerCase()} className={`app-shell ${section === 'Settings' ? 'settings-mode' : ''}`}>
       <aside className={`navigation-drawer ${menuOpen ? 'drawer-open' : ''}`}>
         <div className="drawer-heading">
           <div className="brand-lockup">
@@ -473,11 +473,20 @@ export default function App() {
                   <SettingToggle title="Reduce motion" description="Limit animated transitions" checked={Boolean(preferences.reducedMotion)} onChange={v => updatePreference('reducedMotion', v)}/>
                   <p className="settings-footnote">Your choice applies across chats, menus, settings and meeting screens. System follows your device appearance.</p>
                 </div>}
-                {settingsCategory === 'Chat Settings' && <div className="settings-section">
-                  <h3>Messages</h3><SettingToggle title="Send by pressing Enter" description="Use Enter to send and Shift + Enter for a new line" checked={Boolean(preferences.enterToSend)} onChange={v => updatePreference('enterToSend', v)}/>
-                  <div className="settings-info-row"><MessageSquare/><span><strong>Chat folders</strong><small>All chats, Personal, Groups and Archived</small></span><em>Available</em></div>
-                  <div className="settings-info-row"><Image/><span><strong>Media gallery</strong><small>Photos and videos shared in conversations</small></span><em>Available</em></div>
-                  <div className="settings-info-row"><Volume2/><span><strong>Chat sounds</strong><small>Managed under Notifications and Sounds</small></span><button type="button" onClick={() => setSettingsCategory('Notifications and Sounds')}>Open</button></div>
+                {settingsCategory === 'Chat Settings' && <div className="settings-section chat-settings-panel">
+                  <h3>Message composer</h3>
+                  <SettingToggle title="Send by pressing Enter" description="Enter sends the message; Shift + Enter inserts a new line" checked={Boolean(preferences.enterToSend)} onChange={v => updatePreference('enterToSend', v)}/>
+                  <SettingToggle title="Emoji suggestions" description="Show emoji suggestions while composing messages" checked={Boolean(preferences.emojiSuggestions)} onChange={v => updatePreference('emojiSuggestions', v)}/>
+                  <h3>Chat appearance</h3>
+                  <label className="settings-control-row"><span><strong>Message text size</strong><small>Adjust text size inside conversations</small></span><select value={String(preferences.chatTextSize || 'Normal')} onChange={e => updatePreference('chatTextSize', e.target.value)}><option>Small</option><option>Normal</option><option>Large</option></select></label>
+                  <SettingToggle title="Compact chat list" description="Reduce spacing between conversations" checked={Boolean(preferences.compactChatList)} onChange={v => updatePreference('compactChatList', v)}/>
+                  <SettingToggle title="Link previews" description="Allow website preview cards in conversations" checked={Boolean(preferences.linkPreviews)} onChange={v => updatePreference('linkPreviews', v)}/>
+                  <h3>Chat organisation</h3>
+                  <div className="settings-info-row"><MessageSquare/><span><strong>Chat folders</strong><small>Switch between All chats, Personal, Groups and Archived</small></span><button type="button" onClick={() => { setSection('Chats'); setFolder('All chats'); }}>Open chats</button></div>
+                  <div className="settings-info-row"><Image/><span><strong>Shared media</strong><small>Find photos and videos shared in each conversation</small></span><em>Inside chat info</em></div>
+                  <h3>Notifications</h3>
+                  <div className="settings-info-row"><Volume2/><span><strong>Chat sounds</strong><small>Control message and group alert sounds</small></span><button type="button" onClick={() => { setSettingsCategory('Notifications and Sounds'); setSettingsMobileDetail(true); }}>Configure</button></div>
+                  <p className="settings-footnote">Chat preferences are saved on this device. Link preview cards and emoji suggestions are preference controls for the messaging experience; cross-device syncing will be available with FNI accounts.</p>
                 </div>}
                 {settingsCategory === 'Data and Storage' && <div className="settings-section">
                   <h3>Automatic media download</h3><SettingToggle title="Photos" description="Automatically download photos" checked={Boolean(preferences.autoDownloadPhotos)} onChange={v => updatePreference('autoDownloadPhotos', v)}/>
@@ -589,7 +598,7 @@ export default function App() {
               <button className="composer-icon" aria-label="Attach photo or video" title="Attach photo or video" onClick={() => attachmentInput.current?.click()}><Paperclip /></button>
               <input ref={attachmentInput} className="attachment-input" type="file" accept="image/*,video/*" onChange={(event) => { attachMedia(event.target.files?.[0]); event.target.value = ''; }} />
               <div className="composer-input-wrap">
-                <textarea value={draft} onChange={(event) => { setDraft(event.target.value); const tail = event.target.value.split(/\s/).pop() || ''; setMentionOpen(tail.startsWith('@') && tail.length > 0); }} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } if (event.key === 'Escape') { setMentionOpen(false); setEmojiOpen(false); } }} placeholder="Message" rows={1} />
+                <textarea value={draft} onChange={(event) => { setDraft(event.target.value); const tail = event.target.value.split(/\s/).pop() || ''; setMentionOpen(Boolean(preferences.emojiSuggestions) && tail.startsWith('@') && tail.length > 0); }} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && preferences.enterToSend) { event.preventDefault(); sendMessage(); } if (event.key === 'Escape') { setMentionOpen(false); setEmojiOpen(false); } }} placeholder="Message" rows={1} />
                 {mentionOpen && activeChat && <div className="mention-suggestions"><button onClick={() => { setDraft((current) => current.replace(/@[\w.]*$/, activeChat + ' ')); setMentionOpen(false); }}>{activeChat}<span>FNI member in this chat</span></button></div>}
               </div>
               <div className="emoji-picker-wrap"><button className="composer-icon emoji-button" aria-label="Emoji" onClick={() => setEmojiOpen((open) => !open)}><Smile /></button>
