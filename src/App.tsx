@@ -4,7 +4,7 @@ import {
   Menu, MessageCircle, MoreHorizontal, Plus, Search, Settings,
   ShieldCheck, Users, Video, X, UserRound, LockKeyhole, Smartphone,
   Palette, Folder, Languages, Smile, HardDrive, Headphones, Images,
-  SlidersHorizontal, Globe, Check, ChevronRight, ArrowLeft
+  SlidersHorizontal, ChevronRight, ArrowLeft
 } from 'lucide-react';
 
 type Section = 'chats' | 'community' | 'cells' | 'meetings' | 'settings';
@@ -137,6 +137,7 @@ function App() {
 
   const current = useMemo(() => sections.find(item => item.id === section)!, [section]);
   const activeSetting = settingCategories.find(item => item.id === selectedSetting) ?? settingCategories[0];
+  const ActiveSettingIcon = activeSetting.icon;
 
   function comingSoon(feature: string) {
     setNotice(feature + ' needs an FNI account or backend connection. Your current settings preview is stored only in this browser session.');
@@ -189,9 +190,9 @@ function App() {
             </div>)}
           </aside>
           <section className="settings-detail">
-            <div className="settings-detail-head"><div className="setting-detail-icon"><activeSetting.icon size={20} /></div><div><h3>{activeSetting.label}</h3><p>{activeSetting.description}</p></div></div>
+            <div className="settings-detail-head"><div className="setting-detail-icon"><ActiveSettingIcon size={20} /></div><div><h3>{activeSetting.label}</h3><p>{activeSetting.description}</p></div></div>
             <div className="settings-options">
-              {activeSetting.options.map((option, index) => {
+              {activeSetting.options.map(option => {
                 const key = activeSetting.id + ':' + option.label;
                 const enabled = toggles[key] ?? !!option.defaultOn;
                 const selected = choices[key] ?? option.value ?? option.choices?.[0] ?? '';
