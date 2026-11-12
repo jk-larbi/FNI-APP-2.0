@@ -544,7 +544,7 @@ export default function App() {
   };
 
   return (
-    <main data-theme={resolvedTheme.toLowerCase()} data-chat-density={preferences.compactChatList ? 'compact' : 'comfortable'} data-message-size={String(preferences.chatTextSize || 'Normal').toLowerCase()} className={`app-shell ${section === 'Settings' ? 'settings-mode' : ''}`}>
+    <main data-theme={resolvedTheme.toLowerCase()} data-chat-density={preferences.compactChatList ? 'compact' : 'comfortable'} data-message-size={String(preferences.chatTextSize || 'Normal').toLowerCase()} className={`app-shell ${section === 'Settings' ? 'settings-mode' : ''} ${section === 'FNI Community' ? 'community-mode' : ''}`}>
       <aside className={`navigation-drawer ${menuOpen ? 'drawer-open' : ''}`}>
         <div className="drawer-heading">
           <div className="brand-lockup">
