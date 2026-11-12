@@ -115,14 +115,32 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     <div className="msg-actions"><button className="msg-secondary" onClick={() => { if (confirm('Delete this locally saved group?')) { setGroups(current => current.filter(g => g.id !== selected.id)); closeToList(); } }}>Delete local group</button><button className="msg-primary" onClick={closeToList}><Check size={16}/> Done</button></div>
   </div>;
 
-  return <div className="msg-workspace">
-    <div className="msg-heading"><span className="msg-eyebrow">FNI CONNECT</span><h2>Stay connected.</h2><p>Personal conversations and group communication in one place.</p></div>
-    <div className="msg-toolbar"><div className="msg-search"><Search size={17}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search people, @usernames, groups or messages"/></div><button className="msg-primary" onClick={() => setView('new-chat')}><Plus size={16}/> New chat</button><button className="msg-primary msg-create-group" onClick={() => setView('create')}><Users size={16}/> New group</button></div>
-    <div className="msg-pinned-summary">{pinnedChats.length} of 5 chat pins used · Group messages can have unlimited pinned messages</div>
-    <button className="msg-saved-chat" onClick={() => setView('saved')}><div className="msg-saved-avatar"><Bookmark size={19}/></div><div><b>Saved Messages</b><span>Your private space · Notes, files, links and saved items</span></div><span className="msg-saved-open">Open <ChevronRight size={15}/></span></button>
-    <div className="msg-tabs">{(['All chats','Personal','Groups'] as const).map(t => <button key={t} className={tab===t?'active':''} onClick={() => setTab(t)}>{t}</button>)}</div>
-    {tab !== 'Personal' && filtered.length > 0 ? <div className="msg-group-list">{filtered.map(group => <div className="msg-group-card-wrap" key={group.id}><button className="msg-group-card" onClick={() => {setSelectedId(group.id);setView('group')}}><div className="msg-group-avatar"><Users size={20}/></div><div className="msg-group-copy"><b>{pinnedChats.includes(group.id) ? 'Pinned · ' : ''}{group.name}</b><span>{group.description || 'Group conversation'}</span><small>Owner: You · {group.admins.length} admins · {group.mode === 'Admins only' ? 'Announcements mode' : group.mode === 'Selected members' ? 'Restricted posting' : 'Open posting'}</small></div><ChevronRight size={17}/></button><button className={pinnedChats.includes(group.id) ? 'msg-pin-button active' : 'msg-pin-button'} title={pinnedChats.includes(group.id) ? 'Unpin chat' : 'Pin chat'} onClick={() => togglePinnedChat(group.id)}><Pin size={15}/></button></div>)}</div> : tab === 'Personal' ? <div className="msg-empty"><MessageCircle size={24}/><b>No personal conversations</b><span>Search for a member by their public username. Your real conversations will appear after account connection.</span><button className="msg-secondary" onClick={() => setView('new-chat')}>Find a member</button></div> : <div className="msg-empty"><Users size={24}/><b>{query ? 'No matching groups' : 'Your groups will appear here'}</b><span>{query ? 'Try another group name or description.' : 'Create a group to set its owner, administrator permissions and posting restrictions. No sample members or conversations are inserted.'}</span><button className="msg-secondary" onClick={() => setView('create')}>Create your first group</button></div>}
-    <div className="msg-footer-note"><Shield size={15}/> Group settings are stored locally in this browser preview. Shared accounts, messages, member invitations and real-time sync require backend services.</div>
+  const savedPreview = (() => { try { const saved = JSON.parse(localStorage.getItem('fni-personal-cloud-items') || '[]') as {content?:string;createdAt?:string;type?:string}[]; const latest = saved[saved.length - 1]; return latest?.content ? (latest.type === 'message' ? latest.content : latest.type === 'image' ? 'Photo' : latest.type === 'video' ? 'Video' : latest.type === 'audio' ? 'Audio' : latest.type === 'link' ? 'Link' : 'Attachment') : 'Messages you save appear here'; } catch { return 'Messages you save appear here'; } })();
+
+  return <div className="msg-workspace fni-chat-home">
+    <div className="fni-chat-home-header">
+      <div><span className="msg-eyebrow">FORERUNNERS NETWORK INTERNATIONAL</span><h2>Chats</h2></div>
+      <div className="fni-chat-home-actions"><button aria-label="New message" title="New message" onClick={() => setView('new-chat')}><Plus size={20}/></button><button aria-label="Create group" title="Create group" onClick={() => setView('create')}><Users size={19}/></button></div>
+    </div>
+    <div className="fni-chat-search"><Search size={18}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search people, @usernames or messages" aria-label="Search chats"/></div>
+    <div className="msg-tabs fni-chat-tabs" role="tablist" aria-label="Chat folders">{(['All chats','Personal','Groups'] as const).map(t => <button role="tab" aria-selected={tab===t} key={t} className={tab===t?'active':''} onClick={() => setTab(t)}>{t}</button>)}</div>
+    <div className="fni-chat-list">
+      {tab !== 'Groups' && <button className="fni-chat-row fni-saved-row" onClick={() => setView('saved')}>
+        <div className="fni-chat-avatar fni-saved-avatar"><Bookmark size={21}/></div>
+        <div className="fni-chat-row-copy"><div className="fni-chat-row-top"><b>Saved Messages</b><time>Personal</time></div><div className="fni-chat-row-bottom"><span>{savedPreview}</span><small><Lock size={11}/> Only you</small></div></div>
+      </button>}
+      {tab !== 'Personal' && filtered.map(group => <div className="fni-chat-row-wrap" key={group.id}>
+        <button className="fni-chat-row" onClick={() => {setSelectedId(group.id);setView('group')}}>
+          <div className="fni-chat-avatar fni-group-chat-avatar"><Users size={20}/></div>
+          <div className="fni-chat-row-copy"><div className="fni-chat-row-top"><b>{group.name}</b><time>{new Date(group.createdAt).toLocaleDateString([], {day:'numeric',month:'short'})}</time></div><div className="fni-chat-row-bottom"><span>{group.description || 'Group conversation'}</span><small>{group.admins.length} admins</small></div></div>
+        </button>
+        <button className={pinnedChats.includes(group.id) ? 'fni-chat-pin active' : 'fni-chat-pin'} title={pinnedChats.includes(group.id) ? 'Unpin chat' : 'Pin chat'} onClick={() => togglePinnedChat(group.id)}><Pin size={14}/></button>
+      </div>)}
+      {tab === 'Personal' && <div className="fni-chat-list-empty"><MessageCircle size={22}/><b>No personal chats yet</b><span>Your conversations with FNI members will appear here when you start chatting. No sample contacts are added.</span><button className="msg-secondary" onClick={() => setView('new-chat')}>New message</button></div>}
+      {tab === 'Groups' && !filtered.length && <div className="fni-chat-list-empty"><Users size={22}/><b>No group chats yet</b><span>Groups you create or join will appear here.</span><button className="msg-secondary" onClick={() => setView('create')}>Create group</button></div>}
+      {query && !filtered.length && tab !== 'Personal' && <div className="fni-chat-list-empty"><Search size={20}/><b>No matching chats</b><span>Try another name or keyword.</span></div>}
+    </div>
+    <div className="msg-footer-note"><Shield size={15}/> Your chat list is stored in this browser preview. Real member conversations and cross-device sync will be enabled with the FNI backend.</div>
     {notice && <div className="msg-toast" role="status">{notice}<button onClick={() => setNotice('')}><X size={14}/></button></div>}
   </div>;
 }
