@@ -342,3 +342,20 @@ button{border:0;cursor:pointer}
 .local-record button{flex-shrink:0;padding:5px 8px;border-radius:7px;background:#ffffff0d;color:#d9bd6a;font-size:9px}
 :root[data-theme="light"] .local-entry input{background:#f7f8fc;color:#1c2742;border-color:#dce2ef}
 :root[data-theme="light"] .local-record{background:#f7f8fc;color:#35415c;border-color:#e2e7f0}
+
+.workspace-form{display:flex;flex-direction:column;gap:13px;width:100%;padding:16px 0;text-align:left}
+.workspace-form>p{margin:0;color:#929db9;font-size:11px;line-height:1.7}
+.workspace-form>strong{font:700 14px Manrope,sans-serif;color:#edf0ff}
+.workspace-form>span{color:#929db9;font-size:10px}
+.workspace-field{display:flex;flex-direction:column;gap:6px}
+.workspace-field label{font-size:10px;font-weight:600;color:#b9c3dc}
+.workspace-field input,.workspace-field select,.workspace-form textarea{width:100%;min-height:40px;padding:10px 11px;border:1px solid #ffffff18;border-radius:9px;background:#0f172d;color:#f0f2ff;font:inherit;font-size:11px;outline:none}
+.workspace-field input:focus,.workspace-field select:focus,.workspace-form textarea:focus{border-color:#647bd0}
+.workspace-callout{display:flex;align-items:flex-start;gap:9px;padding:12px;border:1px solid #ffffff12;border-radius:10px;background:#ffffff06;color:#929db9;font-size:10px;line-height:1.65}
+.workspace-callout svg{flex-shrink:0;color:#d5b65e}
+:root[data-theme="light"] .workspace-form>strong{color:#1b2540}
+:root[data-theme="light"] .workspace-form>p,:root[data-theme="light"] .workspace-form>span{color:#65718b}
+:root[data-theme="light"] .workspace-field label{color:#36425e}
+:root[data-theme="light"] .workspace-field input,:root[data-theme="light"] .workspace-field select,:root[data-theme="light"] .workspace-form textarea{background:#f7f8fc;color:#1c2742;border-color:#dce2ef}
+:root[data-theme="light"] .workspace-callout{background:#f7f8fc;border-color:#e3e7f0;color:#64708b}
+@media(max-width:760px){.workspace-form{padding:12px 0}.workspace-field input,.workspace-field select,.workspace-form textarea{font-size:16px;min-height:44px}.workspace-form .action-done{position:sticky;bottom:0}}
