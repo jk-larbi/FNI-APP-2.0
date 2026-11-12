@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Menu, Search, Plus, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, MoreVertical, Video, PhoneCall } from 'lucide-react';
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups';
-type Message = { id: number; text: string; time: string; replyTo?: string };
+type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string };
 
 export default function App() {
   const [section, setSection] = useState<Section>('Chats');
@@ -17,6 +17,7 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [openMessageMenu, setOpenMessageMenu] = useState<number | null>(null);
+  const attachmentInput = useRef<HTMLInputElement>(null);
 
   const navigation = [
     { label: 'Chats' as const, icon: MessageCircle },
@@ -33,6 +34,25 @@ export default function App() {
     setUsername('');
     setMessages([]);
     setReplyTo(null);
+    setOpenMessageMenu(null);
+  };
+
+  const attachMedia = (file?: File) => {
+    if (!file) return;
+    const mediaType = file.type.startsWith('video/') ? 'video' : file.type.startsWith('image/') ? 'photo' : null;
+    if (!mediaType) return;
+    const mediaUrl = URL.createObjectURL(file);
+    setMessages((current) => [...current, { id: Date.now(), text: '', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), mediaUrl, mediaType, mediaName: file.name }]);
+  };
+
+  const saveMedia = (message: Message) => {
+    if (!message.mediaUrl) return;
+    const link = document.createElement('a');
+    link.href = message.mediaUrl;
+    link.download = message.mediaName || (message.mediaType === 'video' ? 'fni-video' : 'fni-photo');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
     setOpenMessageMenu(null);
   };
 
@@ -120,12 +140,18 @@ export default function App() {
                     <button className="message-more-button" aria-label="Message actions" onClick={() => setOpenMessageMenu(openMessageMenu === message.id ? null : message.id)}><MoreVertical size={17} /></button>
                     {openMessageMenu === message.id && <div className="message-action-menu">
                       <button onClick={() => { setReplyTo(message); setOpenMessageMenu(null); }}>Reply</button>
-                      <button onClick={() => { void navigator.clipboard?.writeText(message.text); setOpenMessageMenu(null); }}>Copy text</button>
+                      {message.mediaType ? (
+                        <button onClick={() => saveMedia(message)}>Save {message.mediaType === 'video' ? 'video' : 'photo'}</button>
+                      ) : (
+                        <button onClick={() => { void navigator.clipboard?.writeText(message.text); setOpenMessageMenu(null); }}>Copy text</button>
+                      )}
                       <button className="delete-action" onClick={() => { setMessages((current) => current.filter((item) => item.id !== message.id)); setOpenMessageMenu(null); }}>Delete</button>
                     </div>}
                     <div className="message-bubble">
                       {message.replyTo && <div className="quoted-message">{message.replyTo}</div>}
-                      {message.text}<span>{message.time} <b>✓✓</b></span>
+                      {message.mediaType === 'photo' && message.mediaUrl && <img className="message-media" src={message.mediaUrl} alt={message.mediaName || 'Shared photo'} />}
+                      {message.mediaType === 'video' && message.mediaUrl && <video className="message-media" src={message.mediaUrl} controls playsInline />}
+                      {message.text && <div>{message.text}</div>}<span>{message.time} <b>✓✓</b></span>
                     </div>
                   </div>
                 </div>
@@ -133,7 +159,8 @@ export default function App() {
             </div>
             {replyTo && <div className="reply-preview"><div><strong>Replying to your message</strong><span>{replyTo.text}</span></div><button onClick={() => setReplyTo(null)} aria-label="Cancel reply"><X size={17} /></button></div>}
             <div className="message-composer">
-              <button className="composer-icon" aria-label="Attach file"><Paperclip /></button>
+              <button className="composer-icon" aria-label="Attach photo or video" title="Attach photo or video" onClick={() => attachmentInput.current?.click()}><Paperclip /></button>
+              <input ref={attachmentInput} className="attachment-input" type="file" accept="image/*,video/*" onChange={(event) => { attachMedia(event.target.files?.[0]); event.target.value = ''; }} />
               <textarea value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }} placeholder="Message" rows={1} />
               <button className="composer-icon emoji-button" aria-label="Emoji"><Smile /></button>
               <button className="send-button" aria-label="Send message" onClick={sendMessage} disabled={!draft.trim()}><Send size={19} /></button>
