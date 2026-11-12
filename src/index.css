@@ -2901,3 +2901,18 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
  .story-viewer>header{padding:12px 14px}
  .story-viewer>footer{padding-bottom:max(10px,env(safe-area-inset-bottom))}
 }
+
+
+/* WhatsApp-style full-screen conversation on mobile */
+.saved-chat-back-button{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border-radius:50%;background:transparent;color:var(--fni-text,#192033)}
+.saved-chat-back-button:hover{background:var(--fni-surface-2,#eef1f8);color:var(--fni-blue,#173b8f)}
+@media(max-width:760px){
+  .saved-chat-shell{position:fixed;inset:0;z-index:1000;width:100vw;max-width:none;height:100dvh;min-height:100dvh;max-height:100dvh;margin:0;border:0;border-radius:0;box-shadow:none}
+  .saved-chat-header{height:calc(60px + env(safe-area-inset-top));flex-basis:calc(60px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 12px 0;gap:8px}
+  .saved-chat-avatar{width:38px;height:38px;flex-basis:38px}
+  .saved-chat-wallpaper{min-height:0;max-height:none;padding:14px 10px calc(12px + env(safe-area-inset-bottom))}
+  .saved-chat-compose-wrap{padding:9px 9px calc(8px + env(safe-area-inset-bottom));gap:6px}
+  .saved-chat-local-note{display:none}
+  .saved-chat-message-actions{opacity:1}
+  .saved-chat-back-button{width:34px;height:38px;flex-basis:34px}
+}
