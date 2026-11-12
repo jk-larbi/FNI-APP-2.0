@@ -228,7 +228,7 @@ function App() {
         </div>
       </header>
 
-      {section === 'calls' ? null : section === 'notifications' ? <NotificationsWorkspace /> : section === 'settings' ? <div className="settings-page">
+      {section === 'calls' ? null : section === 'notifications' ? <NotificationsWorkspace onNavigate={destination => setSection(destination)} /> : section === 'settings' ? <div className="settings-page">
         <div className="settings-intro"><div><span className="settings-kicker">YOUR FNI EXPERIENCE</span><h2>{t('Settings')}</h2><p>Manage your account, privacy, preferences and ministry experience.</p></div><div className="settings-profile"><div className="profile-avatar">F</div><div><strong>FNI Member</strong><span>Account setup pending</span></div></div></div>
         <div className="settings-layout">
           <aside className="settings-menu">
@@ -236,7 +236,7 @@ function App() {
               {settingCategories.filter(item => item.group === group).map(item => { const Icon = item.icon; return <button key={item.id} className={selectedSetting === item.id ? 'setting-nav active' : 'setting-nav'} onClick={() => setSelectedSetting(item.id)}><Icon size={17} /><span>{t(item.label)}</span><ChevronRight size={14} /></button>; })}
             </div>)}
           </aside>
-          {selectedSetting === 'notifications' ? <NotificationsWorkspace /> : selectedSetting === 'profile' ? <ProfileIdentity onNotice={message => { setNotice(message); window.setTimeout(() => setNotice(''), 4800); }} /> : selectedSetting === 'appearance' || selectedSetting === 'contacts' ? <AppearanceContactsWorkspace initialTab={selectedSetting === 'contacts' ? 'contacts' : 'appearance'} /> : <section className="settings-detail">
+          {selectedSetting === 'notifications' ? <NotificationsWorkspace onNavigate={destination => setSection(destination)} /> : selectedSetting === 'profile' ? <ProfileIdentity onNotice={message => { setNotice(message); window.setTimeout(() => setNotice(''), 4800); }} /> : selectedSetting === 'appearance' || selectedSetting === 'contacts' ? <AppearanceContactsWorkspace initialTab={selectedSetting === 'contacts' ? 'contacts' : 'appearance'} /> : <section className="settings-detail">
             <div className="settings-detail-head"><div className="setting-detail-icon"><ActiveSettingIcon size={20} /></div><div><h3>{t(activeSetting.label)}</h3><p>{activeSetting.description}</p></div></div>
             <div className="settings-options">
               {activeSetting.options.map(option => {
