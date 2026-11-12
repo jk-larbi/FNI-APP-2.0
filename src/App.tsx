@@ -3,7 +3,7 @@ import { Menu, Search, Plus, MessageCircle, Users, Phone, Settings, ChevronDown,
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups';
-type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; reactions?: string[]; edited?: boolean };
+type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
 
 export default function App() {
   const [section, setSection] = useState<Section>('Chats');
@@ -21,6 +21,8 @@ export default function App() {
   const [openMessageMenu, setOpenMessageMenu] = useState<number | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [mentionOpen, setMentionOpen] = useState(false);
+  const [forwardingMessage, setForwardingMessage] = useState<Message | null>(null);
+  const [forwardRecipient, setForwardRecipient] = useState('');
   const attachmentInput = useRef<HTMLInputElement>(null);
 
   const navigation = [
@@ -67,6 +69,20 @@ export default function App() {
     setOpenMessageMenu(null);
   };
 
+  const confirmForward = () => {
+    const recipient = forwardRecipient.trim().replace(/^@/, '');
+    if (!recipient || !forwardingMessage) return;
+    const forwarded: Message = {
+      ...forwardingMessage,
+      id: Date.now(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      replyTo: undefined, reactions: [], edited: false, forwardedFrom: activeChat,
+    };
+    setActiveChat('@' + recipient);
+    setMessages([forwarded]);
+    setPinnedMessageId(null); setReplyTo(null); setEditingMessage(null); setOpenMessageMenu(null);
+    setForwardingMessage(null); setForwardRecipient('');
+  };
   const sendMessage = () => {
     const value = draft.trim();
     if (!value) return;
@@ -187,6 +203,7 @@ export default function App() {
                     {openMessageMenu === message.id && <div className="message-action-menu">
                       <div className="reaction-choices">{['👍','❤️','😂','😮','🙏','🔥'].map((emoji) => <button key={emoji} aria-label="Add reaction" onClick={() => addReaction(message.id, emoji)}>{emoji}</button>)}</div>
                       <button onClick={() => { setReplyTo(message); setEditingMessage(null); setOpenMessageMenu(null); }}>Reply</button>\n                      {!message.mediaType && <button onClick={() => { setEditingMessage(message); setDraft(message.text); setReplyTo(null); setOpenMessageMenu(null); }}>Edit message</button>}\n                      <button onClick={() => { setPinnedMessageId(pinnedMessageId === message.id ? null : message.id); setOpenMessageMenu(null); }}>{pinnedMessageId === message.id ? 'Unpin message' : 'Pin message'}</button>
+                      <button onClick={() => { setForwardingMessage(message); setForwardRecipient(''); setOpenMessageMenu(null); }}>Forward</button>
                       {message.mediaType ? (
                         <button onClick={() => saveMedia(message)}>Save {message.mediaType === 'video' ? 'video' : 'photo'}</button>
                       ) : (
@@ -195,6 +212,7 @@ export default function App() {
                       <button className="delete-action" onClick={() => { setMessages((current) => current.filter((item) => item.id !== message.id)); setOpenMessageMenu(null); }}>Delete</button>
                     </div>}
                     <div className="message-bubble">
+                      {message.forwardedFrom && <div className="forwarded-label">Forwarded from {message.forwardedFrom}</div>}
                       {message.replyTo && <div className="quoted-message">{message.replyTo}</div>}
                       {message.mediaType === 'photo' && message.mediaUrl && <img className="message-media" src={message.mediaUrl} alt={message.mediaName || 'Shared photo'} />}
                       {message.mediaType === 'video' && message.mediaUrl && <video className="message-media" src={message.mediaUrl} controls playsInline />}
@@ -234,6 +252,18 @@ export default function App() {
         )}
       </section>
 
+      {forwardingMessage && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setForwardingMessage(null); }}>
+          <form className="new-chat-modal" onSubmit={(event) => { event.preventDefault(); confirmForward(); }}>
+            <div className="modal-heading"><h2>Forward message</h2><button type="button" className="icon-button" aria-label="Close" onClick={() => setForwardingMessage(null)}><X /></button></div>
+            <div className="forward-message-preview">{forwardingMessage.mediaType ? (forwardingMessage.mediaType === 'photo' ? 'Photo' : 'Video') : forwardingMessage.text}</div>
+            <label htmlFor="forward-recipient">Forward to username</label>
+            <input id="forward-recipient" autoFocus value={forwardRecipient} onChange={(event) => setForwardRecipient(event.target.value)} placeholder="@username" />
+            <p>This is a local preview. Delivery to another FNI member will be available when messaging is connected.</p>
+            <button className="modal-submit" type="submit" disabled={!forwardRecipient.trim()}>Forward message</button>
+          </form>
+        </div>
+      )}
       {newChatOpen && (
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setNewChatOpen(false); }}>
           <form className="new-chat-modal" onSubmit={(event) => { event.preventDefault(); startChat(); }}>
