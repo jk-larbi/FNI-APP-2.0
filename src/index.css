@@ -1046,3 +1046,90 @@ button{cursor:pointer}
 @media(prefers-reduced-motion:reduce){
   .fni-community-page{scroll-behavior:auto}
 }
+
+
+/* Mobile viewport, scrolling and content-fit correction */
+html,body,#root{width:100%;min-width:320px;height:100%;min-height:0;overscroll-behavior:none}
+body{overflow:hidden}
+.app-shell{height:100dvh;height:100svh;min-height:0;min-width:0;overflow:hidden}
+.app-shell *{min-width:0}
+.chat-list-panel{min-height:0;min-width:0;overflow:hidden}
+.list-header{flex:none;min-width:0}
+.recent-chat-list{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.conversation-panel{min-height:0;min-width:0;overflow:hidden}
+.message-history{min-height:0;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+.telegram-settings{min-height:0;min-width:0;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+.fni-community-page{height:100%;max-height:100%;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.settings-content{min-width:0}
+.settings-section,.settings-layout,.settings-category-list{min-width:0}
+.modal-backdrop{overflow-y:auto;overscroll-behavior:contain;align-items:center}
+.new-chat-modal,.find-groups-modal,.account-profile-editor{max-height:calc(100dvh - 28px);max-height:calc(100svh - 28px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+button,input,textarea,select{max-width:100%}
+img,video{max-width:100%}
+
+@media(max-width:620px){
+  html,body,#root{height:100%;min-height:0;overflow:hidden}
+  .app-shell{display:flex;flex-direction:column;width:100%;height:100dvh;height:100svh;min-height:0;overflow:hidden}
+  .chat-list-panel{display:flex;flex:1 1 auto;flex-direction:column;width:100%;height:100%;min-height:0;overflow:hidden}
+  .list-header{flex:none;width:100%;padding-top:max(10px,env(safe-area-inset-top))}
+  .list-title-row{min-height:40px;align-items:center}
+  .list-title-row>div:first-of-type{min-width:0;flex:1}
+  .list-title-row h1{overflow-wrap:anywhere}
+  .header-actions-wrap{flex:none;display:flex;align-items:center;gap:3px}
+  .search-box{flex:none;width:100%;min-width:0}
+  .folder-tabs{width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;scrollbar-width:none}
+  .recent-chat-list{display:block;flex:1 1 auto;width:100%;min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:max(14px,env(safe-area-inset-bottom))}
+  .recent-chat-row{width:100%;min-width:0}
+  .conversation-panel.conversation-active{height:100dvh;height:100svh;min-height:0;overflow:hidden}
+  .active-chat-header{flex:none;padding-top:env(safe-area-inset-top)}
+  .message-history{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:14px}
+  .message-composer{flex:none;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  .local-preview-note{flex:none;padding-bottom:max(7px,env(safe-area-inset-bottom))}
+  .app-shell.settings-mode{display:flex;flex-direction:column;height:100dvh;height:100svh;min-height:0;overflow:hidden}
+  .app-shell.settings-mode .chat-list-panel{display:flex;flex:1 1 auto;flex-direction:column;width:100%;height:100%;min-height:0;overflow:hidden}
+  .app-shell.settings-mode .list-header{flex:none;min-height:54px;padding:env(safe-area-inset-top) 12px 0}
+  .app-shell.settings-mode .telegram-settings{display:block;flex:1 1 auto;width:100%;height:auto;min-height:0;max-height:none;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;padding:12px 12px max(28px,env(safe-area-inset-bottom))}
+  .app-shell.settings-mode .settings-profile-card{width:100%;max-width:none}
+  .app-shell.settings-mode .settings-layout{width:100%;min-height:0}
+  .app-shell.settings-mode .settings-content{width:100%;min-width:0;max-width:100%;overflow:visible}
+  .app-shell.settings-mode .settings-section{width:100%;min-width:0}
+  .app-shell.settings-mode .settings-info-row,
+  .app-shell.settings-mode .settings-control-row,
+  .app-shell.settings-mode .settings-toggle-row{width:100%;min-width:0;gap:8px}
+  .app-shell.settings-mode .settings-info-row>span,
+  .app-shell.settings-mode .settings-control-row>span,
+  .app-shell.settings-mode .settings-toggle-row>span{flex:1 1 0;min-width:0;overflow-wrap:anywhere}
+  .app-shell.settings-mode .settings-info-row button,
+  .app-shell.settings-mode .settings-info-row em{flex:0 0 auto;max-width:42%;white-space:normal;overflow-wrap:anywhere;text-align:right}
+  .app-shell.settings-mode .settings-control-row select{flex:0 1 48%;min-width:0;max-width:48%;white-space:normal}
+  .app-shell.settings-mode .settings-layout.mobile-detail-open .settings-content{display:block;max-height:none}
+  .app-shell.settings-mode .settings-content-heading{position:sticky;top:-14px;z-index:2;background:var(--surface,#fff);padding:8px 0 12px}
+  .fni-community-page{height:auto;max-height:none;padding:12px 12px max(30px,env(safe-area-inset-bottom))}
+  .fni-community-page .settings-info-row{align-items:flex-start;flex-wrap:wrap;gap:8px;padding:13px 0}
+  .fni-community-page .settings-info-row>span{flex:1 1 calc(100% - 36px);min-width:0}
+  .fni-community-page .settings-info-row>button,
+  .fni-community-page .settings-info-row>em{margin-left:28px;max-width:calc(100% - 28px);text-align:left}
+  .fni-community-page .find-group-result{align-items:flex-start;flex-wrap:wrap}
+  .fni-community-page .find-group-result-copy{flex:1 1 calc(100% - 52px)}
+  .fni-community-page .find-group-result>button{margin-left:48px}
+  .modal-backdrop{align-items:flex-start;padding: max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+  .new-chat-modal,.find-groups-modal,.account-profile-editor{width:100%;max-width:430px;max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px);max-height:calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px);margin:auto;overflow-x:hidden;overflow-y:auto}
+  .account-profile-editor{overflow:hidden}
+  .account-profile-editor .account-editor-body{min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  .account-editor-actions{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+  .group-feature-form-row,.meeting-followup-form>div{grid-template-columns:minmax(0,1fr)}
+  .group-rsvp-options{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .group-feature-card,.group-meeting-workspace>section{min-width:0;overflow-wrap:anywhere}
+  .shared-media-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:380px){
+  .app-shell.settings-mode .settings-content{padding:12px 10px}
+  .app-shell.settings-mode .settings-info-row>button,
+  .app-shell.settings-mode .settings-info-row em{max-width:38%;font-size:9px}
+  .app-shell.settings-mode .settings-control-row select{font-size:10px;padding:7px 5px}
+  .fni-community-page .settings-info-row>button{margin-left:0}
+  .group-rsvp-options{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  .recent-chat-list,.message-history,.telegram-settings,.fni-community-page{scroll-behavior:auto}
+}
