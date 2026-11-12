@@ -10,7 +10,8 @@ export default function StoriesWorkspace({onReply}:{onReply?:()=>void}){
  const [composer,setComposer]=useState(false),[viewer,setViewer]=useState<string|null>(null),[draft,setDraft]=useState(''),[caption,setCaption]=useState(''),[kind,setKind]=useState<'text'|'image'|'video'>('text'),[media,setMedia]=useState(''),[audience,setAudience]=useState('My Contacts'),[replies,setReplies]=useState(true),[share,setShare]=useState(false),[privacy,setPrivacy]=useState(false),[archive,setArchive]=useState(false),[paused,setPaused]=useState(false),[reply,setReply]=useState(''),[notice,setNotice]=useState('');
  const fileRef=useRef<HTMLInputElement>(null);
  useEffect(()=>{localStorage.setItem(KEY,JSON.stringify(stories.map(s=>({...s,media:s.kind==='text'?undefined:s.media}))));},[stories]);
- const mine=stories.filter(s=>s.mine),others=stories.filter(s=>!s.mine);\n const recentUpdates=others.filter(s=>!s.viewers.includes('You'));\n const viewedUpdates=others.filter(s=>s.viewers.includes('You'));
+ const mine=stories.filter(s=>s.mine),others=stories.filter(s=>!s.mine);
+  const recentUpdates=others.filter(s=>!s.viewers.includes('You'));\n const viewedUpdates=others.filter(s=>s.viewers.includes('You'));
  const current=stories.find(s=>s.id===viewer);
  const ownerStories=useMemo(()=>current?stories.filter(s=>s.owner===current.owner&&s.expiresAt>Date.now()):[],[stories,current]);
  const [storyIndex,setStoryIndex]=useState(0);
