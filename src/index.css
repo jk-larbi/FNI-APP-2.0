@@ -224,3 +224,14 @@ button{cursor:pointer}
 .emoji-picker{position:absolute;z-index:12;right:0;bottom:calc(100% + 12px);width:220px;padding:9px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:#fff;border:1px solid #e5e9ef;border-radius:11px;box-shadow:0 7px 25px #15223820}
 .emoji-picker button{font-size:21px;padding:7px 3px}
 @media(max-width:620px){.emoji-picker{right:-48px;bottom:calc(100% + 10px)}.reaction-choices button{font-size:19px;padding:6px}}
+
+
+/* Message editing and pinned-message controls */
+.pinned-message-banner {
+  width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+  border: 0; border-bottom: 1px solid var(--border, #e7e9ee); background: var(--surface, #fff);
+  color: inherit; text-align: left; cursor: pointer;
+}
+.pinned-message-banner strong { color: #3390ec; font-size: 12px; white-space: nowrap; }
+.pinned-message-banner span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; font-size: 13px; }
+.pinned-message-banner svg { flex: 0 0 auto; opacity: .65; }
