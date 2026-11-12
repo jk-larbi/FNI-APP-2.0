@@ -5265,3 +5265,105 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
   .story-composer-options{gap:10px}
   .story-modal-actions{position:sticky;bottom:-15px;padding:12px 0 max(8px,env(safe-area-inset-bottom));background:var(--fni-surface)}
 }
+
+
+/* Calls & Meetings: keep controls and meeting tools legible in both themes. */
+:root[data-theme="light"] .call-controls{
+  background:rgba(255,255,255,.96)!important;
+  border:1px solid var(--fni-line)!important;
+  box-shadow:0 8px 28px rgba(20,35,65,.10)!important;
+  backdrop-filter:blur(14px);
+}
+:root[data-theme="light"] .call-control{color:var(--fni-muted)!important}
+:root[data-theme="light"] .call-control>span{
+  background:var(--fni-surface)!important;
+  border-color:var(--fni-line)!important;
+  color:var(--fni-text)!important;
+}
+:root[data-theme="light"] .call-control.selected>span{
+  background:var(--fni-hover)!important;border-color:var(--fni-blue)!important;color:var(--fni-blue)!important;
+}
+:root[data-theme="light"] .call-output-select,
+:root[data-theme="light"] .call-output-select select,
+:root[data-theme="light"] .call-setting-row select,
+:root[data-theme="light"] .meeting-attendance-list select{
+  background:var(--fni-surface-2)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important;color-scheme:light;
+}
+:root[data-theme="light"] .meeting-tools-panel,
+:root[data-theme="light"] .meeting-tool-card,
+:root[data-theme="light"] .meeting-attendance-list>div,
+:root[data-theme="light"] .meeting-attendance-add input{
+  background:var(--fni-surface)!important;border-color:var(--fni-line)!important;
+}
+:root[data-theme="light"] .meeting-tool-card{background:var(--fni-surface-2)!important}
+:root[data-theme="light"] .meeting-tools-heading h3,
+:root[data-theme="light"] .meeting-tool-title b,
+:root[data-theme="light"] .meeting-attendance-list b,
+:root[data-theme="light"] .meeting-room-heading h2,
+:root[data-theme="light"] .meeting-side-panel h3,
+:root[data-theme="light"] .meeting-code-row b,
+:root[data-theme="light"] .meeting-host-controls h4,
+:root[data-theme="light"] .call-person-details h2,
+:root[data-theme="light"] .call-person-details strong,
+:root[data-theme="light"] .call-empty b,
+:root[data-theme="light"] .call-panel-title h3,
+:root[data-theme="light"] .call-inline-panel h3{color:var(--fni-text)!important}
+:root[data-theme="light"] .meeting-tools-heading p,
+:root[data-theme="light"] .meeting-tool-card>p,
+:root[data-theme="light"] .meeting-tool-card>small,
+:root[data-theme="light"] .meeting-attendance-list small,
+:root[data-theme="light"] .meeting-attendance-summary span,
+:root[data-theme="light"] .meeting-host-controls label,
+:root[data-theme="light"] .meeting-host-controls p,
+:root[data-theme="light"] .meeting-meta-row,
+:root[data-theme="light"] .call-panel-title p,
+:root[data-theme="light"] .call-inline-panel p,
+:root[data-theme="light"] .call-hint,
+:root[data-theme="light"] .call-muted-copy,
+:root[data-theme="light"] .call-system-note,
+:root[data-theme="light"] .call-stage-disclaimer,
+:root[data-theme="light"] .call-empty span{color:var(--fni-muted)!important}
+:root[data-theme="light"] .meeting-reminder-chips span{background:#e9eefb!important;color:#173b8f!important}
+:root[data-theme="light"] .meeting-status{background:var(--fni-hover)!important;color:var(--fni-muted)!important}
+:root[data-theme="light"] .meeting-status.live{background:#e7f5ed!important;color:#287b50!important}
+:root[data-theme="light"] .call-stage,
+:root[data-theme="light"] .meeting-stage-panel,
+:root[data-theme="light"] .meeting-side-panel,
+:root[data-theme="light"] .call-panel,
+:root[data-theme="light"] .call-inline-panel{background:var(--fni-surface)!important;border-color:var(--fni-line)!important}
+:root[data-theme="light"] .call-group-illustration,
+:root[data-theme="light"] .meeting-empty-stage,
+:root[data-theme="light"] .call-video-placeholder,
+:root[data-theme="light"] .call-hint,
+:root[data-theme="light"] .call-permission-note,
+:root[data-theme="light"] .call-system-note{background:var(--fni-surface-2)!important;border-color:var(--fni-line)!important}
+:root[data-theme="light"] .call-notice{background:var(--fni-surface)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important}
+:root[data-theme="light"] .call-notice button{color:var(--fni-muted)!important}
+:root[data-theme="light"] .calling-tabs{border-color:var(--fni-line)!important}
+:root[data-theme="light"] .calling-tabs button{color:var(--fni-muted)!important}
+:root[data-theme="light"] .calling-tabs button.active{color:var(--fni-blue)!important}
+:root[data-theme="light"] .call-stage-top .call-back{color:var(--fni-blue)!important}
+:root[data-theme="light"] .call-preview-pill{background:var(--fni-hover)!important;color:var(--fni-muted)!important}
+:root[data-theme="light"] .call-field,
+:root[data-theme="light"] .call-create-fields label{color:var(--fni-text)!important}
+:root[data-theme="light"] .call-field input,
+:root[data-theme="light"] .call-create-fields input,
+:root[data-theme="light"] .call-create-fields textarea,
+:root[data-theme="light"] .call-inline-entry input,
+:root[data-theme="light"] .meeting-attendance-add input{
+  background:var(--fni-surface-2)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important;
+}
+:root[data-theme="light"] .calling-workspace input::placeholder,
+:root[data-theme="light"] .calling-workspace textarea::placeholder{color:var(--fni-muted)!important;opacity:1}
+:root[data-theme="light"] .call-secondary{background:var(--fni-surface)!important;color:var(--fni-text)!important;border-color:var(--fni-line)!important}
+:root[data-theme="light"] .call-secondary:hover{background:var(--fni-hover)!important}
+:root[data-theme="light"] .call-switch{background:#a8adb7}
+:root[data-theme="light"] .call-switch.on{background:var(--fni-blue)}
+@media(max-width:760px){
+  :root[data-theme="light"] .call-controls{
+    bottom:calc(66px + env(safe-area-inset-bottom));
+    padding:10px 8px!important;border-radius:16px!important;
+  }
+  .meeting-room-footer{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));z-index:8;padding:10px 0;background:var(--fni-bg)}
+  .meeting-room-footer button{flex:1;min-height:44px}
+}
