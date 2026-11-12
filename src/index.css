@@ -534,3 +534,11 @@ button{cursor:pointer}
 .group-approval-log-row>span{grid-row:span 2;font-size:10px;font-weight:650;align-self:center}
 .group-approval-log-row strong{overflow:hidden;color:var(--text,#344054);font-size:12px;font-weight:550;text-overflow:ellipsis;white-space:nowrap}
 .group-approval-log-row time{color:#929baa;font-size:10px}
+
+.group-insights-section{padding:14px 0;border-top:1px solid var(--border-color,#e8eaf0)}
+.group-insights-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:11px 0}
+.group-insights-grid article{display:flex;min-width:0;flex-direction:column;gap:5px;padding:12px;border:1px solid var(--border-color,#e7eaf0);border-radius:9px;background:var(--surface,#fff)}
+.group-insights-grid article>span{color:#7b8795;font-size:11px}
+.group-insights-grid article>strong{color:var(--text,#263445);font-size:22px;font-weight:650;line-height:1.1}
+.group-insights-grid article>small{color:#929baa;font-size:10px}
+.group-insights-note{margin:8px 0 0;color:#929baa;font-size:10px;line-height:1.5}
