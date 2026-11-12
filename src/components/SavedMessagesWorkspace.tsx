@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import ChatEmojiPicker from './ChatEmojiPicker';
+import VoiceMessageButton from './VoiceMessageButton';
 import { ArrowLeft, Bookmark, Search, Plus, Paperclip, Send, Image as ImageIcon, Video, Link2, FileText, Pin, Trash2, Download, ExternalLink, X, MoreVertical, Smile, Camera, MapPin, BarChart3, CheckSquare, Music, ChevronDown, Sticker } from 'lucide-react';
 
 type SavedType = 'note' | 'image' | 'video' | 'document' | 'link' | 'audio' | 'message';
@@ -21,6 +23,7 @@ export default function SavedMessagesWorkspace({ onBack }: { onBack?: () => void
   const [folderOpen,setFolderOpen] = useState(false);
   const [newFolder,setNewFolder] = useState('');
   const [notice,setNotice] = useState('');
+  const [emojiOpen,setEmojiOpen] = useState(false);
   const [mediaPickerOpen,setMediaPickerOpen] = useState(false);
   const [mediaPickerTab,setMediaPickerTab] = useState<'gallery'|'file'|'location'|'poll'|'checklist'|'audio'>('gallery');
   const [recentMedia,setRecentMedia] = useState<{url:string;type:'image'|'video';duration?:string}[]>([]);
@@ -32,7 +35,8 @@ export default function SavedMessagesWorkspace({ onBack }: { onBack?: () => void
   const visible = useMemo(() => items.filter(item => (folder==='all'||item.folderId===folder) && (item.title+' '+item.content+' '+(item.fileName||'')).toLowerCase().includes(query.toLowerCase())).sort((a,b)=>new Date(a.createdAt).getTime()-new Date(b.createdAt).getTime()),[items,folder,query]);
   useEffect(()=>{if(listRef.current)listRef.current.scrollTop=listRef.current.scrollHeight},[visible.length]);
   const addItem=(item:SavedItem)=>setItems(v=>[...v,item]);
-  const sendMessage=()=>{const text=draft.trim();if(!text)return;addItem({id:crypto.randomUUID(),type:'message',title:'Saved message',content:text,size:new Blob([text]).size,createdAt:new Date().toISOString(),folderId:'personal',pinned:false});setDraft('');if(composerRef.current)composerRef.current.style.height='auto'};
+  const sendMessage=()=>{const text=draft.trim();if(!text)return;addItem({id:crypto.randomUUID(),type:'message',title:'Saved message',content:text,size:new Blob([text]).size,createdAt:new Date().toISOString(),folderId:'personal',pinned:false});setDraft('');setEmojiOpen(false);if(composerRef.current)composerRef.current.style.height='auto'};
+  const saveVoiceMessage=async(blob:Blob,duration:number)=>{try{const content=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=reject;reader.readAsDataURL(blob)});addItem({id:crypto.randomUUID(),type:'audio',title:'Voice message',content,fileName:'fni-voice-message.'+(blob.type.includes('mp4')?'m4a':'webm'),mime:blob.type,size:blob.size,createdAt:new Date().toISOString(),folderId:'media',pinned:false});setNotice('Voice message saved in Saved Messages on this device ('+duration+'s).')}catch{setNotice('The voice message could not be saved.')}};
   const uploadFile=async(file?:File)=>{if(!file)return;if(file.size>3*1024*1024){setNotice('Files are limited to 3 MB each in this preview.');return}try{const data=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=reject;reader.readAsDataURL(file)});const type:SavedType=file.type.startsWith('image/')?'image':file.type.startsWith('video/')?'video':file.type.startsWith('audio/')?'audio':'document';addItem({id:crypto.randomUUID(),type,title:file.name,content:data,fileName:file.name,mime:file.type,size:file.size,createdAt:new Date().toISOString(),folderId:type==='image'||type==='video'||type==='audio'?'media':'documents',pinned:false});setNotice('Attachment saved in this chat on this device.')}catch{setNotice('This file could not be added. Try another file.')}};
   const saveLink=()=>{const raw=window.prompt('Paste a link to save');if(!raw?.trim())return;try{const url=new URL(raw.trim());if(!['http:','https:'].includes(url.protocol))throw new Error();addItem({id:crypto.randomUUID(),type:'link',title:url.hostname,content:url.toString(),size:new Blob([url.toString()]).size,createdAt:new Date().toISOString(),folderId:'important',pinned:false})}catch{setNotice('Enter a valid link beginning with https:// or http://.')}};
   const addFolder=()=>{const name=newFolder.trim();if(!name)return;if(folders.some(f=>f.name.toLowerCase()===name.toLowerCase())){setNotice('That tag already exists.');return}const id=crypto.randomUUID();setFolders(v=>[...v,{id,name}]);setFolder(id);setNewFolder('');setFolderOpen(false)};
@@ -64,24 +68,23 @@ export default function SavedMessagesWorkspace({ onBack }: { onBack?: () => void
       <div className="saved-chat-media-picker-header"><button className="saved-chat-media-picker-close" onClick={()=>setMediaPickerOpen(false)} aria-label="Close media picker"><X size={22}/></button><button className="saved-chat-media-picker-recents"><span>Recents</span><ChevronDown size={16}/></button></div>
       <div className="saved-chat-media-picker-grid">
         <button className="saved-chat-media-thumb saved-chat-media-thumb-camera" onClick={()=>{setNotice('Camera is not available in browser preview.');}}><Camera size={26}/></button>
-        {recentMedia.length>0?recentMedia.map((m,i)=><button key={i} className="saved-chat-media-thumb" onClick={()=>{setNotice('Media selection requires device gallery access.');}}>{m.type==='video'?<><div className="saved-chat-media-thumb-overlay"/><span className="saved-chat-media-duration">{m.duration||'0:00'}</span></>:null}<div className="saved-chat-media-thumb-select"/></button>):<>
-          {[1,2,3,4,5,6,7,8].map(i=><button key={i} className="saved-chat-media-thumb saved-chat-media-thumb-placeholder" onClick={()=>fileRef.current?.click()}><ImageIcon size={20}/></button>)}
-        </>}
+        {recentMedia.length>0?recentMedia.map((m,i)=><button key={i} className="saved-chat-media-thumb" onClick={()=>fileRef.current?.click()}>{m.type==='video'?<><div className="saved-chat-media-thumb-overlay"/><span className="saved-chat-media-duration">{m.duration||'0:00'}</span></>:null}<div className="saved-chat-media-thumb-select"/></button>):<div className="saved-chat-media-empty"><ImageIcon size={25}/><b>No recent media in this preview</b><span>Choose a photo, video or file from your device.</span><button onClick={()=>fileRef.current?.click()}>Browse files</button></div>}
       </div>
       <div className="saved-chat-media-picker-tabs">
         {([['gallery','Gallery',<ImageIcon size={20} key="g"/>],['file','File',<FileText size={20} key="f"/>],['location','Location',<MapPin size={20} key="l"/>],['poll','Poll',<BarChart3 size={20} key="p"/>],['checklist','Checklist',<CheckSquare size={20} key="c"/>],['audio','Audio',<Music size={20} key="a"/>]] as [string,string,React.ReactNode][]).map(([key,label,icon])=><button key={key} className={mediaPickerTab===key?'active':''} onClick={()=>{setMediaPickerTab(key as typeof mediaPickerTab);if(key==='file'){fileRef.current?.click();setMediaPickerOpen(false)}else if(key!=='gallery'){setNotice(label+' is not yet available in this preview.');setMediaPickerOpen(false)}}}>{icon}<span>{label}</span></button>)}
       </div>
     </div>}
+    {emojiOpen&&<div className="saved-chat-emoji-popover"><ChatEmojiPicker onSelect={emoji=>setDraft(value=>value+emoji)}/></div>}
     <footer className="saved-chat-compose-wrap">
       <input ref={fileRef} type="file" hidden onChange={e=>{void uploadFile(e.target.files?.[0]);e.currentTarget.value='';setAttachOpen(false);setMediaPickerOpen(false)}}/>
       <button className="saved-chat-attach" aria-label="Attach media" onClick={()=>{setMediaPickerOpen(v=>!v);setAttachOpen(false)}}><Paperclip size={21}/></button>
       <div className="saved-chat-input-wrap"><textarea ref={composerRef} value={draft} rows={1} onChange={e=>{setDraft(e.target.value);e.currentTarget.style.height='auto';e.currentTarget.style.height=Math.min(e.currentTarget.scrollHeight,120)+'px'}} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}} placeholder="Message"/></div>
       <div className="saved-chat-compose-right">
-        <button aria-label="Add emoji" onClick={()=>setDraft(v=>v+' 😊')}><Smile size={21}/></button>
-        <button aria-label="Stickers" onClick={()=>setNotice('Stickers coming soon.')}><Sticker size={21}/></button>
-        <button aria-label="Camera" onClick={()=>setNotice('Camera is not available in browser preview.')}><Camera size={21}/></button>
+        <button aria-label="Add emoji" aria-expanded={emojiOpen} onClick={()=>setEmojiOpen(v=>!v)}><Smile size={21}/></button>
+        <button aria-label="Stickers" onClick={()=>setNotice('Sticker sending is available in group conversations.')}><Sticker size={21}/></button>
+        <button aria-label="Camera" onClick={()=>fileRef.current?.click()}><Camera size={21}/></button>
       </div>
-      {draft.trim()&&<button className="saved-chat-send" aria-label="Send message" onClick={sendMessage}><Send size={19}/></button>}
+      {draft.trim()?<button className="saved-chat-send" aria-label="Send message" onClick={sendMessage}><Send size={19}/></button>:<VoiceMessageButton onRecorded={(blob,duration)=>{void saveVoiceMessage(blob,duration)}} onNotice={setNotice}/>}
     </footer>
     <div className="saved-chat-local-note">Saved privately on this device</div>
     {notice&&<div className="saved-chat-notice" role="status">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss"><X size={14}/></button></div>}
