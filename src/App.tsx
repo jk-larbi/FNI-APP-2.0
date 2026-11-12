@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Menu, Search, Plus, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, MoreVertical, Video, PhoneCall } from 'lucide-react';
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'Settings';
@@ -14,7 +14,25 @@ export default function App() {
   const [username, setUsername] = useState('');
   const [activeChat, setActiveChat] = useState('');
   const [draft, setDraft] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversations, setConversations] = useState<Record<string, Message[]>>(() => {
+    try { return JSON.parse(localStorage.getItem('fni-local-conversations') || '{}'); }
+    catch { return {}; }
+  });
+  const messages = activeChat ? conversations[activeChat] || [] : [];
+  const setMessages = (update: Message[] | ((current: Message[]) => Message[])) => {
+    if (!activeChat) return;
+    setConversations((current) => ({
+      ...current,
+      [activeChat]: typeof update === 'function' ? update(current[activeChat] || []) : update,
+    }));
+  };
+  useEffect(() => {
+    const textOnly: Record<string, Message[]> = {};
+    Object.entries(conversations).forEach(([chat, items]) => {
+      textOnly[chat] = items.filter((item) => !item.mediaType);
+    });
+    try { localStorage.setItem('fni-local-conversations', JSON.stringify(textOnly)); } catch { /* storage may be unavailable */ }
+  }, [conversations]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [pinnedMessageId, setPinnedMessageId] = useState<number | null>(null);
@@ -28,6 +46,9 @@ export default function App() {
   const attachmentInput = useRef<HTMLInputElement>(null);
 
   const matchingMessages = chatSearch.trim() ? messages.filter((message) => message.text.toLowerCase().includes(chatSearch.trim().toLowerCase()) || (message.mediaName || '').toLowerCase().includes(chatSearch.trim().toLowerCase())) : messages;
+  const recentChats = Object.entries(conversations)
+    .filter(([chat, items]) => folder !== 'Groups' && (chat.toLowerCase().includes(search.toLowerCase()) || (items[items.length - 1]?.text || '').toLowerCase().includes(search.toLowerCase())))
+    .sort((a, b) => (b[1][b[1].length - 1]?.id || 0) - (a[1][a[1].length - 1]?.id || 0));
 
   const navigation = [
     { label: 'Chats' as const, icon: MessageCircle },
@@ -42,7 +63,6 @@ export default function App() {
     setActiveChat(handle.startsWith('@') ? handle : `@${handle}`);
     setNewChatOpen(false);
     setUsername('');
-    setMessages([]);
     setReplyTo(null);
     setOpenMessageMenu(null);
   };
@@ -82,8 +102,9 @@ export default function App() {
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       replyTo: undefined, reactions: [], edited: false, forwardedFrom: activeChat,
     };
-    setActiveChat('@' + recipient);
-    setMessages([forwarded]);
+    const recipientChat = '@' + recipient;
+    setConversations((current) => ({ ...current, [recipientChat]: [...(current[recipientChat] || []), forwarded] }));
+    setActiveChat(recipientChat);
     setPinnedMessageId(null); setReplyTo(null); setEditingMessage(null); setOpenMessageMenu(null);
     setForwardingMessage(null); setForwardRecipient('');
   };
@@ -162,12 +183,25 @@ export default function App() {
             </div>
           )}
         </header>
-        <div className="empty-list">
-          <div className="empty-icon"><MessageCircle size={27} strokeWidth={1.5} /></div>
-          <h2>{search ? 'No matches found' : section === 'Chats' ? 'No conversations yet' : section === 'Contacts' ? 'Your contacts will appear here' : section === 'Calls' ? 'No recent calls' : 'Your settings will appear here'}</h2>
-          <p>{search ? 'Try another name or keyword.' : 'When you connect with people on FNI, you will find them here.'}</p>
-          {section === 'Chats' && <button className="start-chat-button" onClick={() => setNewChatOpen(true)}>Start a conversation</button>}
-        </div>
+        {section === 'Chats' && recentChats.length > 0 ? (
+          <div className="recent-chat-list">
+            {recentChats.map(([chat, items]) => {
+              const latest = items[items.length - 1];
+              return <button className={`recent-chat-row ${activeChat === chat ? 'selected' : ''}`} key={chat} onClick={() => { setActiveChat(chat); setReplyTo(null); setEditingMessage(null); setOpenMessageMenu(null); }}>
+                <span className="recent-chat-avatar">{chat.replace('@','').slice(0,1).toUpperCase()}</span>
+                <span className="recent-chat-copy"><strong>{chat}</strong><span>{latest?.text || (latest?.mediaType === 'photo' ? 'Photo' : latest?.mediaType === 'video' ? 'Video' : 'No messages yet')}</span></span>
+                <span className="recent-chat-time">{latest?.time || ''}</span>
+              </button>;
+            })}
+          </div>
+        ) : (
+          <div className="empty-list">
+            <div className="empty-icon"><MessageCircle size={27} strokeWidth={1.5} /></div>
+            <h2>{search ? 'No matches found' : section === 'Chats' ? 'No conversations yet' : section === 'Contacts' ? 'Your contacts will appear here' : section === 'Calls' ? 'No recent calls' : 'Your settings will appear here'}</h2>
+            <p>{search ? 'Try another name or keyword.' : 'When you connect with people on FNI, you will find them here.'}</p>
+            {section === 'Chats' && <button className="start-chat-button" onClick={() => setNewChatOpen(true)}>Start a conversation</button>}
+          </div>
+        )}
       </section>
 
       <section className={`conversation-panel ${activeChat ? 'conversation-active' : ''}`}>
