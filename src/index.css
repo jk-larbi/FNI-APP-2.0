@@ -3969,3 +3969,95 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
 :root:not([data-theme="dark"]) .saved-chat-media-picker-tabs{background:#fff;border-top-color:#e3e7f0}
 :root:not([data-theme="dark"]) .saved-chat-media-picker-tabs button{color:#66748c}
 :root:not([data-theme="dark"]) .saved-chat-media-picker-tabs button.active{color:#173b8f}
+
+
+/* Authentication screens: theme selector and complete light/dark contrast. */
+.fni-auth-theme-switch{
+  position:absolute;z-index:5;top:20px;right:22px;display:flex;align-items:center;gap:3px;
+  padding:4px;border:1px solid rgba(255,255,255,.18);border-radius:999px;
+  background:rgba(12,22,62,.72);box-shadow:0 5px 18px rgba(0,0,0,.12);
+}
+.fni-auth-theme-switch button{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:32px;
+  padding:0 11px;border:0;border-radius:999px;background:transparent;color:#dbe4ff;
+  font:600 11px Inter,ui-sans-serif,system-ui,sans-serif;cursor:pointer;
+}
+.fni-auth-theme-switch button.active{background:#f2c943;color:#17203d}
+.fni-auth-theme-switch button:focus-visible{outline:2px solid #f2c943;outline-offset:2px}
+:root[data-theme="light"] .fni-auth-page{
+  background:radial-gradient(ellipse at 12% 8%,rgba(45,91,190,.13),transparent 42%),
+    radial-gradient(ellipse at 92% 92%,rgba(111,69,170,.10),transparent 40%),#f3f6fc!important;
+  color:#192033!important;
+}
+:root[data-theme="light"] .fni-auth-backdrop{
+  opacity:.42;background-image:linear-gradient(rgba(23,59,143,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(23,59,143,.055) 1px,transparent 1px)
+}
+:root[data-theme="light"] .fni-auth-card{
+  background:rgba(255,255,255,.97)!important;color:#192033!important;border-color:#dfe5f0!important;
+  box-shadow:0 24px 70px rgba(24,43,86,.13)!important
+}
+:root[data-theme="light"] .fni-auth-brand strong{color:#173b8f!important}
+:root[data-theme="light"] .fni-auth-brand span{color:#58647b!important}
+:root[data-theme="light"] .fni-auth-eyebrow{color:#173b8f!important}
+:root[data-theme="light"] .fni-auth-welcome h1,
+:root[data-theme="light"] .fni-auth-heading h1{color:#192033!important}
+:root[data-theme="light"] .fni-auth-welcome h1 em{color:#39216b!important}
+:root[data-theme="light"] .fni-auth-welcome p,
+:root[data-theme="light"] .fni-auth-heading p{color:#58647b!important}
+:root[data-theme="light"] .fni-auth-form>label{color:#34415b!important}
+:root[data-theme="light"] .fni-auth-input{background:#f5f7fc!important;border-color:#d7deeb!important;color:#58647b!important}
+:root[data-theme="light"] .fni-auth-input input{color:#192033!important}
+:root[data-theme="light"] .fni-auth-input input::placeholder{color:#78849a!important}
+:root[data-theme="light"] .fni-auth-input button{color:#58647b!important}
+:root[data-theme="light"] .fni-auth-back,
+:root[data-theme="light"] .fni-auth-switch{color:#58647b!important}
+:root[data-theme="light"] .fni-auth-switch button{color:#173b8f!important}
+:root[data-theme="light"] .fni-auth-secondary{background:#fff!important;border-color:#cfd8e8!important;color:#173b8f!important}
+:root[data-theme="light"] .fni-admin-entry{background:#fff9e9!important;border-color:#ead9a4!important;color:#25314a!important}
+:root[data-theme="light"] .fni-admin-entry>div strong{color:#25314a!important}
+:root[data-theme="light"] .fni-admin-entry small{color:#58647b!important}
+:root[data-theme="light"] .fni-auth-legal,
+:root[data-theme="light"] .fni-auth-foot,
+:root[data-theme="light"] .fni-auth-copyright{color:#65718a!important}
+:root[data-theme="light"] .fni-demo-hint{background:#f5f7fc!important;color:#34415b!important;border-color:#dfe5f0!important}
+:root[data-theme="light"] .fni-auth-theme-switch{background:rgba(255,255,255,.94);border-color:#d8dfec;box-shadow:0 5px 18px rgba(24,43,86,.10)}
+:root[data-theme="light"] .fni-auth-theme-switch button{color:#58647b}
+:root[data-theme="light"] .fni-auth-theme-switch button.active{background:#173b8f;color:#fff}
+:root[data-theme="dark"] .fni-auth-page{
+  background:radial-gradient(ellipse at 14% 10%,rgba(33,77,198,.34),transparent 42%),
+    radial-gradient(ellipse at 90% 90%,rgba(103,42,161,.25),transparent 40%),#101522!important;
+  color:#f4f5fa!important
+}
+:root[data-theme="dark"] .fni-auth-card{background:#222634!important;color:#f4f5fa!important;border-color:#41485a!important}
+:root[data-theme="dark"] .fni-auth-brand strong{color:#e6c46b!important}
+:root[data-theme="dark"] .fni-auth-brand span{color:#b7bfd0!important}
+:root[data-theme="dark"] .fni-auth-eyebrow{color:#e6c46b!important}
+:root[data-theme="dark"] .fni-auth-welcome h1,
+:root[data-theme="dark"] .fni-auth-heading h1{color:#f4f5fa!important}
+:root[data-theme="dark"] .fni-auth-welcome h1 em{color:#e6c46b!important}
+:root[data-theme="dark"] .fni-auth-welcome p,
+:root[data-theme="dark"] .fni-auth-heading p{color:#c1c8d6!important}
+:root[data-theme="dark"] .fni-auth-form>label{color:#e1e5ee!important}
+:root[data-theme="dark"] .fni-auth-input{background:#2b3040!important;border-color:#485064!important;color:#b7bfd0!important}
+:root[data-theme="dark"] .fni-auth-input input{color:#f4f5fa!important}
+:root[data-theme="dark"] .fni-auth-input input::placeholder{color:#aeb7c8!important}
+:root[data-theme="dark"] .fni-auth-input button{color:#c1c8d6!important}
+:root[data-theme="dark"] .fni-auth-back,
+:root[data-theme="dark"] .fni-auth-switch{color:#c1c8d6!important}
+:root[data-theme="dark"] .fni-auth-switch button{color:#e6c46b!important}
+:root[data-theme="dark"] .fni-auth-secondary{background:#2b3040!important;border-color:#485064!important;color:#f4f5fa!important}
+:root[data-theme="dark"] .fni-admin-entry{background:#302d24!important;border-color:#64572f!important;color:#f4f5fa!important}
+:root[data-theme="dark"] .fni-admin-entry>div strong{color:#f4f5fa!important}
+:root[data-theme="dark"] .fni-admin-entry small{color:#c1c8d6!important}
+:root[data-theme="dark"] .fni-auth-legal,
+:root[data-theme="dark"] .fni-auth-foot,
+:root[data-theme="dark"] .fni-auth-copyright{color:#aeb7c8!important}
+:root[data-theme="dark"] .fni-demo-hint{background:#2b3040!important;color:#e1e5ee!important;border-color:#485064!important}
+:root[data-theme="dark"] .fni-auth-theme-switch{background:rgba(22,27,41,.94);border-color:#485064}
+:root[data-theme="dark"] .fni-auth-theme-switch button{color:#c1c8d6}
+:root[data-theme="dark"] .fni-auth-theme-switch button.active{background:#e6c46b;color:#202033}
+@media(max-width:600px){
+  .fni-auth-theme-switch{top:12px;right:12px}
+  .fni-auth-theme-switch button{min-height:31px;padding:0 9px;font-size:10px}
+  .fni-auth-page{padding-top:60px!important}
+}
