@@ -21,6 +21,18 @@ export default function App() {
     }
   });
   const updatePreference = (key: string, value: string | boolean) => setPreferences((current: Record<string, string | boolean>) => ({ ...current, [key]: value }));
+  const [systemTheme, setSystemTheme] = useState<'Light' | 'Dark'>(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'Dark' : 'Light');
+  const resolvedTheme = preferences.appearance === 'System' ? systemTheme : preferences.appearance;
+  useEffect(() => {
+    try { localStorage.setItem('fni-settings', JSON.stringify(preferences)); } catch { /* storage may be unavailable */ }
+  }, [preferences]);
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const syncTheme = () => setSystemTheme(media.matches ? 'Dark' : 'Light');
+    syncTheme();
+    media.addEventListener?.('change', syncTheme);
+    return () => media.removeEventListener?.('change', syncTheme);
+  }, []);
   const [folder, setFolder] = useState<Folder>('All chats');
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -350,7 +362,7 @@ export default function App() {
   };
 
   return (
-    <main className={`app-shell ${section === 'Settings' ? 'settings-mode' : ''}`}>
+    <main data-theme={resolvedTheme.toLowerCase()} className={`app-shell ${section === 'Settings' ? 'settings-mode' : ''}`}>
       <aside className={`navigation-drawer ${menuOpen ? 'drawer-open' : ''}`}>
         <div className="drawer-heading">
           <div className="brand-lockup">
@@ -459,7 +471,7 @@ export default function App() {
                 {settingsCategory === 'Appearance' && <div className="settings-section">
                   <h3>Theme</h3><div className="settings-theme-options">{[{value:'Light',icon:Sun,label:'Light'},{value:'Dark',icon:Moon,label:'Dark'},{value:'System',icon:Monitor,label:'System'}].map(({value,icon:Icon,label}) => <button type="button" key={value} className={preferences.appearance === value ? 'settings-theme-option selected' : 'settings-theme-option'} onClick={() => updatePreference('appearance', value)}><Icon size={20}/><strong>{label}</strong><small>{preferences.appearance === value ? 'Selected' : 'Choose theme'}</small></button>)}</div>
                   <SettingToggle title="Reduce motion" description="Limit animated transitions" checked={Boolean(preferences.reducedMotion)} onChange={v => updatePreference('reducedMotion', v)}/>
-                  <p className="settings-footnote">Theme preference is saved. Applying a full app-wide dark or light theme is part of the visual polish pass.</p>
+                  <p className="settings-footnote">Your choice applies across chats, menus, settings and meeting screens. System follows your device appearance.</p>
                 </div>}
                 {settingsCategory === 'Chat Settings' && <div className="settings-section">
                   <h3>Messages</h3><SettingToggle title="Send by pressing Enter" description="Use Enter to send and Shift + Enter for a new line" checked={Boolean(preferences.enterToSend)} onChange={v => updatePreference('enterToSend', v)}/>
