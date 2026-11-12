@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import ProfileIdentity from './components/ProfileIdentity';
 import MessagingWorkspace from './components/MessagingWorkspace';
 import CallingWorkspace from './components/CallingWorkspace';
+import AppearanceContactsWorkspace from './components/AppearanceContactsWorkspace';
 import {
   Bell, Bookmark, CalendarDays, ChevronDown, CircleHelp, Compass,
   Menu, MessageCircle, MoreHorizontal, Plus, Search, Settings,
@@ -51,12 +52,16 @@ const settingCategories: SettingCategory[] = [
     { label: 'Show message previews', kind: 'toggle', defaultOn: true },
     { label: 'Notification priority', kind: 'select', choices: ['Normal', 'Important', 'Urgent'], value: 'Normal' },
   ]},
-  { id: 'appearance', label: 'Appearance & Themes', group: 'PREFERENCES', description: 'Personalise the FNI interface while keeping its identity recognisable.', icon: Palette, options: [
-    { label: 'Theme', kind: 'select', choices: ['System default', 'Dark', 'Light'], value: 'Light' },
-    { label: 'Accent style', kind: 'select', choices: ['FNI Royal Blue & Gold', 'Royal Blue', 'Deep Purple'], value: 'FNI Royal Blue & Gold' },
-    { label: 'Larger text', description: 'Increase text size throughout the app.', kind: 'toggle' },
-    { label: 'Reduce animations', description: 'Use fewer interface animations.', kind: 'toggle' },
-    { label: 'High contrast', kind: 'toggle' },
+  { id: 'appearance', label: 'Appearance & Themes', group: 'PREFERENCES', description: 'Customise themes, wallpapers, typography and accessibility across FNI.', icon: Palette, options: [
+    { label: 'Theme and colours', description: 'Choose light, dark, system or a fully custom theme.', kind: 'action' },
+    { label: 'Chat wallpapers', description: 'Set global and individual conversation backgrounds.', kind: 'action' },
+    { label: 'Display and accessibility', description: 'Text size, density, motion and contrast.', kind: 'action' },
+  ]},
+  { id: 'contacts', label: 'Contacts & Sync', group: 'COMMUNICATION', description: 'Manage device contact access, local selections and contact discovery.', icon: Users, options: [
+    { label: 'Synced contacts', description: 'Review contacts selected from this device.', kind: 'action' },
+    { label: 'Contact permissions', description: 'Review and change contact-access consent.', kind: 'action' },
+    { label: 'Refresh contacts', description: 'Select contacts again from the device contact picker.', kind: 'action' },
+    { label: 'Remove synced data', description: 'Remove locally selected contacts from this browser.', kind: 'action' },
   ]},
   { id: 'folders', label: 'Chat Folders', group: 'PREFERENCES', description: 'Organise conversations into tabs that suit your daily use.', icon: Folder, options: [
     { label: 'All Chats', description: 'Show every conversation.', kind: 'action' },
@@ -230,7 +235,7 @@ function App() {
               {settingCategories.filter(item => item.group === group).map(item => { const Icon = item.icon; return <button key={item.id} className={selectedSetting === item.id ? 'setting-nav active' : 'setting-nav'} onClick={() => setSelectedSetting(item.id)}><Icon size={17} /><span>{t(item.label)}</span><ChevronRight size={14} /></button>; })}
             </div>)}
           </aside>
-          {selectedSetting === 'profile' ? <ProfileIdentity onNotice={message => { setNotice(message); window.setTimeout(() => setNotice(''), 4800); }} /> : <section className="settings-detail">
+          {selectedSetting === 'profile' ? <ProfileIdentity onNotice={message => { setNotice(message); window.setTimeout(() => setNotice(''), 4800); }} /> : selectedSetting === 'appearance' || selectedSetting === 'contacts' ? <AppearanceContactsWorkspace initialTab={selectedSetting === 'contacts' ? 'contacts' : 'appearance'} /> : <section className="settings-detail">
             <div className="settings-detail-head"><div className="setting-detail-icon"><ActiveSettingIcon size={20} /></div><div><h3>{t(activeSetting.label)}</h3><p>{activeSetting.description}</p></div></div>
             <div className="settings-options">
               {activeSetting.options.map(option => {
