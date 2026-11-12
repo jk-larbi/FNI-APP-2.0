@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import SavedMessagesWorkspace from './SavedMessagesWorkspace';
-import { Archive, ArrowLeft, AtSign, Bookmark, Check, CheckCheck, ChevronRight, Copy, Download, Forward, Lock, MessageCircle, Pencil, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, X } from 'lucide-react';
+import { Archive, ArrowLeft, AtSign, Bookmark, Check, CheckCheck, ChevronRight, Copy, Download, Forward, Lock, MessageCircle, MoreVertical, Pencil, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, X } from 'lucide-react';
 
 type PermissionKey = 'addMembers' | 'approveRequests' | 'editInfo' | 'pinDelete' | 'restrictMembers' | 'manageInvites' | 'appointAdmins';
 type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; replyTo?: string; reactions?: string[]; mentions?: string[]; sticker?: boolean; pinned?: boolean; mediaUrl?: string; mediaType?: 'image' | 'video'; };
@@ -265,6 +265,17 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
               {!!message.reactions?.length && <div className="fni-chat-reactions">{message.reactions.map(emoji=><button key={emoji} onClick={()=>setGroupMessages(items=>items.map(item=>item.id===message.id?{...item,reactions:item.reactions?.filter(value=>value!==emoji)}:item))}>{emoji}</button>)}</div>}
             </div>
             <div className="fni-chat-message-tools">
+              <button
+                className="fni-message-more-button"
+                title="Message options"
+                aria-label="More options for this message"
+                aria-haspopup="menu"
+                onClick={event => {
+                  event.stopPropagation();
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  openMessageMenu(message, rect.right - 210, rect.bottom + 6);
+                }}
+              ><MoreVertical size={17}/></button>
               <button title="Reply" aria-label="Reply to message" onClick={()=>{setReplyTarget(message);setEmojiOpen(false)}}><Reply size={15}/></button>
               {['❤️','👍','🙏','😂'].map(emoji=><button key={emoji} title={'React '+emoji} onClick={()=>setGroupMessages(items=>items.map(item=>item.id===message.id?{...item,reactions:item.reactions?.includes(emoji)?item.reactions.filter(value=>value!==emoji):[...(item.reactions||[]),emoji]}:item))}>{emoji}</button>)}
             </div>
