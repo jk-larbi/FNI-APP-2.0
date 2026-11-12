@@ -1,0 +1,74 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Bell, BellOff, CheckCheck, ChevronRight, Clock3, MessageCircle, Phone, ShieldCheck, Users, Video, Volume2, X, Trash2, AtSign, Settings2, Moon, Sparkles } from 'lucide-react';
+
+type NoticeCategory = 'personal' | 'groups' | 'calls' | 'meetings' | 'contacts' | 'security' | 'admin';
+type NoticeItem = { id: string; category: NoticeCategory; title: string; body: string; createdAt: string; read: boolean; destination: string };
+type Preferences = {
+  enabled: Record<NoticeCategory, boolean>;
+  personalSound: string; groupSound: string; priority: string; previews: boolean;
+  hideSensitive: boolean; vibration: boolean; quietEnabled: boolean; quietStart: string; quietEnd: string;
+};
+const defaults: Preferences = {
+  enabled: { personal: true, groups: true, calls: true, meetings: true, contacts: true, security: true, admin: true },
+  personalSound: 'Default', groupSound: 'Soft chime', priority: 'Important', previews: true,
+  hideSensitive: false, vibration: true, quietEnabled: false, quietStart: '22:00', quietEnd: '07:00'
+};
+const categories: { id: NoticeCategory; title: string; description: string; icon: typeof Bell }[] = [
+  { id: 'personal', title: 'Personal messages', description: 'New messages, replies and mentions', icon: MessageCircle },
+  { id: 'groups', title: 'Group messages', description: 'New messages, group mentions and replies', icon: Users },
+  { id: 'calls', title: 'Calls', description: 'Incoming voice and video calls, missed calls', icon: Phone },
+  { id: 'meetings', title: 'Meetings', description: 'Invitations, reminders, meeting starts and endings', icon: Video },
+  { id: 'contacts', title: 'Contacts', description: 'Contacts joining FNI', icon: Users },
+  { id: 'security', title: 'Account security', description: 'New login, password changes and security alerts', icon: ShieldCheck },
+  { id: 'admin', title: 'Administration', description: 'Administrative decisions and account notices', icon: Settings2 }
+];
+const storageKey = 'fni-notification-preferences';
+const inboxKey = 'fni-notification-inbox';
+function readStored<T,>(key: string, fallback: T): T { try { const value = localStorage.getItem(key); return value ? { ...fallback as object, ...JSON.parse(value) } as T : fallback; } catch { return fallback; } }
+
+export default function NotificationsWorkspace() {
+  const [tab, setTab] = useState<'all' | 'unread' | 'mentions' | 'calls' | 'security'>('all');
+  const [view, setView] = useState<'inbox' | 'settings'>('inbox');
+  const [preferences, setPreferences] = useState<Preferences>(() => readStored(storageKey, defaults));
+  const [items, setItems] = useState<NoticeItem[]>(() => { try { return JSON.parse(localStorage.getItem(inboxKey) || '[]'); } catch { return []; } });
+  const [muted, setMuted] = useState<Record<string, string>>(() => { try { return JSON.parse(localStorage.getItem('fni-muted-conversations') || '{}'); } catch { return {}; } });
+  const [testCategory, setTestCategory] = useState<NoticeCategory>('personal');
+  const [testTitle, setTestTitle] = useState('');
+  const [testBody, setTestBody] = useState('');
+  const [muteName, setMuteName] = useState('');
+  const [muteDuration, setMuteDuration] = useState('8 hours');
+  const [notice, setNotice] = useState('');
+  useEffect(() => { localStorage.setItem(storageKey, JSON.stringify(preferences)); }, [preferences]);
+  useEffect(() => { localStorage.setItem(inboxKey, JSON.stringify(items)); }, [items]);
+  useEffect(() => { localStorage.setItem('fni-muted-conversations', JSON.stringify(muted)); }, [muted]);
+  const unreadCount = items.filter(item => !item.read).length;
+  const filtered = useMemo(() => items.filter(item => tab === 'all' || (tab === 'unread' ? !item.read : tab === 'mentions' ? item.title.toLowerCase().includes('mention') || item.body.includes('@') : tab === 'calls' ? item.category === 'calls' || item.category === 'meetings' : item.category === 'security')), [items, tab]);
+  function updatePreference<K extends keyof Preferences>(key: K, value: Preferences[K]) { setPreferences(current => ({ ...current, [key]: value })); }
+  function toggleCategory(id: NoticeCategory) { setPreferences(current => ({ ...current, enabled: { ...current.enabled, [id]: !current.enabled[id] } })); }
+  function createLocalNotice() {
+    if (!testTitle.trim()) { setNotice('Add a title before creating a local test notification.'); return; }
+    const item: NoticeItem = { id: crypto.randomUUID(), category: testCategory, title: testTitle.trim(), body: testBody.trim(), createdAt: new Date().toISOString(), read: false, destination: testCategory === 'calls' || testCategory === 'meetings' ? 'calls' : testCategory === 'security' ? 'security' : 'chats' };
+    setItems(current => [item, ...current]); setTestTitle(''); setTestBody(''); setNotice('Local test notification added to your FNI inbox.');
+  }
+  function markRead(id: string) { setItems(current => current.map(item => item.id === id ? { ...item, read: true } : item)); }
+  function clearInbox() { setItems([]); }
+  function muteConversation() { if (!muteName.trim()) { setNotice('Enter a conversation or group name first.'); return; } setMuted(current => ({ ...current, [muteName.trim()]: muteDuration })); setMuteName(''); setNotice('Mute preference saved on this device.'); }
+  const Toggle = ({ checked, onClick, label }: { checked: boolean; onClick: () => void; label: string }) => <button className={checked ? 'switch on' : 'switch'} role="switch" aria-checked={checked} aria-label={label} onClick={onClick}><span /></button>;
+  return <div className="notifications-workspace">
+    <div className="notifications-heading"><div><span className="settings-kicker">STAY IN THE LOOP</span><h2>Notifications</h2><p>Choose what reaches you and keep important updates easy to find.</p></div><div className="notification-count"><Bell size={17}/><strong>{unreadCount}</strong><span>unread</span></div></div>
+    <div className="notifications-toolbar"><div className="notification-tabs">{(['all','unread','mentions','calls','security'] as const).map(key => <button key={key} className={tab === key && view === 'inbox' ? 'notification-tab active' : 'notification-tab'} onClick={() => { setView('inbox'); setTab(key); }}>{key === 'all' ? 'All' : key === 'unread' ? 'Unread' : key === 'mentions' ? 'Mentions' : key === 'calls' ? 'Calls & meetings' : 'Security'}{key === 'unread' && unreadCount > 0 && <i>{unreadCount}</i>}</button>)}</div><button className="notification-settings-button" onClick={() => setView(view === 'settings' ? 'inbox' : 'settings')}>{view === 'settings' ? <Bell size={16}/> : <Settings2 size={16}/>}<span>{view === 'settings' ? 'Notification centre' : 'Preferences'}</span></button></div>
+    {view === 'inbox' ? <>
+      <div className="notification-list-head"><div><strong>{tab === 'all' ? 'Your notifications' : tab === 'unread' ? 'Unread notifications' : tab === 'mentions' ? 'Mentions & replies' : tab === 'calls' ? 'Calls & meetings' : 'Security alerts'}</strong><span>{filtered.length} {filtered.length === 1 ? 'notification' : 'notifications'}</span></div><div>{unreadCount > 0 && <button onClick={() => setItems(current => current.map(item => ({ ...item, read: true })))}><CheckCheck size={14}/> Mark all read</button>}{items.length > 0 && <button onClick={clearInbox}><Trash2 size={14}/> Clear</button>}</div></div>
+      {filtered.length ? <div className="notification-items">{filtered.map(item => { const meta = categories.find(category => category.id === item.category)!; const Icon = meta.icon; return <article className={item.read ? 'notification-item read' : 'notification-item'} key={item.id}><div className={'notification-item-icon '+item.category}><Icon size={18}/></div><div className="notification-item-copy"><div><strong>{item.title}</strong>{!item.read && <i className="unread-dot"/>}</div><p>{preferences.previews && !preferences.hideSensitive ? item.body || meta.title : 'Open FNI to view this notification.'}</p><span>{new Date(item.createdAt).toLocaleString()} · {meta.title}</span></div><button className="notification-open" onClick={() => { markRead(item.id); setNotice('This local notification is marked as read. Destination: '+item.destination+'.'); }} aria-label="Open notification"><ChevronRight size={18}/></button></article>; })}</div> : <div className="notification-empty"><div><BellOff size={23}/></div><strong>You're all caught up</strong><p>Notifications from your FNI conversations, groups and meetings will appear here.</p></div>}
+      <section className="notification-test-panel"><div><Sparkles size={17}/><div><strong>Try the notification centre</strong><span>Create a clearly labelled local test alert to check the inbox interactions.</span></div></div><div className="notification-test-fields"><select value={testCategory} onChange={e => setTestCategory(e.target.value as NoticeCategory)}>{categories.map(category => <option key={category.id} value={category.id}>{category.title}</option>)}</select><input value={testTitle} onChange={e => setTestTitle(e.target.value)} placeholder="Test notification title"/><input value={testBody} onChange={e => setTestBody(e.target.value)} placeholder="Optional message preview"/><button onClick={createLocalNotice}>Add test alert</button></div></section>
+    </> : <div className="notification-settings-content">
+      <section className="notification-pref-section"><div className="notification-pref-title"><div><h3>Notification categories</h3><p>Control each type independently. Security alerts remain enabled as a protected category.</p></div></div>{categories.map(category => { const Icon = category.icon; const locked = category.id === 'security'; return <div className="notification-pref-row" key={category.id}><div className="notification-pref-icon"><Icon size={17}/></div><div className="notification-pref-copy"><strong>{category.title}</strong><span>{category.description}</span></div>{locked ? <span className="protected-label"><ShieldCheck size={13}/> Protected</span> : <Toggle checked={preferences.enabled[category.id]} onClick={() => toggleCategory(category.id)} label={'Enable '+category.title}/>}</div>; })}</section>
+      <section className="notification-pref-section"><div className="notification-pref-title"><div><h3>Sounds & vibration</h3><p>Choose distinct alerts for one-to-one and group conversations.</p></div><Volume2 size={18}/></div><div className="notification-control-row"><label htmlFor="personal-sound">Personal message sound</label><select id="personal-sound" value={preferences.personalSound} onChange={e => updatePreference('personalSound',e.target.value)}>{['Default','Chime','Gentle','Classic','None'].map(x=><option key={x}>{x}</option>)}</select></div><div className="notification-control-row"><label htmlFor="group-sound">Group message sound</label><select id="group-sound" value={preferences.groupSound} onChange={e => updatePreference('groupSound',e.target.value)}>{['Soft chime','Default','Pop','Gentle','None'].map(x=><option key={x}>{x}</option>)}</select></div><div className="notification-control-row"><label htmlFor="priority">Default priority</label><select id="priority" value={preferences.priority} onChange={e => updatePreference('priority',e.target.value)}>{['Low','Normal','Important','Urgent'].map(x=><option key={x}>{x}</option>)}</select></div><div className="notification-control-row"><div><label>Vibration</label><span>Vibrate on supported devices</span></div><Toggle checked={preferences.vibration} onClick={() => updatePreference('vibration',!preferences.vibration)} label="Vibration"/></div></section>
+      <section className="notification-pref-section"><div className="notification-pref-title"><div><h3>Privacy & previews</h3><p>Choose how much information appears in notification content.</p></div></div><div className="notification-control-row"><div><label>Message previews</label><span>Show message text in the in-app notification centre</span></div><Toggle checked={preferences.previews} onClick={() => updatePreference('previews',!preferences.previews)} label="Message previews"/></div><div className="notification-control-row"><div><label>Hide sensitive content</label><span>Replace message text with a privacy notice</span></div><Toggle checked={preferences.hideSensitive} onClick={() => updatePreference('hideSensitive',!preferences.hideSensitive)} label="Hide sensitive content"/></div></section>
+      <section className="notification-pref-section"><div className="notification-pref-title"><div><h3>Quiet hours</h3><p>Pause ordinary local alerts during your rest time. Protected security alerts are not suppressed.</p></div><Moon size={18}/></div><div className="notification-control-row"><div><label>Enable quiet hours</label><span>Apply this schedule on this device</span></div><Toggle checked={preferences.quietEnabled} onClick={() => updatePreference('quietEnabled',!preferences.quietEnabled)} label="Quiet hours"/></div>{preferences.quietEnabled && <div className="quiet-hours-fields"><label>From <input type="time" value={preferences.quietStart} onChange={e => updatePreference('quietStart',e.target.value)}/></label><label>Until <input type="time" value={preferences.quietEnd} onChange={e => updatePreference('quietEnd',e.target.value)}/></label></div>}</section>
+      <section className="notification-pref-section"><div className="notification-pref-title"><div><h3>Muted conversations</h3><p>Save a local mute duration for a chat or group.</p></div></div><div className="mute-conversation-form"><input value={muteName} onChange={e => setMuteName(e.target.value)} placeholder="Conversation or group name"/><select value={muteDuration} onChange={e => setMuteDuration(e.target.value)}>{['1 hour','8 hours','2 days','1 week','Until I turn it back on'].map(x=><option key={x}>{x}</option>)}</select><button onClick={muteConversation}>Mute</button></div>{Object.entries(muted).length > 0 ? Object.entries(muted).map(([name,duration])=><div className="muted-record" key={name}><span><BellOff size={14}/>{name}</span><small>{duration}</small><button onClick={() => setMuted(current => { const next={...current}; delete next[name]; return next; })}>Unmute</button></div>) : <p className="muted-empty">No conversations muted on this device.</p>}</section>
+      <div className="notification-local-note"><ShieldCheck size={15}/><span>Preferences, muted conversations and test alerts are stored in this browser only. Real operating-system push delivery, sound playback, timed mute expiry and account-wide sync are not active in this frontend-only version.</span></div>
+    </div>}
+    {notice && <div className="notification-inline-notice" role="status">{notice}<button onClick={() => setNotice('')} aria-label="Dismiss"><X size={14}/></button></div>}
+  </div>;
+}
