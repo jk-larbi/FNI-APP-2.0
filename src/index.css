@@ -1468,3 +1468,87 @@ html[data-emoji-large=true]{--fni-emoji-scale:1.25}
  .ministry-modal{padding:17px}
  .ministry-toast{bottom:82px}
 }
+
+
+/* FNI Ministry follows the same app-wide theme, typography and controls. */
+.ministry-workspace{
+  color:var(--fni-text,#20232b);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+.ministry-workspace *{font-family:inherit}
+.ministry-hero{
+  border:1px solid var(--fni-line);
+  border-radius:14px;
+  background:linear-gradient(115deg,color-mix(in srgb,var(--fni-blue) 12%,var(--fni-surface)),color-mix(in srgb,var(--fni-purple) 9%,var(--fni-surface)));
+  box-shadow:var(--fni-shadow);
+}
+.ministry-eyebrow,.ministry-kicker{color:var(--fni-blue);font-size:9px;font-weight:700;letter-spacing:.12em}
+.ministry-hero h2,.ministry-page-heading h2,.ministry-section-heading h3,.ministry-modal-head h3{
+  font-family:inherit;color:var(--fni-text);font-weight:650;letter-spacing:-.025em
+}
+.ministry-hero p,.ministry-page-heading p,.ministry-section-heading p{color:var(--fni-muted)}
+.ministry-hero-mark,.ministry-area-icon,.ministry-feature-strip>div>svg,.ministry-draft-type,.ministry-empty>div{
+  border:0;background:color-mix(in srgb,var(--fni-blue) 10%,var(--fni-surface-2));color:var(--fni-blue)
+}
+.ministry-hero-foot{border-top-color:var(--fni-line);color:var(--fni-muted)}
+.ministry-hero-foot>span:first-child{color:var(--fni-text)}
+.ministry-live-dot{background:var(--fni-green);box-shadow:none}
+.ministry-search{
+  border:1px solid var(--fni-line);border-radius:999px;
+  background:var(--fni-surface);color:var(--fni-muted)
+}
+.ministry-search input{background:transparent;color:var(--fni-text);font:inherit}
+.ministry-search input::placeholder{color:var(--fni-muted)}
+.ministry-search>span{color:var(--fni-muted)}
+.ministry-area-card,.ministry-draft-card,.ministry-feature-strip>div,.ministry-content-notice,
+.ministry-empty,.ministry-governance,.ministry-permission-note{
+  border:1px solid var(--fni-line);border-radius:10px;
+  background:var(--fni-surface);color:var(--fni-text);box-shadow:none
+}
+.ministry-area-card{min-height:78px}
+.ministry-area-card:hover{transform:none;border-color:var(--fni-blue);background:var(--fni-hover)}
+.ministry-area-copy strong,.ministry-draft-copy strong,.ministry-governance strong,
+.ministry-content-notice strong,.ministry-empty strong,.ministry-feature-strip strong{color:var(--fni-text)}
+.ministry-area-copy small,.ministry-draft-copy span,.ministry-draft-copy small,
+.ministry-draft-copy p,.ministry-governance p,.ministry-content-notice p,
+.ministry-feature-strip span,.ministry-empty p,.ministry-permission-note span{color:var(--fni-muted)}
+.ministry-area-arrow{color:var(--fni-muted)}
+.ministry-governance,.ministry-permission-note{background:var(--fni-surface-2)}
+.ministry-governance>svg,.ministry-permission-note>svg,.ministry-content-notice>svg{color:var(--fni-blue)}
+.ministry-back{color:var(--fni-blue)}
+.ministry-back:hover{color:var(--fni-purple)}
+.ministry-primary-action{background:var(--fni-blue);border:1px solid var(--fni-blue);border-radius:9px;color:#fff;box-shadow:none}
+.ministry-primary-action:hover{background:color-mix(in srgb,var(--fni-blue) 88%,#000);filter:none}
+.ministry-secondary-action{background:var(--fni-surface);border:1px solid var(--fni-line);border-radius:9px;color:var(--fni-blue)}
+.ministry-secondary-action:hover{background:var(--fni-hover)}
+.ministry-content-notice{background:var(--fni-surface-2)}
+.ministry-feature-strip>div{align-items:flex-start}
+.ministry-draft-card{background:var(--fni-surface)}
+.ministry-draft-card>button,.ministry-modal-head>button,.ministry-toast button{
+  background:transparent;color:var(--fni-muted)
+}
+.ministry-draft-card>button:hover,.ministry-modal-head>button:hover{background:var(--fni-hover);color:var(--fni-text)}
+.ministry-modal-backdrop{background:rgba(12,18,32,.58);backdrop-filter:blur(4px)}
+.ministry-modal{
+  border:1px solid var(--fni-line);border-radius:14px;
+  background:var(--fni-surface);color:var(--fni-text);box-shadow:var(--fni-shadow)
+}
+.ministry-modal-intro{color:var(--fni-muted)}
+.ministry-modal>label{color:var(--fni-text);font-size:12px}
+.ministry-modal input,.ministry-modal select,.ministry-modal textarea{
+  border:1px solid var(--fni-line);border-radius:8px;
+  background:var(--fni-surface-2);color:var(--fni-text);font:inherit;font-size:13px
+}
+.ministry-modal input:focus,.ministry-modal select:focus,.ministry-modal textarea:focus{border-color:var(--fni-blue)}
+.ministry-modal-warning{border:1px solid var(--fni-line);border-radius:9px;background:var(--fni-surface-2);color:var(--fni-muted)}
+.ministry-toast{
+  border:1px solid var(--fni-line);border-radius:10px;
+  background:var(--fni-surface);color:var(--fni-text);box-shadow:var(--fni-shadow)
+}
+@media(max-width:760px){
+  .ministry-workspace{padding:20px 13px calc(95px + env(safe-area-inset-bottom))}
+  .ministry-hero{padding:20px 17px 15px}
+  .ministry-area-grid{grid-template-columns:1fr}
+  .ministry-feature-strip{grid-template-columns:1fr}
+  .ministry-toast{bottom:calc(82px + env(safe-area-inset-bottom))}
+}
