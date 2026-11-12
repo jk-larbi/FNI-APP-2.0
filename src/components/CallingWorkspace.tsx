@@ -35,6 +35,9 @@ export default function CallingWorkspace({ initialGroup = '', onClearInitialGrou
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [cameraOn, setCameraOn] = useState(true);
+  const [cameraFacing, setCameraFacing] = useState<'Front' | 'Rear'>('Front');
+  const [inviteMemberDraft, setInviteMemberDraft] = useState('');
+  const [invitedCallMembers, setInvitedCallMembers] = useState<string[]>([]);
   const [speakerOn, setSpeakerOn] = useState(false);
   const [audioOutput, setAudioOutput] = useState('Default device');
   const [callNotice, setCallNotice] = useState('');
@@ -113,7 +116,7 @@ export default function CallingWorkspace({ initialGroup = '', onClearInitialGrou
     await checkDevices(kind.toLowerCase().includes('video'));
     setCallKind(kind);
     setCallTarget(target.trim() || (kind.startsWith('Group') ? 'FNI group' : 'FNI member'));
-    setMuted(false); setCameraOn(kind.toLowerCase().includes('video')); setSpeakerOn(false);
+    setMuted(false); setCameraOn(kind.toLowerCase().includes('video')); setCameraFacing('Front'); setSpeakerOn(false);
     setDuration(0); setCallStartedAt(Date.now()); setCallMinimized(false); setIncomingPreview(false); setCallActive(true);
   };
   const endCall = (outcome: CallRecord['outcome'] = 'Completed') => {
@@ -150,11 +153,11 @@ export default function CallingWorkspace({ initialGroup = '', onClearInitialGrou
     <div className={callKind.toLowerCase().includes('video') ? 'call-stage video-stage' : 'call-stage voice-stage'}>
       {callKind.toLowerCase().includes('video') && cameraOn ? <div className="call-video-placeholder"><Camera size={36}/><span>Your camera preview will appear when live media is connected.</span></div> : <div className="call-person-avatar">{callKind.startsWith('Group') ? <Users size={36}/> : (callTarget.trim()[0] || 'F').toUpperCase()}</div>}
       <div className="call-person-details"><h2>{callTarget}</h2><p>{callKind} · Preview call</p><strong>{formatDuration(duration)}</strong></div>
-      {callKind.startsWith('Group') && <div className="call-participant-note"><Users size={16}/> Participant list will appear when group calling is connected.</div>}
+      {callKind.startsWith('Group') && <div className="call-group-invite-preview"><div className="call-participant-note"><Users size={16}/> Participants and active speakers will appear when group calling is connected.</div><div className="call-inline-entry"><input value={inviteMemberDraft} onChange={e=>setInviteMemberDraft(e.target.value)} placeholder="Invite member by @username" aria-label="Invite group member"/><button className="call-secondary" onClick={()=>{const name=inviteMemberDraft.trim().replace(/^@/,'');if(name&&!invitedCallMembers.includes(name)){setInvitedCallMembers(v=>[...v,name]);setInviteMemberDraft('');setCallNotice('Invite prepared locally. No notification was sent.')}}}><Plus size={15}/> Add</button></div>{invitedCallMembers.map(name=><span className="call-invite-chip" key={name}>@{name} · pending backend</span>)}</div>}
     </div>
     <div className="call-controls">
       <button className={muted ? 'call-control selected' : 'call-control'} onClick={() => setMuted(v => !v)}><span>{muted ? <MicOff/> : <Mic/>}</span>{muted ? 'Unmute' : 'Mute'}</button>
-      {callKind.toLowerCase().includes('video') && <button className={cameraOn ? 'call-control' : 'call-control selected'} onClick={() => setCameraOn(v => !v)}><span>{cameraOn ? <Camera/> : <CameraOff/>}</span>{cameraOn ? 'Camera off' : 'Camera on'}</button>}
+      {callKind.toLowerCase().includes('video') && <><button className={cameraOn ? 'call-control' : 'call-control selected'} onClick={() => setCameraOn(v => !v)}><span>{cameraOn ? <Camera/> : <CameraOff/>}</span>{cameraOn ? 'Camera off' : 'Camera on'}</button><button className="call-control" onClick={() => setCameraFacing(v=>v==='Front'?'Rear':'Front')}><span><Camera/></span>{cameraFacing} camera</button></>}
       <button className={speakerOn ? 'call-control selected' : 'call-control'} onClick={() => setSpeakerOn(v => !v)}><span>{speakerOn ? <Volume2/> : <Speaker/>}</span>{speakerOn ? 'Speaker on' : 'Speaker'}</button>
       <label className="call-output-select"><Headphones size={16}/><select aria-label="Audio output" value={audioOutput} onChange={e => setAudioOutput(e.target.value)}><option>Default device</option><option>Speaker</option><option>Earpiece</option><option>Bluetooth device (if supported)</option></select></label>
       <button className="call-end-button" onClick={() => endCall()}><PhoneOff size={20}/> End call</button>
