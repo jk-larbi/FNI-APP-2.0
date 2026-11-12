@@ -526,3 +526,11 @@ button{cursor:pointer}
 .notification-item.notification-unread{background:rgba(48,130,210,.07)}
 .notifications-empty{padding:22px 15px;margin:0;text-align:center;color:var(--muted,#7b8492);font-size:13px}
 @media(max-width:600px){.notifications-popover{position:fixed;top:68px;right:12px;width:calc(100vw - 24px)}}
+
+.group-approval-history{margin-top:22px;padding-top:15px;border-top:1px solid var(--border-color,#e8eaf0)}
+.group-approval-history-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;color:var(--text,#263445);font-size:13px}
+.group-approval-history-head span{color:#8993a1;font-size:10px}
+.group-approval-log-row{display:grid;grid-template-columns:74px minmax(0,1fr);gap:3px 9px;padding:10px 2px;border-bottom:1px solid var(--border-color,#edf0f3)}
+.group-approval-log-row>span{grid-row:span 2;font-size:10px;font-weight:650;align-self:center}
+.group-approval-log-row strong{overflow:hidden;color:var(--text,#344054);font-size:12px;font-weight:550;text-overflow:ellipsis;white-space:nowrap}
+.group-approval-log-row time{color:#929baa;font-size:10px}
