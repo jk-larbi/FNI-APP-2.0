@@ -5907,3 +5907,19 @@ button{transition:background-color .14s ease,color .14s ease,border-color .14s e
  .app-shell:has(.main-panel[data-section="chats"]) .sidebar{display:none!important}
  .main-panel[data-section="chats"]>.msg-workspace{height:100dvh!important;max-height:100dvh!important;padding-bottom:env(safe-area-inset-bottom)!important}
 }
+
+
+/* Personal conversation message actions */
+.fni-personal-message-wrap{position:relative;display:flex;align-items:flex-start;gap:4px;max-width:min(78%,680px);margin:5px 0}
+.fni-personal-message-wrap .fni-personal-message{min-width:0;max-width:100%}
+.fni-personal-message-more{flex:0 0 30px;width:30px;height:30px;border:0;border-radius:50%;background:transparent;color:var(--fni-muted);display:grid;place-items:center;opacity:.72;cursor:pointer}
+.fni-personal-message-more:hover,.fni-personal-message-more[aria-expanded=true]{background:var(--fni-hover);color:var(--fni-text);opacity:1}
+.fni-personal-message-menu{position:absolute;z-index:40;right:0;top:32px;min-width:148px;padding:5px;background:var(--fni-surface);border:1px solid var(--fni-line);border-radius:10px;box-shadow:0 8px 28px #0002;display:grid;gap:2px}
+.fni-personal-message-menu button{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border:0;border-radius:7px;background:transparent;color:var(--fni-text);text-align:left;font:inherit;font-size:13px;cursor:pointer}
+.fni-personal-message-menu button:hover{background:var(--fni-hover)}
+.fni-personal-message-menu button.danger{color:#d84c4c}
+.fni-personal-reply-ref,.fni-personal-reply-preview{display:block;padding:5px 8px;margin-bottom:5px;border-left:3px solid var(--fni-blue);background:var(--fni-hover);border-radius:4px;font-size:12px;color:var(--fni-muted);max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.fni-personal-reply-preview{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 10px 6px}
+.fni-personal-reply-preview button{border:0;background:transparent;color:var(--fni-muted);cursor:pointer}
+@media(hover:hover){.fni-personal-message-more{opacity:0}.fni-personal-message-wrap:hover .fni-personal-message-more,.fni-personal-message-more:focus-visible{opacity:1}}
+@media(max-width:700px){.fni-personal-message-wrap{max-width:90%}.fni-personal-message-more{opacity:1}}
