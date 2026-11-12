@@ -163,6 +163,20 @@ export default function App() {
                 <button className="icon-button" aria-label="More options"><MoreVertical /></button>
               </div>
             </header>
+            {pinnedMessageId !== null && messages.find((item) => item.id === pinnedMessageId) && (
+              <button
+                className="pinned-message-banner"
+                onClick={() => document.getElementById(`message-${pinnedMessageId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+              >
+                <strong>Pinned message</strong>
+                <span>{messages.find((item) => item.id === pinnedMessageId)?.text || 'Photo or video'}</span>
+                <span
+                  role="button"
+                  aria-label="Unpin message"
+                  onClick={(event) => { event.stopPropagation(); setPinnedMessageId(null); }}
+                >×</span>
+              </button>
+            )}
             <div className="message-history">
               {messages.length === 0 ? (
                 <div className="first-message-note"><span>Conversation started</span><p>Send a message to begin.</p></div>
