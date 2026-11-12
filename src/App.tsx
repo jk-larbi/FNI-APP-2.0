@@ -11,6 +11,7 @@ import SavedMessagesWorkspace from './components/SavedMessagesWorkspace';
 import BibleBotWorkspace from './components/BibleBotWorkspace';
 import MinistryWorkspace from './components/MinistryWorkspace';
 import MediaHubWorkspace from './components/MediaHubWorkspace';
+import CellGroupsWorkspace from './components/CellGroupsWorkspace';
 import {
   Bell, Bookmark, BookOpen, CalendarDays, ChevronDown, CircleHelp, UsersRound,
   Menu, MessageCircle, MoreHorizontal, Plus, Search, Settings,
@@ -294,7 +295,7 @@ function App() {
             <div className="settings-footnote"><ShieldCheck size={15} /><span>These are frontend preferences for now. Account security, device sessions and cross-device sync will activate when the FNI backend is connected.</span></div>
           </section>}
         </div>
-      </div> : section === 'chats' ? <MessagingWorkspace onStartGroupCall={name => { setCallGroup(name); setSection('calls'); }} /> : <div className="content">
+      </div> : section === 'chats' ? <MessagingWorkspace onStartGroupCall={name => { setCallGroup(name); setSection('calls'); }} /> : section === 'cells' ? <div className="content"><CellGroupsWorkspace /></div> : <div className="content">
         <div className="welcome-line"><div><h2>{section === 'chats' ? 'Stay connected.' : section === 'community' ? 'Find your community.' : section === 'cells' ? 'Grow together.' : 'Meet in fellowship.'}</h2><p>{section === 'chats' ? 'Conversations and updates from your FNI community.' : section === 'community' ? 'A place for fellowship, updates and shared life.' : section === 'cells' ? 'Your cell groups, leaders and small-group life.' : 'Gather online for services, prayer and meetings.'}</p></div></div>
         {section === 'chats' && <>
           <div className="search-bar"><Search size={18} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search people, groups or messages" aria-label="Search people, groups or messages" />{search && <button aria-label="Clear search" onClick={() => setSearch('')}><X size={15} /></button>}</div>
