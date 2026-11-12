@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, Sticker, MoreVertical, Video, PhoneCall, UserRound, LockKeyhole, BellRing, Palette, Database, Smartphone, Globe2, MessageSquare, HeartHandshake, CircleHelp, ChevronRight, ShieldCheck, Volume2, Moon, Sun, Monitor, Download, Eye, BookOpen, HandHeart, CalendarDays, Image, KeyRound, Camera, FileText, MapPin, Contact, BarChart3, CalendarPlus, HandHeart } from 'lucide-react';
+import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, Sticker, MoreVertical, Video, PhoneCall, UserRound, LockKeyhole, BellRing, Palette, Database, Smartphone, Globe2, MessageSquare, HeartHandshake, CircleHelp, ChevronRight, ShieldCheck, Volume2, Moon, Sun, Monitor, Download, Eye, BookOpen, HandHeart, CalendarDays, Image, KeyRound, Camera, FileText, MapPin, Contact, BarChart3, CalendarPlus, } from 'lucide-react';
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'FNI Community' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups' | 'Archived';
