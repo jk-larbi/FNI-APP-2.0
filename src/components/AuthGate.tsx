@@ -26,7 +26,7 @@ export default function AuthGate({ onAuthenticated }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const logoSrc = `${import.meta.env.BASE_URL}fni-logo.jpg`;
+  const logoSrc = 'https://raw.githubusercontent.com/jk-larbi/FNI-Cells-Connect/main/public/fni-official-logo.jpg';
 
   useEffect(() => {
     const timer = window.setTimeout(() => setScreen('welcome'), 2100);
