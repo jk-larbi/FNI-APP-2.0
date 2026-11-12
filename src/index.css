@@ -274,3 +274,20 @@ button{cursor:pointer}
 
 
 .muted-chat-indicator{font-size:11px;font-weight:500;color:#8a929d}
+
+/* Chat information panel */
+.chat-info-trigger{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;min-width:0;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}
+.chat-info-trigger:hover strong{color:#3390ec}
+.chat-info-backdrop{z-index:80}
+.chat-info-modal{width:min(420px,calc(100vw - 32px));padding:18px;background:var(--panel-bg,#fff);color:var(--text,#263445);border:1px solid var(--border-color,#e5e7eb);border-radius:14px;box-shadow:0 18px 55px rgba(0,0,0,.2)}
+.chat-info-profile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0 22px}
+.chat-info-avatar{width:76px;height:76px;display:grid;place-items:center;border-radius:50%;background:#dce8f8;color:#2870bf;font-size:28px;font-weight:600}
+.chat-info-profile strong{font-size:17px}
+.chat-info-profile span{font-size:12px;color:#8993a0}
+.chat-info-stat{display:flex;justify-content:space-between;align-items:center;padding:13px 2px;border-top:1px solid var(--border-color,#edf0f3);font-size:13px}
+.chat-info-stat span{color:#778392}
+.chat-info-stat strong{font-weight:600}
+.chat-info-actions{display:flex;gap:8px;margin-top:14px}
+.chat-info-actions button{flex:1;min-height:40px;border:1px solid #dce3eb;border-radius:8px;background:transparent;color:inherit;font:inherit;font-size:13px;cursor:pointer}
+.chat-info-actions button:last-child{background:#3390ec;border-color:#3390ec;color:white}
+.chat-info-note{margin:14px 0 0;color:#8993a0;font-size:11px;line-height:1.5}
