@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import SavedMessagesWorkspace from './SavedMessagesWorkspace';
-import { Archive, ArrowLeft, AtSign, Bookmark, Check, CheckCheck, ChevronRight, Copy, Download, Forward, Lock, MessageCircle, MoreVertical, Pencil, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, X } from 'lucide-react';
+import StoriesWorkspace from './StoriesWorkspace';
+import ChatEmojiPicker from './ChatEmojiPicker';
+import VoiceMessageButton from './VoiceMessageButton';
+import { Archive, ArrowLeft, AtSign, Bookmark, Camera, Check, CheckCheck, ChevronRight, Copy, Download, Forward, Lock, MessageCircle, MoreHorizontal, MoreVertical, Paperclip, Pencil, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, Video, X } from 'lucide-react';
 
 type PermissionKey = 'addMembers' | 'approveRequests' | 'editInfo' | 'pinDelete' | 'restrictMembers' | 'manageInvites' | 'appointAdmins';
-type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; replyTo?: string; reactions?: string[]; mentions?: string[]; sticker?: boolean; pinned?: boolean; mediaUrl?: string; mediaType?: 'image' | 'video'; };
+type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; replyTo?: string; reactions?: string[]; mentions?: string[]; sticker?: boolean; pinned?: boolean; mediaUrl?: string; mediaType?: 'image' | 'video' | 'audio'; };
 type Group = {
   id: string; name: string; description: string; createdAt: string;
   mode: 'Everyone' | 'Admins only' | 'Selected members';
@@ -48,6 +51,8 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const longPressOrigin = useRef<{ x: number; y: number } | null>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
+  const groupAttachmentRef = useRef<HTMLInputElement>(null);
+  const groupCameraRef = useRef<HTMLInputElement>(null);
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [groupMode, setGroupMode] = useState<Group['mode']>('Everyone');
@@ -159,6 +164,23 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const closeToList = () => { setView('list'); setSelectedId(''); setGroupDraft(''); };
   const sendGroupMessage = () => { const text = groupDraft.trim(); if (!text || !selected) return; const mentions = [...text.matchAll(/@([a-zA-Z0-9_.-]+)/g)].map(match => match[1]); setGroupMessages(current => [...current, { id: crypto.randomUUID(), groupId: selected.id, text, createdAt: new Date().toISOString(), replyTo: replyTarget?.id, reactions: [], mentions }]); setGroupDraft(''); setReplyTarget(null); setEmojiOpen(false); setMentionOpen(false); };
   const sendSticker = (sticker: string) => { if (!selected) return; setGroupMessages(current => [...current, { id: crypto.randomUUID(), groupId: selected.id, text: sticker, createdAt: new Date().toISOString(), reactions: [], sticker: true }]); setStickerOpen(false); setEmojiOpen(false); setMentionOpen(false); };
+  const saveGroupVoiceMessage = async (blob: Blob, durationSeconds: number) => {
+    if (!selected) return;
+    try {
+      const mediaUrl = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsDataURL(blob); });
+      setGroupMessages(current => [...current, { id: crypto.randomUUID(), groupId: selected.id, text: 'Voice message · ' + durationSeconds + 's', createdAt: new Date().toISOString(), reactions: [], mediaUrl, mediaType: 'audio' }]);
+      setNotice('Voice message recorded and added to this chat on this device.');
+    } catch { setNotice('The voice message could not be saved. Please try again.'); }
+  };
+  const attachGroupFile = async (file?: File) => {
+    if (!file || !selected) return;
+    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) { setNotice('Choose an image or video to attach.'); return; }
+    if (file.size > 3 * 1024 * 1024) { setNotice('Attachments are limited to 3 MB in this preview.'); return; }
+    try {
+      const mediaUrl = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsDataURL(file); });
+      setGroupMessages(current => [...current, { id: crypto.randomUUID(), groupId: selected.id, text: file.name, createdAt: new Date().toISOString(), reactions: [], mediaUrl, mediaType: file.type.startsWith('video/') ? 'video' : 'image' }]);
+    } catch { setNotice('This attachment could not be added.'); }
+  };
   const openMessageMenu = (message: GroupMessage, x: number, y: number) => {
     setMessageMenu({ messageId: message.id, x: Math.max(8, Math.min(x, window.innerWidth - 220)), y: Math.max(8, Math.min(y, window.innerHeight - 360)) });
   };
@@ -262,7 +284,8 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
       <div className="msg-group-avatar"><Users size={20}/></div>
       <div className="fni-group-chat-identity"><b>{selected.name}</b><span>{selected.description || 'FNI group conversation'} · Preview</span></div>
       <button className="fni-group-chat-action" onClick={() => setView('group')} aria-label="Group settings" title="Group settings"><Settings2 size={19}/></button>
-      <button className="fni-group-chat-action" onClick={() => onStartGroupCall?.(selected.name)} aria-label="Start group call" title="Start group call"><Phone size={19}/></button>
+      <button className="fni-group-chat-action" onClick={() => onStartGroupCall?.(selected.name)} aria-label="Start video call" title="Start video call"><Video size={19}/></button>
+      <button className="fni-group-chat-action" onClick={() => onStartGroupCall?.(selected.name)} aria-label="Start voice call" title="Start voice call"><Phone size={19}/></button>
     </header>
     <div className="fni-group-chat-messages" ref={chatMessagesRef}>
       {groupMessages.filter(message => message.groupId === selected.id).length === 0
@@ -298,6 +321,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
               {parent && <button className="fni-chat-reply-preview" onClick={() => document.getElementById('fni-message-'+parent.id)?.scrollIntoView({behavior:'smooth',block:'center'})}><b>You replied to</b><span>{parent.text}</span></button>}
               {message.mediaUrl && message.mediaType === 'image' && <img className="fni-chat-message-media" src={message.mediaUrl} alt={message.text || 'Shared image'} loading="lazy"/>}
               {message.mediaUrl && message.mediaType === 'video' && <video className="fni-chat-message-media" src={message.mediaUrl} controls playsInline/>}
+              {message.mediaUrl && message.mediaType === 'audio' && <audio className="fni-chat-message-audio" src={message.mediaUrl} controls preload="metadata"/>}
               {!!message.text && <p className={message.sticker ? 'fni-group-chat-sticker' : undefined} id={'fni-message-'+message.id}>{message.text.split(/(@[a-zA-Z0-9_.-]+)/g).map((part,index) => part.startsWith('@') ? <strong className="fni-chat-mention" key={index}>{part}</strong> : part)}</p>}
               <div className="fni-chat-message-meta"><time>{new Date(message.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</time><span>✓✓</span></div>
               {!!message.reactions?.length && <div className="fni-chat-reactions">{message.reactions.map(emoji=><button key={emoji} onClick={()=>setGroupMessages(items=>items.map(item=>item.id===message.id?{...item,reactions:item.reactions?.filter(value=>value!==emoji)}:item))}>{emoji}</button>)}</div>}
@@ -314,6 +338,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
                   openMessageMenu(message, rect.right - 210, rect.bottom + 6);
                 }}
               ><MoreVertical size={17}/></button>
+              <button title="Forward" aria-label="Forward message" onClick={() => handleMessageAction('Forward', message)}><Forward size={15}/></button>
               <button title="Reply" aria-label="Reply to message" onClick={()=>{setReplyTarget(message);setEmojiOpen(false)}}><Reply size={15}/></button>
               {['❤️','👍','🙏','😂'].map(emoji=><button key={emoji} title={'React '+emoji} onClick={()=>setGroupMessages(items=>items.map(item=>item.id===message.id?{...item,reactions:item.reactions?.includes(emoji)?item.reactions.filter(value=>value!==emoji):[...(item.reactions||[]),emoji]}:item))}>{emoji}</button>)}
             </div>
@@ -328,15 +353,23 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
     })()}
     {selectedMessages.length > 0 && <div className="fni-message-selection-bar"><span>{selectedMessages.length} selected</span><button onClick={() => setSelectedMessages([])}>Cancel selection</button><button onClick={() => { if(confirm('Delete selected messages?')) setGroupMessages(items=>items.filter(item=>!selectedMessages.includes(item.id))); setSelectedMessages([]); }}>Delete</button></div>}
     {replyTarget && <div className="fni-chat-replying"><div><b>Replying to your message</b><span>{replyTarget.text}</span></div><button type="button" onClick={()=>setReplyTarget(null)} aria-label="Cancel reply"><X size={17}/></button></div>}
-    {emojiOpen && <div className="fni-ios-emoji-panel" role="group" aria-label="Emoji picker">{['😀','😃','😄','😁','😆','🥹','😂','🤣','😊','😍','🥰','😘','😎','😭','🙏','👏','👍','👎','❤️','🧡','💛','💚','💙','💜','🔥','🎉','✨','🙌','🤍','💯','🤝','🕊️'].map(emoji=><button type="button" key={emoji} onClick={()=>setGroupDraft(value=>value+emoji)}>{emoji}</button>)}</div>}
+    {emojiOpen && <ChatEmojiPicker onSelect={emoji => setGroupDraft(value => value + emoji)} />}
     {stickerOpen && <div className="fni-sticker-panel" role="group" aria-label="FNI sticker pack"><div className="fni-sticker-panel-heading"><b>FNI Stickers</b><span>Tap a sticker to send</span></div>{[{emoji:'🙏',label:'Praying for you'},{emoji:'🙌',label:'Hallelujah'},{emoji:'❤️',label:'God loves you'},{emoji:'✨',label:'Blessed'},{emoji:'🕊️',label:'Peace'},{emoji:'🔥',label:'On fire'},{emoji:'👏',label:'Well done'},{emoji:'💪',label:'Stay strong'},{emoji:'🌟',label:'Keep shining'},{emoji:'📖',label:'Word of God'},{emoji:'🤍',label:'Grace'},{emoji:'🎉',label:'Praise God'}].map(sticker=><button type="button" className="fni-sticker-tile" key={sticker.label} onClick={()=>sendSticker(sticker.emoji)}><span>{sticker.emoji}</span><small>{sticker.label}</small></button>)}</div>}
     {mentionOpen && <div className="fni-chat-mention-panel"><span>Insert a mention</span>{['you',...selected.admins.map(admin=>admin.username)].map(name=><button type="button" key={name} onClick={()=>{setGroupDraft(value=>value+'@'+name+' ');setMentionOpen(false)}}>@{name}</button>)}</div>}
-    <form className="fni-group-chat-compose" onSubmit={event => { event.preventDefault(); sendGroupMessage(); }}>
-      <button type="button" className="fni-chat-compose-tool" aria-label="Insert mention" onClick={()=>{setMentionOpen(value=>!value);setEmojiOpen(false);setStickerOpen(false)}}><AtSign size={19}/></button>
-      <button type="button" className="fni-chat-compose-tool" aria-label="Open emoji picker" onClick={()=>{setEmojiOpen(value=>!value);setMentionOpen(false);setStickerOpen(false)}}><Smile size={19}/></button>
-      <button type="button" className="fni-chat-compose-tool" aria-label="Open FNI stickers" aria-pressed={stickerOpen} onClick={()=>{setStickerOpen(value=>!value);setEmojiOpen(false);setMentionOpen(false)}}><Sticker size={19}/></button>
-      <input ref={chatInputRef} value={groupDraft} onChange={event => setGroupDraft(event.target.value)} onFocus={() => requestAnimationFrame(() => { const panel = chatMessagesRef.current; if (panel) panel.scrollTop = panel.scrollHeight; })} placeholder="Message the group..." aria-label="Message the group"/>
-      <button type="submit" disabled={!groupDraft.trim()} aria-label="Send message"><Send size={18}/></button>
+    <form className="fni-group-chat-compose fni-unified-chat-composer" onSubmit={event => { event.preventDefault(); sendGroupMessage(); }}>
+      <input ref={groupAttachmentRef} type="file" accept="image/*,video/*" hidden onChange={event => { void attachGroupFile(event.target.files?.[0]); event.currentTarget.value=''; }}/>
+      <input ref={groupCameraRef} type="file" accept="image/*" capture="environment" hidden onChange={event => { void attachGroupFile(event.target.files?.[0]); event.currentTarget.value=''; }}/>
+      <button type="button" className="fni-chat-compose-tool fni-composer-attach" aria-label="Attach a file" onClick={()=>groupAttachmentRef.current?.click()}><Plus size={22}/></button>
+      <button type="button" className="fni-chat-compose-tool fni-composer-extra" aria-label="Insert mention" onClick={()=>{setMentionOpen(value=>!value);setEmojiOpen(false);setStickerOpen(false)}}><AtSign size={17}/></button>
+      <button type="button" className="fni-chat-compose-tool fni-composer-extra" aria-label="Open FNI stickers" aria-pressed={stickerOpen} onClick={()=>{setStickerOpen(value=>!value);setEmojiOpen(false);setMentionOpen(false)}}><Sticker size={17}/></button>
+      <div className="fni-composer-pill">
+        <input ref={chatInputRef} value={groupDraft} onChange={event => setGroupDraft(event.target.value)} onFocus={() => requestAnimationFrame(() => { const panel = chatMessagesRef.current; if (panel) panel.scrollTop = panel.scrollHeight; })} placeholder="Message" aria-label="Message"/>
+        <button type="button" className="fni-composer-emoji" aria-label="Open emoji picker" onClick={()=>{setEmojiOpen(value=>!value);setMentionOpen(false);setStickerOpen(false)}}><Smile size={20}/></button>
+      </div>
+      <button type="button" className="fni-chat-compose-tool fni-composer-camera" aria-label="Open camera" onClick={() => groupCameraRef.current?.click()}><Camera size={20}/></button>
+      {groupDraft.trim()
+        ? <button type="submit" className="fni-composer-mic" aria-label="Send message"><Send size={18}/></button>
+        : <VoiceMessageButton onRecorded={(blob, duration) => { void saveGroupVoiceMessage(blob, duration); }} onNotice={setNotice} />}
     </form>
     <div className="fni-group-chat-local-note">Preview messages stay on this device. Replies, mentions and reactions are stored locally; live delivery needs the FNI messaging backend.</div>
   </div>;
@@ -370,11 +403,12 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
 
   return <div className="msg-workspace fni-chat-home">
     <div className="fni-chat-home-header">
-      {selectionMode ? <button className="fni-chat-edit-toggle active" onClick={exitSelection}>Cancel</button> : <button className="fni-chat-edit-toggle" onClick={() => { setSelectionMode(true); setSelectedChats([]); }}>Edit</button>}
+      {selectionMode ? <button className="fni-chat-edit-toggle active" onClick={exitSelection}>Cancel</button> : <button className="fni-chat-edit-toggle" aria-label="Chat list options" title="Select chats" onClick={() => { setSelectionMode(true); setSelectedChats([]); }}><MoreHorizontal size={22}/></button>}
       <div className="fni-chat-home-title"><span className="msg-eyebrow">FORERUNNERS NETWORK INTERNATIONAL</span><h2>{tab === 'Archived' ? 'Archived' : 'Chats'}</h2></div>
       <div className="fni-chat-home-actions"><button aria-label="New message" title="New message" onClick={() => setView('new-chat')}><Plus size={20}/></button><button aria-label="Create group" title="Create group" onClick={() => setView('create')}><Users size={19}/></button></div>
     </div>
-    <div className="fni-chat-search"><Search size={18}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search people, @usernames or messages" aria-label="Search chats"/></div>
+    <StoriesWorkspace compact onReply={() => setNotice('Open a conversation to continue your reply.')} />
+    <div className="fni-chat-search"><Search size={18}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search people, @usernames, messages..." aria-label="Search chats"/></div>
     <div className="msg-tabs fni-chat-tabs" role="tablist" aria-label="Chat folders">{(['All chats','Personal','Groups','Archived'] as const).map(t => <button role="tab" aria-selected={tab===t} key={t} className={tab===t?'active':''} onClick={() => { setTab(t); exitSelection(); }}>{t}</button>)}</div>
     {selectionMode && <div className="fni-chat-bulk-bar">
       <button className="fni-chat-select-all" onClick={toggleSelectAll}>{visibleChatIds.length > 0 && visibleChatIds.every(id => selectedChats.includes(id)) ? <SquareCheck size={17}/> : <Square size={17}/>} Select all</button>
