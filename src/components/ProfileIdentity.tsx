@@ -1,16 +1,16 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Check, Globe, LockKeyhole, ShieldCheck, UserRound } from 'lucide-react';
 
-type Props = { onNotice: (message: string) => void };
+type Props = { onNotice: (message: string) => void; onPhotoChange: (photo: string) => void };
 
-export default function ProfileIdentity({ onNotice }: Props) {
+export default function ProfileIdentity({ onNotice, onPhotoChange }: Props) {
   const [displayName, setDisplayName] = useState('FNI Member');
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [profileLink, setProfileLink] = useState('');
-  const [photo, setPhoto] = useState('');
+  const [photo, setPhoto] = useState(() => localStorage.getItem('fni-profile-photo') || '');
   const [onlineVisible, setOnlineVisible] = useState(true);
   const [saved, setSaved] = useState(false);
   const [usernameTouched, setUsernameTouched] = useState(false);
@@ -50,8 +50,15 @@ export default function ProfileIdentity({ onNotice }: Props) {
       onNotice('Choose a profile image smaller than 5 MB.');
       return;
     }
-    setPhoto(URL.createObjectURL(file));
-    setSaved(false);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+      if (!dataUrl) return;
+      setPhoto(dataUrl);
+      onPhotoChange(dataUrl);
+      setSaved(false);
+    };
+    reader.readAsDataURL(file);
   }
 
   return <section className="settings-detail profile-identity">
@@ -69,7 +76,7 @@ export default function ProfileIdentity({ onNotice }: Props) {
             <div className="photo-actions">
               <strong>Profile photo</strong><span>JPG, PNG or WEBP · up to 5 MB</span>
               <label className="profile-upload-button">Upload photo<input type="file" accept="image/*" onChange={choosePhoto} /></label>
-              {photo && <button type="button" className="profile-text-button" onClick={() => setPhoto('')}>Remove photo</button>}
+              {photo && <button type="button" className="profile-text-button" onClick={() => { setPhoto(''); onPhotoChange(''); }}>Remove photo</button>}
             </div>
           </div>
 
