@@ -37,7 +37,13 @@ export default function App() {
     }
   });
   const updatePreference = (key: string, value: string | boolean) => setPreferences((current: Record<string, string | boolean>) => ({ ...current, [key]: value }));
-  const language = String(preferences.language || 'English');
+  const detectedLanguage = (() => {
+    const locale = (navigator.languages?.[0] || navigator.language || 'en').toLowerCase();
+    if (locale.startsWith('fr')) return 'French';
+    if (locale.startsWith('tw') || locale.startsWith('ak')) return 'Twi';
+    return 'English';
+  })();
+  const language = String(preferences.language || 'Automatic') === 'Automatic' ? detectedLanguage : String(preferences.language);
   const translations: Record<string, Record<string, string>> = {
     French: {
       Chats: 'Discussions', Contacts: 'Contacts', Calls: 'Appels', Settings: 'Paramètres',
@@ -556,11 +562,11 @@ export default function App() {
                   <h3>{t('App language')}</h3>
                   <label className="settings-control-row"><span><strong>{t('Language')}</strong><small>{t('Choose the language used across FNI')}</small></span>
                     <select value={String(preferences.language)} onChange={e => updatePreference('language', e.target.value)}>
-                      <option value="English">English</option><option value="French">Français</option><option value="Twi">Twi</option>
+                      <option value="Automatic">Automatic ({detectedLanguage})</option><option value="English">English</option><option value="French">Français</option><option value="Twi">Twi</option>
                     </select>
                   </label>
-                  <p className="settings-footnote">{language === 'English' ? t('English is the default interface language.') : language === 'French' ? 'La langue de l’interface est maintenant le français.' : 'Wɔde Twi kasa redi dwuma wɔ mmeae a wɔatumi akyerɛ ase.'}</p>
-                  <p className="settings-footnote">Your choice is saved on this device and stays selected after you reopen FNI.</p>
+                  <p className="settings-footnote">{preferences.language === 'Automatic' ? 'Detected language: ' + detectedLanguage : language === 'English' ? t('English is the default interface language.') : language === 'French' ? 'La langue de l’interface est maintenant le français.' : 'Wɔde Twi kasa redi dwuma wɔ mmeae a wɔatumi akyerɛ ase.'}</p>
+                  <p className="settings-footnote">{preferences.language === 'Automatic' ? 'FNI detects your browser language and selects the closest supported translation automatically.' : 'Your choice is saved on this device and stays selected after you reopen FNI.'}</p>
                 </div>}
                 {settingsCategory === 'FNI Community' && <div className="settings-section">
                   <h3>Forerunners Network International</h3>
