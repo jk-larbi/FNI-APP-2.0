@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, Sticker, MoreVertical, Video, PhoneCall, UserRound, LockKeyhole, BellRing, Palette, Database, Smartphone, Globe2, MessageSquare, HeartHandshake, CircleHelp, ChevronRight, ShieldCheck, Volume2, Moon, Sun, Monitor, Download, Eye, BookOpen, HandHeart, CalendarDays, Image, KeyRound } from 'lucide-react';
+import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, Sticker, MoreVertical, Video, PhoneCall, UserRound, LockKeyhole, BellRing, Palette, Database, Smartphone, Globe2, MessageSquare, HeartHandshake, CircleHelp, ChevronRight, ShieldCheck, Volume2, Moon, Sun, Monitor, Download, Eye, BookOpen, HandHeart, CalendarDays, Image, KeyRound, Camera, FileText, MapPin, Contact, BarChart3, CalendarPlus, HandHeart } from 'lucide-react';
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'FNI Community' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups' | 'Archived';
 type AccountProfile = { name: string; username: string; bio: string; photo: string };
-type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
+type Message = { id: number; text: string; time: string; replyTo?: string; mediaUrl?: string; mediaType?: 'photo' | 'video'; mediaName?: string; fileUrl?: string; fileSize?: number; attachmentKind?: 'file' | 'location' | 'contact' | 'poll' | 'meeting' | 'prayer' | 'scripture'; reactions?: string[]; edited?: boolean; forwardedFrom?: string };
 
 function SettingToggle({ title, description, checked, onChange }: { title: string; description: string; checked: boolean; onChange: (value: boolean) => void }) {
   return <label className="settings-toggle-row"><span><strong>{title}</strong><small>{description}</small></span><input type="checkbox" checked={checked} onChange={event => onChange(event.target.checked)}/><i aria-hidden="true"/></label>;
@@ -364,6 +364,11 @@ export default function App() {
   const [chatSearchOpen, setChatSearchOpen] = useState(false);
   const [chatSearch, setChatSearch] = useState('');
   const attachmentInput = useRef<HTMLInputElement>(null);
+  const cameraInput = useRef<HTMLInputElement>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [attachmentMenuOpen, setAttachmentMenuOpen] = useState(false);
+  const [pendingAttachments, setPendingAttachments] = useState<File[]>([]);
+  const [attachmentCaption, setAttachmentCaption] = useState('');
 
   useEffect(() => {
     if (localVideoRef.current && videoStream) localVideoRef.current.srcObject = videoStream;
@@ -484,12 +489,67 @@ export default function App() {
     setOpenMessageMenu(null);
   };
 
-  const attachMedia = (file?: File) => {
-    if (!file) return;
-    const mediaType = file.type.startsWith('video/') ? 'video' : file.type.startsWith('image/') ? 'photo' : null;
-    if (!mediaType) return;
-    const mediaUrl = URL.createObjectURL(file);
-    setMessages((current) => [...current, { id: Date.now(), text: '', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), mediaUrl, mediaType, mediaName: file.name }]);
+  const queueAttachments = (files: FileList | File[]) => {
+    const selected = Array.from(files);
+    if (!selected.length) return;
+    setPendingAttachments((current) => [...current, ...selected]);
+    setAttachmentMenuOpen(false);
+    setEmojiOpen(false);
+    setStickerOpen(false);
+  };
+  const sendPendingAttachments = () => {
+    if (!pendingAttachments.length) return;
+    const now = Date.now();
+    const additions: Message[] = pendingAttachments.map((file, index) => {
+      const mediaType = file.type.startsWith('video/') ? 'video' : file.type.startsWith('image/') ? 'photo' : undefined;
+      const url = URL.createObjectURL(file);
+      return {
+        id: now + index,
+        text: index === 0 ? attachmentCaption.trim() : '',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        ...(mediaType ? { mediaUrl: url, mediaType } : { fileUrl: url, attachmentKind: 'file' as const }),
+        mediaName: file.name,
+        fileSize: file.size,
+      };
+    });
+    setMessages((current) => [...current, ...additions]);
+    setPendingAttachments([]);
+    setAttachmentCaption('');
+  };
+  const attachMedia = (file?: File) => { if (file) queueAttachments([file]); };
+  const sendAttachmentText = (kind: Message['attachmentKind'], title: string, body: string) => {
+    setMessages((current) => [...current, { id: Date.now(), text: body, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), attachmentKind: kind, mediaName: title }]);
+    setAttachmentMenuOpen(false);
+  };
+  const shareCurrentLocation = () => {
+    if (!navigator.geolocation) { window.alert('Location sharing is not supported by this browser.'); return; }
+    navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude, longitude } = position.coords;
+      sendAttachmentText('location', 'Shared location', `My location: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}\nhttps://www.google.com/maps?q=${latitude},${longitude}`);
+    }, () => window.alert('FNI could not access your location. Check browser location permission and try again.'), { enableHighAccuracy: true, timeout: 12000 });
+  };
+  const createLocalPoll = () => {
+    const question = window.prompt('Poll question');
+    if (!question?.trim()) return;
+    const raw = window.prompt('Enter answer options separated by commas');
+    const options = (raw || '').split(',').map((item) => item.trim()).filter(Boolean);
+    if (options.length < 2) { window.alert('A poll needs at least two answer options.'); return; }
+    sendAttachmentText('poll', 'Poll', question.trim() + '\n' + options.map((option, index) => `◯ ${option}`).join('\n') + '\nPoll preview only — live voting will be enabled with FNI messaging services.');
+  };
+  const shareContact = async () => {
+    const picker = (navigator as Navigator & { contacts?: { select: (properties: string[], options: { multiple: boolean }) => Promise<Array<{ name?: string[]; tel?: string[] }>> } }).contacts;
+    if (picker) {
+      try {
+        const selected = await picker.select(['name', 'tel'], { multiple: false });
+        if (selected[0]) sendAttachmentText('contact', 'Contact', `${selected[0].name?.join(' ') || 'Contact'}\n${selected[0].tel?.join(', ') || 'No phone number shared'}`);
+      } catch { /* user cancelled */ }
+    } else {
+      const name = window.prompt('Contact name to share');
+      if (!name?.trim()) return;
+      const phone = window.prompt('Phone number (optional)') || '';
+      sendAttachmentText('contact', 'Contact', `${name.trim()}\n${phone}`);
+    }
+    setAttachmentMenuOpen(false);
   };
 
   const saveMedia = (message: Message) => {
@@ -826,9 +886,34 @@ export default function App() {
               ))}
             </div>
             {(replyTo || editingMessage) && <div className="reply-preview"><div><strong>{editingMessage ? 'Editing message' : 'Replying to your message'}</strong><span>{editingMessage ? editingMessage.text : replyTo?.text}</span></div><button onClick={() => { setReplyTo(null); setEditingMessage(null); setDraft(editingMessage ? draftBeforeEdit : draft); }} aria-label="Cancel reply"><X size={17} /></button></div>}
+            {pendingAttachments.length > 0 && <div className="attachment-preview-sheet" role="dialog" aria-label="Review attachments">
+              <div className="attachment-preview-heading"><strong>Review attachments</strong><button type="button" aria-label="Close preview" onClick={() => { setPendingAttachments([]); setAttachmentCaption(''); }}><X /></button></div>
+              <div className="attachment-preview-items">{pendingAttachments.map((file,index) => <div className="attachment-preview-item" key={index}>
+                {file.type.startsWith('image/') ? <img src={URL.createObjectURL(file)} alt={file.name} /> : file.type.startsWith('video/') ? <video src={URL.createObjectURL(file)} controls playsInline /> : <FileText />}
+                <span>{file.name}<small>{(file.size/1024/1024).toFixed(2)} MB</small></span>
+                <button type="button" aria-label={'Remove '+file.name} onClick={() => setPendingAttachments((current) => current.filter((_,i)=>i!==index))}>×</button>
+              </div>)}</div>
+              <textarea value={attachmentCaption} onChange={(event)=>setAttachmentCaption(event.target.value)} placeholder="Add a caption..." rows={2}/>
+              <div className="attachment-preview-footer"><span>{pendingAttachments.length} item{pendingAttachments.length===1?'':'s'} selected</span><button type="button" onClick={sendPendingAttachments}>Send</button></div>
+            </div>}
             <div className="message-composer">
-              <button className="composer-icon" aria-label="Attach photo or video" title="Attach photo or video" onClick={() => attachmentInput.current?.click()}><Paperclip /></button>
-              <input ref={attachmentInput} className="attachment-input" type="file" accept="image/*,video/*" onChange={(event) => { attachMedia(event.target.files?.[0]); event.target.value = ''; }} />
+              <div className="attachment-menu-wrap">
+                <button type="button" className="composer-icon attachment-trigger" aria-label="Attach" title="Attach" aria-expanded={attachmentMenuOpen} onClick={() => { setAttachmentMenuOpen((open) => !open); setEmojiOpen(false); setStickerOpen(false); }}><Paperclip /></button>
+                {attachmentMenuOpen && <div className="attachment-menu" role="menu">
+                  <button type="button" onClick={() => attachmentInput.current?.click()}><Image /><span>Gallery<small>Photos and videos</small></span></button>
+                  <button type="button" onClick={() => cameraInput.current?.click()}><Camera /><span>Camera<small>Take a photo or video</small></span></button>
+                  <button type="button" onClick={() => fileInput.current?.click()}><FileText /><span>File<small>Documents and other files</small></span></button>
+                  <button type="button" onClick={shareCurrentLocation}><MapPin /><span>Location<small>Share current location</small></span></button>
+                  <button type="button" onClick={shareContact}><Contact /><span>Contact<small>Share contact details</small></span></button>
+                  <button type="button" onClick={createLocalPoll}><BarChart3 /><span>Poll<small>Create a question</small></span></button>
+                  <button type="button" onClick={() => { const title=window.prompt('Meeting title'); if(title?.trim()) sendAttachmentText('meeting','FNI Meeting',title.trim()+'\nMeeting invitation draft — online meeting details can be added when FNI meetings are connected.'); }}><CalendarPlus /><span>Meeting<small>Share a meeting invitation</small></span></button>
+                  <button type="button" onClick={() => { const prayer=window.prompt('Write a prayer request'); if(prayer?.trim()) sendAttachmentText('prayer','Prayer request',prayer.trim()); setAttachmentMenuOpen(false); }}><HandHeart /><span>Prayer<small>Share a prayer request</small></span></button>
+                  <button type="button" onClick={() => { const verse=window.prompt('Enter a Bible reference or verse'); if(verse?.trim()) sendAttachmentText('scripture','Scripture',verse.trim()); setAttachmentMenuOpen(false); }}><BookOpen /><span>Scripture<small>Share a Bible verse</small></span></button>
+                </div>}
+              </div>
+              <input ref={attachmentInput} className="attachment-input" type="file" accept="image/*,video/*" multiple onChange={(event) => { if(event.target.files) queueAttachments(event.target.files); event.target.value = ''; }} />
+              <input ref={cameraInput} className="attachment-input" type="file" accept="image/*,video/*" capture="environment" onChange={(event) => { if(event.target.files) queueAttachments(event.target.files); event.target.value = ''; }} />
+              <input ref={fileInput} className="attachment-input" type="file" multiple onChange={(event) => { if(event.target.files) queueAttachments(event.target.files); event.target.value = ''; }} />
               <div className="composer-input-wrap">
                 <textarea value={draft} onChange={(event) => { setDraft(event.target.value); const tail = event.target.value.split(/\s/).pop() || ''; setMentionOpen(Boolean(preferences.mentionSuggestions) && tail.startsWith('@') && tail.length > 0); }} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && preferences.enterToSend) { event.preventDefault(); sendMessage(); } if (event.key === 'Escape') { setMentionOpen(false); setEmojiOpen(false); setStickerOpen(false); } }} placeholder="Message" rows={1} />
                 {mentionOpen && activeChat && <div className="mention-suggestions">{(groupDetails[activeChat]?.members || [activeChat]).filter(member => member.toLowerCase().includes((draft.split(/\s/).pop() || '').slice(1).toLowerCase())).map(member => <button type="button" key={member} onClick={() => { setDraft((current) => current.replace(/@[\w.]*$/, `@${member.replace(/^@/, '')} `)); setMentionOpen(false); }}>{member}<span>{groupDetails[activeChat] ? 'Member of this group' : 'Chat contact'}</span></button>)}</div>}
