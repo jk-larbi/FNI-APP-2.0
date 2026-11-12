@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import SavedMessagesWorkspace from './SavedMessagesWorkspace';
-import { Archive, ArrowLeft, AtSign, Bookmark, Check, CheckCheck, ChevronRight, Lock, MessageCircle, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, X } from 'lucide-react';
+import { Archive, ArrowLeft, AtSign, Bookmark, Check, CheckCheck, ChevronRight, Copy, Download, Forward, Lock, MessageCircle, Pencil, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, X } from 'lucide-react';
 
 type PermissionKey = 'addMembers' | 'approveRequests' | 'editInfo' | 'pinDelete' | 'restrictMembers' | 'manageInvites' | 'appointAdmins';
-type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; replyTo?: string; reactions?: string[]; mentions?: string[]; sticker?: boolean; };
+type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; replyTo?: string; reactions?: string[]; mentions?: string[]; sticker?: boolean; pinned?: boolean; mediaUrl?: string; mediaType?: 'image' | 'video'; };
 type Group = {
   id: string; name: string; description: string; createdAt: string;
   mode: 'Everyone' | 'Admins only' | 'Selected members';
@@ -41,6 +41,10 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [stickerOpen, setStickerOpen] = useState(false);
   const [mentionOpen, setMentionOpen] = useState(false);
   const [chatKeyboardOpen, setChatKeyboardOpen] = useState(false);
+  const [messageMenu, setMessageMenu] = useState<{ messageId: string; x: number; y: number } | null>(null);
+  const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTriggered = useRef(false);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
   const [groupName, setGroupName] = useState('');
@@ -116,6 +120,57 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const closeToList = () => { setView('list'); setSelectedId(''); setGroupDraft(''); };
   const sendGroupMessage = () => { const text = groupDraft.trim(); if (!text || !selected) return; const mentions = [...text.matchAll(/@([a-zA-Z0-9_.-]+)/g)].map(match => match[1]); setGroupMessages(current => [...current, { id: crypto.randomUUID(), groupId: selected.id, text, createdAt: new Date().toISOString(), replyTo: replyTarget?.id, reactions: [], mentions }]); setGroupDraft(''); setReplyTarget(null); setEmojiOpen(false); setMentionOpen(false); };
   const sendSticker = (sticker: string) => { if (!selected) return; setGroupMessages(current => [...current, { id: crypto.randomUUID(), groupId: selected.id, text: sticker, createdAt: new Date().toISOString(), reactions: [], sticker: true }]); setStickerOpen(false); setEmojiOpen(false); setMentionOpen(false); };
+  const openMessageMenu = (message: GroupMessage, x: number, y: number) => {
+    setMessageMenu({ messageId: message.id, x: Math.max(8, Math.min(x, window.innerWidth - 220)), y: Math.max(8, Math.min(y, window.innerHeight - 360)) });
+  };
+  const clearLongPress = () => { if (longPressTimer.current) clearTimeout(longPressTimer.current); longPressTimer.current = null; };
+  const handleMessageAction = async (action: string, message: GroupMessage) => {
+    setMessageMenu(null);
+    if (action === 'Reply') { setReplyTarget(message); setEmojiOpen(false); chatInputRef.current?.focus(); return; }
+    if (action === 'Copy') {
+      try { await navigator.clipboard.writeText(message.text); setNotice('Message copied.'); }
+      catch { setNotice('Copy is unavailable in this browser.'); }
+      return;
+    }
+    if (action === 'Edit') {
+      const next = window.prompt('Edit message', message.text);
+      if (next !== null && next.trim()) setGroupMessages(items => items.map(item => item.id === message.id ? { ...item, text: next.trim() } : item));
+      return;
+    }
+    if (action === 'Pin') {
+      setGroupMessages(items => items.map(item => item.id === message.id ? { ...item, pinned: !item.pinned } : item));
+      setNotice(message.pinned ? 'Message unpinned.' : 'Message pinned in this preview.');
+      return;
+    }
+    if (action === 'Forward') {
+      const destination = window.prompt('Enter the exact name of the FNI group to forward this message to', '');
+      if (!destination) return;
+      const target = groups.find(group => group.name.toLowerCase() === destination.trim().toLowerCase());
+      if (!target) { setNotice('That group was not found in this preview.'); return; }
+      setGroupMessages(items => [...items, { ...message, id: crypto.randomUUID(), groupId: target.id, createdAt: new Date().toISOString(), replyTo: undefined, pinned: false }]);
+      setNotice('Message forwarded in this browser preview.');
+      return;
+    }
+    if (action === 'Delete') {
+      if (!confirm('Delete this message from this browser preview?')) return;
+      setGroupMessages(items => items.filter(item => item.id !== message.id));
+      setSelectedMessages(items => items.filter(id => id !== message.id));
+      return;
+    }
+    if (action === 'Select') {
+      setSelectedMessages(items => items.includes(message.id) ? items.filter(id => id !== message.id) : [...items, message.id]);
+      return;
+    }
+    if (action === 'Save Image' || action === 'Save Video') {
+      if (!message.mediaUrl) { setNotice('This media has no downloadable file attached.'); return; }
+      const link = document.createElement('a');
+      link.href = message.mediaUrl;
+      link.download = message.mediaUrl.split('/').pop()?.split('?')[0] || (message.mediaType === 'video' ? 'fni-video' : 'fni-image');
+      link.target = '_blank';
+      link.rel = 'noopener';
+      document.body.appendChild(link); link.click(); link.remove();
+    }
+  };
   const toggleChatSelection = (id: string) => setSelectedChats(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const visibleChatIds = [...filtered.map(group => group.id), ...(tab === 'All chats' && !archivedChats.includes('saved-messages') ? ['saved-messages'] : tab === 'Personal' && !archivedChats.includes('saved-messages') ? ['saved-messages'] : tab === 'Archived' && archivedChats.includes('saved-messages') ? ['saved-messages'] : [])];
   const toggleSelectAll = () => setSelectedChats(current => visibleChatIds.every(id => current.includes(id)) ? current.filter(id => !visibleChatIds.includes(id)) : [...new Set([...current, ...visibleChatIds])]);
@@ -175,10 +230,22 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
         ? <div className="fni-group-chat-empty"><div><MessageCircle size={24}/></div><b>{selected.name}</b><span>No messages yet. Start the conversation with your group.</span></div>
         : groupMessages.filter(message => message.groupId === selected.id).map(message => {
           const parent = groupMessages.find(item => item.id === message.replyTo);
-          return <article className="fni-group-chat-entry" key={message.id}>
+          return <article
+            className={`fni-group-chat-entry${selectedMessages.includes(message.id) ? ' is-message-selected' : ''}`}
+            key={message.id}
+            onContextMenu={event => { event.preventDefault(); openMessageMenu(message, event.clientX, event.clientY); }}
+            onTouchStart={event => { longPressTriggered.current = false; const touch = event.touches[0]; clearLongPress(); longPressTimer.current = setTimeout(() => { longPressTriggered.current = true; openMessageMenu(message, touch.clientX, touch.clientY); }, 480); }}
+            onTouchMove={clearLongPress}
+            onTouchEnd={clearLongPress}
+            onTouchCancel={clearLongPress}
+            onClick={event => { if (longPressTriggered.current) { event.preventDefault(); longPressTriggered.current = false; } }}
+          >
             <div className={`fni-group-chat-bubble${message.sticker ? ' fni-group-chat-sticker-bubble' : ''}`}>
+              {message.pinned && <div className="fni-message-pinned-label"><Pin size={12}/> Pinned message</div>}
               {parent && <button className="fni-chat-reply-preview" onClick={() => document.getElementById('fni-message-'+parent.id)?.scrollIntoView({behavior:'smooth',block:'center'})}><b>You replied to</b><span>{parent.text}</span></button>}
-              <p className={message.sticker ? 'fni-group-chat-sticker' : undefined} id={'fni-message-'+message.id}>{message.text.split(/(@[a-zA-Z0-9_.-]+)/g).map((part,index) => part.startsWith('@') ? <strong className="fni-chat-mention" key={index}>{part}</strong> : part)}</p>
+              {message.mediaUrl && message.mediaType === 'image' && <img className="fni-chat-message-media" src={message.mediaUrl} alt={message.text || 'Shared image'} loading="lazy"/>}
+              {message.mediaUrl && message.mediaType === 'video' && <video className="fni-chat-message-media" src={message.mediaUrl} controls playsInline/>}
+              {!!message.text && <p className={message.sticker ? 'fni-group-chat-sticker' : undefined} id={'fni-message-'+message.id}>{message.text.split(/(@[a-zA-Z0-9_.-]+)/g).map((part,index) => part.startsWith('@') ? <strong className="fni-chat-mention" key={index}>{part}</strong> : part)}</p>}
               <div className="fni-chat-message-meta"><time>{new Date(message.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</time><span>✓✓</span></div>
               {!!message.reactions?.length && <div className="fni-chat-reactions">{message.reactions.map(emoji=><button key={emoji} onClick={()=>setGroupMessages(items=>items.map(item=>item.id===message.id?{...item,reactions:item.reactions?.filter(value=>value!==emoji)}:item))}>{emoji}</button>)}</div>}
             </div>
@@ -189,6 +256,13 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
           </article>;
         })}
     </div>
+    {messageMenu && (() => {
+      const target = groupMessages.find(item => item.id === messageMenu.messageId);
+      if (!target) return null;
+      const actions = ['Reply','Copy','Edit',target.pinned ? 'Unpin' : 'Pin','Forward','Delete','Select',...(target.mediaUrl ? [target.mediaType === 'video' ? 'Save Video' : 'Save Image'] : [])];
+      return <><button className="fni-message-menu-dismiss" aria-label="Close message menu" onClick={() => setMessageMenu(null)}/><div className="fni-message-context-menu" role="menu" style={{left:messageMenu.x,top:messageMenu.y}}>{actions.map(action=><button key={action} role="menuitem" className={action === 'Delete' ? 'danger' : ''} onClick={() => handleMessageAction(action === 'Unpin' ? 'Pin' : action,target)}>{action === 'Reply' ? <Reply size={16}/> : action === 'Copy' ? <Copy size={16}/> : action === 'Edit' ? <Pencil size={16}/> : action === 'Pin' || action === 'Unpin' ? <Pin size={16}/> : action === 'Forward' ? <Forward size={16}/> : action === 'Delete' ? <Trash2 size={16}/> : action === 'Select' ? <SquareCheck size={16}/> : <Download size={16}/>}<span>{action}</span></button>)}</div></>;
+    })()}
+    {selectedMessages.length > 0 && <div className="fni-message-selection-bar"><span>{selectedMessages.length} selected</span><button onClick={() => setSelectedMessages([])}>Cancel selection</button><button onClick={() => { if(confirm('Delete selected messages?')) setGroupMessages(items=>items.filter(item=>!selectedMessages.includes(item.id))); setSelectedMessages([]); }}>Delete</button></div>}
     {replyTarget && <div className="fni-chat-replying"><div><b>Replying to your message</b><span>{replyTarget.text}</span></div><button type="button" onClick={()=>setReplyTarget(null)} aria-label="Cancel reply"><X size={17}/></button></div>}
     {emojiOpen && <div className="fni-ios-emoji-panel" role="group" aria-label="Emoji picker">{['😀','😃','😄','😁','😆','🥹','😂','🤣','😊','😍','🥰','😘','😎','😭','🙏','👏','👍','👎','❤️','🧡','💛','💚','💙','💜','🔥','🎉','✨','🙌','🤍','💯','🤝','🕊️'].map(emoji=><button type="button" key={emoji} onClick={()=>setGroupDraft(value=>value+emoji)}>{emoji}</button>)}</div>}
     {stickerOpen && <div className="fni-sticker-panel" role="group" aria-label="FNI sticker pack"><div className="fni-sticker-panel-heading"><b>FNI Stickers</b><span>Tap a sticker to send</span></div>{[{emoji:'🙏',label:'Praying for you'},{emoji:'🙌',label:'Hallelujah'},{emoji:'❤️',label:'God loves you'},{emoji:'✨',label:'Blessed'},{emoji:'🕊️',label:'Peace'},{emoji:'🔥',label:'On fire'},{emoji:'👏',label:'Well done'},{emoji:'💪',label:'Stay strong'},{emoji:'🌟',label:'Keep shining'},{emoji:'📖',label:'Word of God'},{emoji:'🤍',label:'Grace'},{emoji:'🎉',label:'Praise God'}].map(sticker=><button type="button" className="fni-sticker-tile" key={sticker.label} onClick={()=>sendSticker(sticker.emoji)}><span>{sticker.emoji}</span><small>{sticker.label}</small></button>)}</div>}
