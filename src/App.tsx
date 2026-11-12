@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, Search, Plus, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, MoreVertical, Video, PhoneCall } from 'lucide-react';
+import { Menu, Search, Plus, Bell, MessageCircle, Users, Phone, Settings, ChevronDown, X, ArrowLeft, Send, Paperclip, Smile, MoreVertical, Video, PhoneCall } from 'lucide-react';
 
 type Section = 'Chats' | 'Contacts' | 'Calls' | 'Settings';
 type Folder = 'All chats' | 'Personal' | 'Groups' | 'Archived';
@@ -12,6 +12,8 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [newActionOpen, setNewActionOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [meetingNotifications, setMeetingNotifications] = useState<{ id: number; title: string; body: string; time: string; read: boolean; groupId: string }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-meeting-notifications') || '[]'); } catch { return []; } });
   const [newGroupOpen, setNewGroupOpen] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
@@ -82,6 +84,7 @@ export default function App() {
     try { localStorage.setItem('fni-local-groups', JSON.stringify(groupDetails)); } catch { /* storage may be unavailable */ }
   }, [groupDetails]);
   useEffect(() => { try { localStorage.setItem('fni-group-approval-requests', JSON.stringify(groupApprovalRequests)); } catch { /* storage may be unavailable */ } }, [groupApprovalRequests]);
+  useEffect(() => { try { localStorage.setItem('fni-meeting-notifications', JSON.stringify(meetingNotifications)); } catch { /* storage may be unavailable */ } }, [meetingNotifications]);
   useEffect(() => {
     try { localStorage.setItem('fni-local-drafts', JSON.stringify(drafts)); } catch { /* storage may be unavailable */ }
   }, [drafts]);
@@ -137,6 +140,8 @@ export default function App() {
       setVideoMicOn(true);
       setVideoCameraOn(true);
       setVideoRoomStarted(true);
+      const groupNameForNotice = groupDetails[activeChat]?.name || activeChat;
+      setMeetingNotifications((current) => [{ id: Date.now(), title: groupNameForNotice + ' meeting started', body: 'Meeting alert for group members, leaders and the Man of God.', time: new Date().toLocaleString(), read: false, groupId: activeChat }, ...current]);
     } catch {
       setVideoError('Camera or microphone permission was denied or no device was found. Check browser permissions and try again.');
     }
@@ -303,7 +308,7 @@ export default function App() {
           <div className="list-title-row">
             <button className="icon-button menu-button" aria-label="Open menu" onClick={() => setMenuOpen(true)}><Menu /></button>
             <div><h1>{section}</h1><p>FORERUNNERS NETWORK INTERNATIONAL</p></div>
-            <div className="new-action-wrap"><button className="icon-button new-chat-button" aria-label="Create chat" title="Create chat or group" aria-expanded={newActionOpen} onClick={() => setNewActionOpen((open) => !open)}><Plus /></button>{newActionOpen && <div className="new-action-menu"><button onClick={() => { setNewChatOpen(true); setNewActionOpen(false); }}>New message</button><button onClick={() => { setNewGroupOpen(true); setNewActionOpen(false); }}>New group</button></div>}</div>
+            <div className="header-actions-wrap"><div className="notification-wrap"><button className="icon-button notification-button" aria-label="Notifications" title="Notifications" aria-expanded={notificationsOpen} onClick={() => setNotificationsOpen((open) => !open)}><Bell />{meetingNotifications.some((item) => !item.read) && <span className="notification-count">{meetingNotifications.filter((item) => !item.read).length}</span>}</button>{notificationsOpen && <div className="notifications-popover"><div className="notifications-heading"><strong>Notifications</strong><button type="button" onClick={() => setMeetingNotifications((current) => current.map((item) => ({ ...item, read: true })))}>Mark all read</button></div>{meetingNotifications.length ? meetingNotifications.map((item) => <button type="button" className={"notification-item " + (item.read ? "" : "notification-unread")} key={item.id} onClick={() => { setMeetingNotifications((current) => current.map((notice) => notice.id === item.id ? { ...notice, read: true } : notice)); setActiveChat(item.groupId); setSection("Chats"); setFolder("Groups"); setNotificationsOpen(false); }}><strong>{item.title}</strong><span>{item.body}</span><time>{item.time}</time></button>) : <p className="notifications-empty">You’re all caught up.</p>}</div>}</div><div className="new-action-wrap"><button className="icon-button new-chat-button" aria-label="Create chat" title="Create chat or group" aria-expanded={newActionOpen} onClick={() => setNewActionOpen((open) => !open)}><Plus /></button>{newActionOpen && <div className="new-action-menu"><button onClick={() => { setNewChatOpen(true); setNewActionOpen(false); }}>New message</button><button onClick={() => { setNewGroupOpen(true); setNewActionOpen(false); }}>New group</button></div>}</div></div>
           </div>
           <label className="search-box">
             <Search size={18} />
