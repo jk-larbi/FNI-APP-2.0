@@ -15,9 +15,9 @@ export default function App() {
   const [settingsMobileDetail, setSettingsMobileDetail] = useState(false);
   const [preferences, setPreferences] = useState(() => {
     try {
-      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, compactChatList: false, chatTextSize: 'Normal', linkPreviews: true, emojiSuggestions: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, ...JSON.parse(localStorage.getItem('fni-settings') || '{}') };
+      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, compactChatList: false, chatTextSize: 'Normal', showMessageTimestamps: true, mentionSuggestions: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, ...JSON.parse(localStorage.getItem('fni-settings') || '{}') };
     } catch {
-      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false };
+      return { appearance: 'System', language: 'English', messagePreview: true, sound: true, desktopNotifications: true, groupNotifications: true, meetingReminders: true, lastSeen: 'Everybody', profilePhoto: 'Everybody', phoneNumber: 'My contacts', readReceipts: true, autoDownloadPhotos: true, autoDownloadVideos: false, dataSaver: false, saveToGallery: false, enterToSend: true, reducedMotion: false, compactChatList: false, chatTextSize: 'Normal', showMessageTimestamps: true, mentionSuggestions: true };
     }
   });
   const updatePreference = (key: string, value: string | boolean) => setPreferences((current: Record<string, string | boolean>) => ({ ...current, [key]: value }));
@@ -476,17 +476,17 @@ export default function App() {
                 {settingsCategory === 'Chat Settings' && <div className="settings-section chat-settings-panel">
                   <h3>Message composer</h3>
                   <SettingToggle title="Send by pressing Enter" description="Enter sends the message; Shift + Enter inserts a new line" checked={Boolean(preferences.enterToSend)} onChange={v => updatePreference('enterToSend', v)}/>
-                  <SettingToggle title="Emoji suggestions" description="Show emoji suggestions while composing messages" checked={Boolean(preferences.emojiSuggestions)} onChange={v => updatePreference('emojiSuggestions', v)}/>
+                  <SettingToggle title="Username suggestions" description="Suggest matching chat members when typing @" checked={Boolean(preferences.mentionSuggestions)} onChange={v => updatePreference('mentionSuggestions', v)}/>
                   <h3>Chat appearance</h3>
                   <label className="settings-control-row"><span><strong>Message text size</strong><small>Adjust text size inside conversations</small></span><select value={String(preferences.chatTextSize || 'Normal')} onChange={e => updatePreference('chatTextSize', e.target.value)}><option>Small</option><option>Normal</option><option>Large</option></select></label>
                   <SettingToggle title="Compact chat list" description="Reduce spacing between conversations" checked={Boolean(preferences.compactChatList)} onChange={v => updatePreference('compactChatList', v)}/>
-                  <SettingToggle title="Link previews" description="Allow website preview cards in conversations" checked={Boolean(preferences.linkPreviews)} onChange={v => updatePreference('linkPreviews', v)}/>
+                  <SettingToggle title="Message timestamps" description="Show the sent time beneath each message" checked={Boolean(preferences.showMessageTimestamps)} onChange={v => updatePreference('showMessageTimestamps', v)}/>
                   <h3>Chat organisation</h3>
                   <div className="settings-info-row"><MessageSquare/><span><strong>Chat folders</strong><small>Switch between All chats, Personal, Groups and Archived</small></span><button type="button" onClick={() => { setSection('Chats'); setFolder('All chats'); }}>Open chats</button></div>
                   <div className="settings-info-row"><Image/><span><strong>Shared media</strong><small>Find photos and videos shared in each conversation</small></span><em>Inside chat info</em></div>
                   <h3>Notifications</h3>
                   <div className="settings-info-row"><Volume2/><span><strong>Chat sounds</strong><small>Control message and group alert sounds</small></span><button type="button" onClick={() => { setSettingsCategory('Notifications and Sounds'); setSettingsMobileDetail(true); }}>Configure</button></div>
-                  <p className="settings-footnote">Chat preferences are saved on this device. Link preview cards and emoji suggestions are preference controls for the messaging experience; cross-device syncing will be available with FNI accounts.</p>
+                  <p className="settings-footnote">Chat preferences are saved on this device. Your message composer, text size, chat density, timestamps and mention suggestions now respond to these settings. Preferences stay on this device until account syncing is added.</p>
                 </div>}
                 {settingsCategory === 'Data and Storage' && <div className="settings-section">
                   <h3>Automatic media download</h3><SettingToggle title="Photos" description="Automatically download photos" checked={Boolean(preferences.autoDownloadPhotos)} onChange={v => updatePreference('autoDownloadPhotos', v)}/>
@@ -598,7 +598,7 @@ export default function App() {
               <button className="composer-icon" aria-label="Attach photo or video" title="Attach photo or video" onClick={() => attachmentInput.current?.click()}><Paperclip /></button>
               <input ref={attachmentInput} className="attachment-input" type="file" accept="image/*,video/*" onChange={(event) => { attachMedia(event.target.files?.[0]); event.target.value = ''; }} />
               <div className="composer-input-wrap">
-                <textarea value={draft} onChange={(event) => { setDraft(event.target.value); const tail = event.target.value.split(/\s/).pop() || ''; setMentionOpen(Boolean(preferences.emojiSuggestions) && tail.startsWith('@') && tail.length > 0); }} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && preferences.enterToSend) { event.preventDefault(); sendMessage(); } if (event.key === 'Escape') { setMentionOpen(false); setEmojiOpen(false); } }} placeholder="Message" rows={1} />
+                <textarea value={draft} onChange={(event) => { setDraft(event.target.value); const tail = event.target.value.split(/\s/).pop() || ''; setMentionOpen(Boolean(preferences.mentionSuggestions) && tail.startsWith('@') && tail.length > 0); }} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && preferences.enterToSend) { event.preventDefault(); sendMessage(); } if (event.key === 'Escape') { setMentionOpen(false); setEmojiOpen(false); } }} placeholder="Message" rows={1} />
                 {mentionOpen && activeChat && <div className="mention-suggestions"><button onClick={() => { setDraft((current) => current.replace(/@[\w.]*$/, activeChat + ' ')); setMentionOpen(false); }}>{activeChat}<span>FNI member in this chat</span></button></div>}
               </div>
               <div className="emoji-picker-wrap"><button className="composer-icon emoji-button" aria-label="Emoji" onClick={() => setEmojiOpen((open) => !open)}><Smile /></button>
