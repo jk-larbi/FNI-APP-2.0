@@ -308,7 +308,7 @@ function App() {
         </section>
         <div className="bottom-note"><Bookmark size={15} /><span>FNI is a private space for fellowship, growth and service.</span></div>
       </div>}
-      <CallingWorkspace isVisible={section === 'calls'} initialGroup={callGroup} onClearInitialGroup={() => setCallGroup('')} onNavigateToCalls={() => setSection('calls')} />
+      <CallingWorkspace isVisible={section === 'calls'} initialGroup={callGroup} onClearInitialGroup={() => setCallGroup('')} onNavigateToCalls={() => setSection('calls')} onBack={() => setSection('chats')} />
       <nav className="mobile-nav" aria-label="Mobile navigation">
         {visibleSections.filter(item => item.id !== 'calls').map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'mobile-nav-item active' : 'mobile-nav-item'} onClick={() => { setSection(item.id); setMenuOpen(false); }}><Icon size={19} /><span>{t(item.label)}</span></button>; })}
         <button className={section === 'settings' ? 'mobile-nav-item active' : 'mobile-nav-item'} onClick={openSettings} aria-current={section === 'settings' ? 'page' : undefined}><Settings size={19} /><span>Settings</span></button>
