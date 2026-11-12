@@ -3027,3 +3027,47 @@ html,body,#root{background:var(--fni-bg);color:var(--fni-text);color-scheme:ligh
     padding-bottom: 8px;
   }
 }
+
+
+/* Group chats use the same conversation layout as Saved Messages. */
+.fni-group-conversation{display:flex;flex-direction:column;min-height:calc(100dvh - 130px);max-height:calc(100dvh - 130px);overflow:hidden;padding:0!important;background:var(--fni-surface,#fff)!important}
+.fni-group-chat-header{height:68px;flex:0 0 68px;display:flex;align-items:center;gap:11px;padding:0 15px;border-bottom:1px solid var(--fni-line,#e3e7f0);background:var(--fni-surface,#fff)}
+.fni-group-chat-header .msg-group-avatar{width:42px;height:42px;flex:0 0 42px}
+.fni-group-chat-identity{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+.fni-group-chat-identity b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fni-text,#192033);font-size:14px}
+.fni-group-chat-identity span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fni-muted,#687187);font-size:11px}
+.fni-group-chat-action,.saved-chat-back-button{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border-radius:50%;background:transparent;color:var(--fni-muted,#687187)}
+.fni-group-chat-action:hover,.saved-chat-back-button:hover{background:var(--fni-surface-2,#eef1f8);color:var(--fni-blue,#173b8f)}
+.fni-group-chat-messages{flex:1 1 0;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:18px clamp(12px,3vw,28px);background-color:#e9eef4;background-image:radial-gradient(rgba(23,59,143,.055) .8px,transparent .8px);background-size:17px 17px;overscroll-behavior:contain}
+.fni-group-chat-empty{margin:auto;max-width:290px;display:flex;flex-direction:column;align-items:center;gap:9px;padding:22px;text-align:center}
+.fni-group-chat-empty>div{width:48px;height:48px;display:grid;place-items:center;border-radius:50%;background:#e8eefb;color:#173b8f}
+.fni-group-chat-empty b{color:#24324a;font-size:14px}
+.fni-group-chat-empty span{color:#68758b;font-size:12px;line-height:1.5}
+.fni-group-chat-bubble{align-self:flex-end;max-width:min(78%,560px);padding:9px 11px 6px;border:1px solid #d7e8d5;border-radius:13px 13px 3px 13px;background:#e1f4df;color:#1d2c25;overflow-wrap:anywhere}
+.fni-group-chat-bubble p{margin:0;font-size:13px;line-height:1.5;white-space:pre-wrap}
+.fni-group-chat-bubble time{display:block;margin-top:3px;text-align:right;color:#71847a;font-size:9px}
+.fni-group-chat-compose{flex:0 0 auto;display:flex;align-items:center;gap:9px;padding:10px 13px;border-top:1px solid var(--fni-line,#e3e7f0);background:var(--fni-surface,#fff)}
+.fni-group-chat-compose input{flex:1;min-width:0;height:42px;padding:0 14px;border:1px solid var(--fni-line,#e3e7f0);border-radius:22px;outline:0;background:var(--fni-surface-2,#f5f7fb);color:var(--fni-text,#192033);font:inherit;font-size:13px}
+.fni-group-chat-compose button{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:50%;background:#173b8f;color:#fff}
+.fni-group-chat-compose button:disabled{background:#aeb8ca}
+.fni-group-chat-local-note{flex:0 0 auto;padding:0 10px 8px;background:var(--fni-surface,#fff);color:var(--fni-muted,#687187);text-align:center;font-size:9px}
+:root[data-theme="dark"] .fni-group-chat-header,:root[data-theme="dark"] .fni-group-chat-compose,:root[data-theme="dark"] .fni-group-chat-local-note{background:#222634;border-color:#383e50}
+:root[data-theme="dark"] .fni-group-chat-identity b{color:#f4f5fa}
+:root[data-theme="dark"] .fni-group-chat-messages{background-color:#1b2530;background-image:radial-gradient(rgba(220,230,245,.045) .8px,transparent .8px)}
+:root[data-theme="dark"] .fni-group-chat-empty>div{background:#30384e;color:#a9bdf4}
+:root[data-theme="dark"] .fni-group-chat-empty b{color:#f4f5fa}
+:root[data-theme="dark"] .fni-group-chat-empty span{color:#a7aec0}
+:root[data-theme="dark"] .fni-group-chat-bubble{background:#244b42;border-color:#315c50;color:#f0f6f1}
+:root[data-theme="dark"] .fni-group-chat-bubble time{color:#a8c4b4}
+:root[data-theme="dark"] .fni-group-chat-compose input{background:#2b3040;border-color:#383e50;color:#f4f5fa}
+@media(max-width:760px){
+  .msg-fullscreen-workspace.fni-group-conversation{display:flex!important;flex-direction:column!important;overflow:hidden!important;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)!important}
+  .fni-group-chat-header{height:calc(61px + env(safe-area-inset-top));min-height:calc(61px + env(safe-area-inset-top));flex-basis:calc(61px + env(safe-area-inset-top));padding:0 9px}
+  .fni-group-chat-header .saved-chat-back-button{width:34px;flex-basis:34px}
+  .fni-group-chat-header .msg-group-avatar{width:39px;height:39px;flex-basis:39px}
+  .fni-group-chat-messages{flex:1 1 0;min-height:0;padding:12px 10px 18px}
+  .fni-group-chat-compose{gap:6px;padding:9px 8px 8px}
+  .fni-group-chat-compose input{height:40px}
+  .fni-group-chat-compose button{width:39px;height:39px;flex-basis:39px}
+  .fni-group-chat-local-note{display:none}
+}
