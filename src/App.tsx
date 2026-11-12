@@ -263,7 +263,7 @@ function App() {
       </header>
 
       {section === 'admin' ? <AdministrationWorkspace /> : section === 'calls' ? null : section === 'notifications' ? <NotificationsWorkspace onNavigate={destination => setSection(destination)} /> : section === 'mediahub' ? <MediaHubWorkspace /> : section === 'ministry' ? <MinistryWorkspace /> : section === 'settings' ? <div className="settings-page">
-        <div className="settings-intro"><div><span className="settings-kicker">YOUR FNI EXPERIENCE</span><h2>{t('Settings')}</h2><p>Manage your account, privacy, preferences and ministry experience.</p></div><div className="settings-profile"><div className="profile-avatar">{identity.name.slice(0,1).toUpperCase()}</div><div><strong>{identity.name}</strong><span>{identity.role === 'admin' ? 'Administrator' : 'FNI Member'}</span></div></div></div>
+        <div className="settings-intro"><div><span className="settings-kicker">YOUR FNI EXPERIENCE</span><h2>{t('Settings')}</h2><p>Manage your account, privacy, preferences and ministry experience.</p></div><div className="settings-profile"><div className="profile-avatar">{identity.name.slice(0,1).toUpperCase()}</div><div><strong>{identity.name}</strong><span>{identity.role === 'admin' ? 'Administrator' : 'FNI Member'}</span></div><button className="fni-account-switch" onClick={signOut}><LockKeyhole size={15}/> Log out / switch account</button></div></div>
         <div className="settings-layout">
           <aside className="settings-menu">
             {['ACCOUNT','PREFERENCES','COMMUNICATION','MINISTRY','SUPPORT'].map(group => <div className="settings-group" key={group}><span className="settings-group-label">{group}</span>
