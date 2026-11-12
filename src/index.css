@@ -199,3 +199,9 @@ button{cursor:pointer}
  .message-action-menu{right:28px}
  .reply-preview{padding:7px 10px}
 }
+
+/* Shared photo and video messages */
+.message-media{display:block;width:min(100%,360px);max-height:360px;object-fit:contain;border-radius:8px;margin:0 0 4px;background:#e8ebef}
+.message-bubble:has(.message-media){padding:6px 7px 5px}
+.attachment-input{display:none}
+@media(max-width:620px){.message-media{max-width:min(72vw,340px);max-height:320px}}
