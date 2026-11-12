@@ -586,7 +586,7 @@ export default function App() {
                       {message.replyTo && <div className="quoted-message">{message.replyTo}</div>}
                       {message.mediaType === 'photo' && message.mediaUrl && <img className="message-media" src={message.mediaUrl} alt={message.mediaName || 'Shared photo'} />}
                       {message.mediaType === 'video' && message.mediaUrl && <video className="message-media" src={message.mediaUrl} controls playsInline />}
-                      {message.text && <div>{message.text.split(/(@[\w.]+)/g).map((part, index) => part.startsWith('@') ? <strong className="message-mention" key={index}>{part}</strong> : part)}</div>}<span>{message.edited ? 'edited · ' : ''}{message.time} <b>✓✓</b></span>
+                      {message.text && <div>{message.text.split(/(@[\w.]+)/g).map((part, index) => part.startsWith('@') ? <strong className="message-mention" key={index}>{part}</strong> : part)}</div>}<span className={preferences.showMessageTimestamps ? '' : 'message-meta-hidden'}>{message.edited ? 'edited · ' : ''}{message.time} <b>✓✓</b></span>
                       {message.reactions && message.reactions.length > 0 && <div className="message-reactions">{message.reactions.map((emoji) => <button key={emoji} onClick={() => addReaction(message.id, emoji)}>{emoji}</button>)}</div>}
                     </div>
                   </div>
