@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { ArrowLeft, Eye, EyeOff, ShieldCheck, UserRound, Mail, LockKeyhole } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, ShieldCheck, UserRound, Mail, LockKeyhole, Sun, Moon } from 'lucide-react';
 
 type DemoIdentity = { name: string; email: string; role: 'member' | 'admin' };
 type Props = { onAuthenticated: (identity: DemoIdentity) => void };
@@ -26,6 +26,20 @@ export default function AuthGate({ onAuthenticated }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [authTheme, setAuthTheme] = useState<'Light' | 'Dark'>(() => {
+    const saved = localStorage.getItem('fni-appearance-mode');
+    return saved === 'Dark' ? 'Dark' : 'Light';
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = authTheme.toLowerCase();
+    localStorage.setItem('fni-appearance-mode', authTheme);
+  }, [authTheme]);
+
+  const themeControl = <div className="fni-auth-theme-switch" role="group" aria-label="Choose appearance">
+    <button type="button" className={authTheme === 'Light' ? 'active' : ''} aria-pressed={authTheme === 'Light'} onClick={() => setAuthTheme('Light')}><Sun size={15}/> <span>Light</span></button>
+    <button type="button" className={authTheme === 'Dark' ? 'active' : ''} aria-pressed={authTheme === 'Dark'} onClick={() => setAuthTheme('Dark')}><Moon size={15}/> <span>Dark</span></button>
+  </div>;
   const logoSrc = 'https://raw.githubusercontent.com/jk-larbi/FNI-Cells-Connect/main/public/fni-official-logo.jpg';
 
   useEffect(() => {
@@ -95,6 +109,7 @@ export default function AuthGate({ onAuthenticated }: Props) {
 
   return <main className="fni-auth-page">
     <div className="fni-auth-backdrop" />
+    {themeControl}
     <section className="fni-auth-card">
       {screen === 'signup' ? <div className="fni-signup-motion" aria-hidden="true"><div className="fni-signup-orbit fni-orbit-one"/><div className="fni-signup-orbit fni-orbit-two"/><span className="fni-signup-particle fni-particle-one"/><span className="fni-signup-particle fni-particle-two"/><span className="fni-signup-particle fni-particle-three"/><div className="fni-signup-mark"><img src={logoSrc} alt=""/></div></div> : <div className="fni-auth-brand"><div className="fni-auth-logo"><img src={logoSrc} alt="FNI ministry logo" /></div><div><strong>FNI</strong><span>Forerunners Network International</span></div></div>}
       {screen === 'welcome' ? <>
