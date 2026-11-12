@@ -3,7 +3,7 @@ import SavedMessagesWorkspace from './SavedMessagesWorkspace';
 import StoriesWorkspace from './StoriesWorkspace';
 import ChatEmojiPicker from './ChatEmojiPicker';
 import VoiceMessageButton from './VoiceMessageButton';
-import { Archive, ArrowLeft, AtSign, Bookmark, Camera, Check, CheckCheck, ChevronRight, Copy, Download, Forward, Folder, Lock, MessageCircle, MoreHorizontal, MoreVertical, Paperclip, Pencil, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, Video, VolumeX, X } from 'lucide-react';
+import { Archive, ArrowLeft, AtSign, Bookmark, Camera, Check, CheckCheck, ChevronRight, Copy, Download, Forward, Folder, Info, Lock, MessageCircle, MoreHorizontal, MoreVertical, Paperclip, Pencil, Phone, Pin, Plus, Reply, Search, Send, Settings2, Shield, Smile, Square, SquareCheck, Sticker, Trash2, Users, Video, VolumeX, X } from 'lucide-react';
 
 type PermissionKey = 'addMembers' | 'approveRequests' | 'editInfo' | 'pinDelete' | 'restrictMembers' | 'manageInvites' | 'appointAdmins';
 type GroupMessage = { id: string; groupId: string; text: string; createdAt: string; replyTo?: string; reactions?: string[]; mentions?: string[]; sticker?: boolean; pinned?: boolean; mediaUrl?: string; mediaType?: 'image' | 'video' | 'audio'; editedAt?: string; scheduledAt?: string; silent?: boolean; };
@@ -47,6 +47,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
   const [groupDraft, setGroupDraft] = useState('');
   const [messageSearch, setMessageSearch] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
+  const [showGroupInfo, setShowGroupInfo] = useState(false);
   const [reactionPickerFor, setReactionPickerFor] = useState<string | null>(null);
   const [sendSilently, setSendSilently] = useState(false);
   const [replyTarget, setReplyTarget] = useState<GroupMessage | null>(null);
@@ -330,6 +331,7 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
       <div className="fni-group-chat-identity"><b>{selected.name}</b><span>{selected.description || 'FNI group conversation'} · Preview</span></div>
       {showMessageSearch && <input className="fni-chat-inline-search" value={messageSearch} onChange={event => setMessageSearch(event.target.value)} placeholder="Search in conversation" aria-label="Search messages"/>}
       <button className="fni-group-chat-action" onClick={() => { setShowMessageSearch(value => !value); setMessageSearch(''); }} aria-label="Search messages" title="Search messages"><Search size={18}/></button>
+      <button className="fni-group-chat-action" onClick={() => setShowGroupInfo(value => !value)} aria-label="Group information" title="Group information" aria-expanded={showGroupInfo}><Info size={19}/></button>
       <button className="fni-group-chat-action" onClick={() => setView('group')} aria-label="Group settings" title="Group settings"><Settings2 size={19}/></button>
       <button className="fni-group-chat-action" onClick={() => onStartGroupCall?.(selected.name)} aria-label="Start video call" title="Start video call"><Video size={19}/></button>
       <button className="fni-group-chat-action" onClick={() => onStartGroupCall?.(selected.name)} aria-label="Start voice call" title="Start voice call"><Phone size={19}/></button>
@@ -433,6 +435,14 @@ export default function MessagingWorkspace({ onStartGroupCall }: { onStartGroupC
         : <VoiceMessageButton onRecorded={(blob, duration) => { void saveGroupVoiceMessage(blob, duration); }} onNotice={setNotice} />}
     </form>
     <div className="fni-group-chat-local-note">Preview messages stay on this device. Replies, mentions and reactions are stored locally; live delivery needs the FNI messaging backend.</div>
+    {showGroupInfo && <aside className="fni-chat-info-panel" aria-label="Group information">
+      <div className="fni-chat-info-head"><b>Group information</b><button type="button" onClick={() => setShowGroupInfo(false)} aria-label="Close group information"><X size={18}/></button></div>
+      <div className="fni-chat-info-identity"><div className="fni-chat-info-avatar"><Users size={28}/></div><h3>{selected.name}</h3><p>{selected.description || 'No group description has been added.'}</p><span>FNI group · Created {new Date(selected.createdAt).toLocaleDateString()}</span></div>
+      <div className="fni-chat-info-stats"><div><b>{selected.admins.length + 1}</b><span>Administrators</span></div><div><b>{selected.permitted.length || '—'}</b><span>Selected members</span></div></div>
+      <div className="fni-chat-info-section"><b>Group permissions</b><span>Messages: {selected.mode}</span><span>Invitations: {selected.inviteAccess}</span><span>Join approval: {selected.approval ? 'Required' : 'Not required'}</span></div>
+      <div className="fni-chat-info-section"><b>Shared content</b><span>Photos and videos</span><span>Files and documents</span><span>Links and voice messages</span><small>Shared content will be indexed here when cloud messaging and media storage are connected.</small></div>
+      <button type="button" className="fni-chat-info-manage" onClick={() => { setShowGroupInfo(false); setView('group'); }}>Manage group <ChevronRight size={16}/></button>
+    </aside>}
   </div>;
 
   if (view === 'group' && selected) return <div className="msg-workspace msg-fullscreen-workspace">
