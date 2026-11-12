@@ -47,14 +47,13 @@ export default function SavedMessagesWorkspace({ onBack }: { onBack?: () => void
       </div>
     </header>
     {searchOpen&&<div className="saved-chat-search"><Search size={17}/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search messages"/><button onClick={()=>{setSearchOpen(false);setQuery('')}} aria-label="Close search"><X size={17}/></button></div>}
-    <div className="saved-chat-tags">
-      <button className={folder==='all'?'active':''} onClick={()=>setFolder('all')}>All messages</button>
-      {folders.map(f=><button key={f.id} className={folder===f.id?'active':''} onClick={()=>setFolder(f.id)}>{f.name}</button>)}
-      <button className="saved-chat-add-tag" onClick={()=>setFolderOpen(v=>!v)} aria-label="Add tag"><Plus size={15}/></button>
-    </div>
+    {folderOpen&&<div className="saved-chat-tags">
+      <button className={folder==='all'?'active':''} onClick={()=>{setFolder('all');setFolderOpen(false)}}>All messages</button>
+      {folders.map(f=><button key={f.id} className={folder===f.id?'active':''} onClick={()=>{setFolder(f.id);setFolderOpen(false)}}>{f.name}</button>)}
+      <button className="saved-chat-add-tag" onClick={()=>setFolderOpen(false)} aria-label="Close filters"><X size={15}/></button>
+    </div>}
     {folderOpen&&<div className="saved-chat-tag-create"><input value={newFolder} onChange={e=>setNewFolder(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addFolder()} placeholder="Create a message tag"/><button onClick={addFolder}>Add tag</button><button aria-label="Close" onClick={()=>setFolderOpen(false)}><X size={16}/></button></div>}
     <div className="saved-chat-wallpaper" ref={listRef}>
-      <div className="saved-chat-intro"><div><Bookmark size={23}/></div><b>Saved Messages</b><span>Save messages and media here. This space is just for you.</span></div>
       {visible.map((item,index)=>{const previous=visible[index-1];const showDay=!previous||dayLabel(previous.createdAt)!==dayLabel(item.createdAt);return <div className="saved-chat-entry" key={item.id}>{showDay&&<div className="saved-chat-day"><span>{dayLabel(item.createdAt)}</span></div>}<article className="saved-chat-bubble">{item.type==='message'||item.type==='note'?<p className="saved-chat-text">{item.content}</p>:<>{renderAttachment(item)}{item.type==='note'&&item.title!=='Saved message'&&<b className="saved-chat-note-title">{item.title}</b>}</>}<div className="saved-chat-meta">{item.pinned&&<Pin size={12}/>}<time>{new Date(item.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</time><span className="saved-chat-check">✓✓</span><div className="saved-chat-message-actions"><button title={item.pinned?'Unpin':'Pin'} onClick={()=>setItems(v=>v.map(i=>i.id===item.id?{...i,pinned:!i.pinned}:i))}><Pin size={13}/></button>{item.content.startsWith('data:')&&<button title="Download" onClick={()=>downloadItem(item)}><Download size={13}/></button>}<button title="Delete" onClick={()=>removeItem(item.id)}><Trash2 size={13}/></button></div></div></article></div>})}
       {!visible.length&&<div className="saved-chat-no-results">{query?'No messages match your search.':'Your saved messages will appear here.'}</div>}
     </div>
@@ -62,10 +61,10 @@ export default function SavedMessagesWorkspace({ onBack }: { onBack?: () => void
       {attachOpen&&<div className="saved-chat-attach-menu"><button onClick={()=>fileRef.current?.click()}><ImageIcon size={17}/> Photo or file</button><button onClick={saveLink}><Link2 size={17}/> Link</button><button onClick={()=>{setDraft('');composerRef.current?.focus();setAttachOpen(false)}}><FileText size={17}/> Write a message</button></div>}
       <input ref={fileRef} type="file" hidden onChange={e=>{void uploadFile(e.target.files?.[0]);e.currentTarget.value='';setAttachOpen(false)}}/>
       <button className="saved-chat-attach" aria-label="Attach" onClick={()=>setAttachOpen(v=>!v)}><Paperclip size={21}/></button>
-      <div className="saved-chat-input-wrap"><textarea ref={composerRef} value={draft} rows={1} onChange={e=>{setDraft(e.target.value);e.currentTarget.style.height='auto';e.currentTarget.style.height=Math.min(e.currentTarget.scrollHeight,120)+'px'}} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}} placeholder="Message yourself..."/><button aria-label="Add emoji" onClick={()=>setDraft(v=>v+' 😊')}><Smile size={19}/></button></div>
+      <div className="saved-chat-input-wrap"><textarea ref={composerRef} value={draft} rows={1} onChange={e=>{setDraft(e.target.value);e.currentTarget.style.height='auto';e.currentTarget.style.height=Math.min(e.currentTarget.scrollHeight,120)+'px'}} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}} placeholder="Message..."/><button aria-label="Add emoji" onClick={()=>setDraft(v=>v+' 😊')}><Smile size={19}/></button></div>
       <button className="saved-chat-send" aria-label="Send message" onClick={sendMessage} disabled={!draft.trim()}><Send size={19}/></button>
     </footer>
-    <div className="saved-chat-local-note">Messages are saved privately in this browser for this demo. Cloud sync will be connected with the FNI backend.</div>
+    <div className="saved-chat-local-note">Saved privately on this device</div>
     {notice&&<div className="saved-chat-notice" role="status">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss"><X size={14}/></button></div>}
   </section>;
 }
