@@ -73,7 +73,7 @@ export default function MinistryWorkspace() {
   const selected = areas.find(item => item.id === area);
 
   function saveDraft() {
-    if (!title.trim() || !speaker.trim()) { setNotice('Add a message title and speaker before saving.'); return; }
+    if (!title.trim() || !speaker.trim()) { setNotice('Add a message title and speaker before saving.'); return; }\n    if (messageLink.trim() && !/^https?:\\/\\//i.test(messageLink.trim())) { setNotice('Enter a valid http or https link.'); return; }
     const next = [{ id: crypto.randomUUID(), title: title.trim(), speaker: speaker.trim(), format, description: [description.trim(), messageLink.trim() ? 'Link: ' + messageLink.trim() : ''].filter(Boolean).join('\n'), createdAt: new Date().toISOString() }, ...drafts];
     setDrafts(next); storage.write('fni-ministry-sermon-drafts', next);
     setTitle(''); setSpeaker(''); setDescription(''); setMessageLink(''); setFormat('Video'); setShowDraft(false);
@@ -184,7 +184,7 @@ export default function MinistryWorkspace() {
         </div>
         <div className="ministry-permission-note"><ShieldCheck size={17}/><span>Only the FNI admin and leaders appointed to publish sermons can manage messages. Published messages are intended for every member; secure role checks, shared publishing and member notifications require the FNI backend.</span></div>
         <div className="ministry-section-heading draft-heading"><div><span className="ministry-kicker">LEADER WORKSPACE</span><h3>Message drafts</h3><p>Prepare video, audio, written messages or external links.</p></div></div>
-        {drafts.length ? <div className="ministry-draft-list">{drafts.map(item => <article className="ministry-draft-card" key={item.id}><div className="ministry-draft-type">{item.format === 'Audio' ? <Headphones size={17}/> : item.format === 'Article' ? <FileText size={17}/> : <PlayCircle size={17}/>}</div><div className="ministry-draft-copy"><strong>{item.title}</strong><span>{item.speaker} · {item.format}</span>{item.description && <p>{item.description}</p>}<small>Saved {new Date(item.createdAt).toLocaleString()}</small></div><button aria-label={'Delete '+item.title} onClick={() => removeDraft(item.id)}><Trash2 size={16}/></button></article>)}</div> : <div className="ministry-empty"><div><BookOpen size={23}/></div><strong>No message drafts yet</strong><p>Prepare a message draft for an approved ministry leader.</p><button className="ministry-secondary-action" onClick={() => setShowDraft(true)}>Prepare first draft</button></div>}
+        {drafts.length ? <div className="ministry-draft-list">{drafts.map(item => <article className="ministry-draft-card" key={item.id}><div className="ministry-draft-type">{item.format === 'Audio' ? <Headphones size={17}/> : item.format === 'Article' ? <FileText size={17}/> : <PlayCircle size={17}/>}</div><div className="ministry-draft-copy"><strong>{item.title}</strong><span>{item.speaker} · {item.format}</span>{item.description && <p>{item.description}</p>}{externalLinkFrom(item.description) && <a className="ministry-external-link" href={externalLinkFrom(item.description)} target="_blank" rel="noreferrer">Open shared video or audio link <ChevronRight size={13}/></a>}<small>Saved {new Date(item.createdAt).toLocaleString()}</small></div><button aria-label={'Delete '+item.title} onClick={() => removeDraft(item.id)}><Trash2 size={16}/></button></article>)}</div> : <div className="ministry-empty"><div><BookOpen size={23}/></div><strong>No message drafts yet</strong><p>Prepare a message draft for an approved ministry leader.</p><button className="ministry-secondary-action" onClick={() => setShowDraft(true)}>Prepare first draft</button></div>}
         <div className="ministry-service-note"><Radio size={17}/><span>The published media library will appear when FNI's content service is connected. Drafting works locally; media upload and publishing are not active yet.</span></div>
       </>}
 
@@ -283,11 +283,11 @@ export default function MinistryWorkspace() {
   </div>;
 }
 
-function BellIcon() { return <span className="ministry-update-emoji" aria-hidden="true">📢</span>; }
+function externalLinkFrom(value: string) { return value.match(/https?:\\/\\/[^\\s]+/i)?.[0]; }\n\nfunction BellIcon() { return <span className="ministry-update-emoji" aria-hidden="true">📢</span>; }
 
 function ItemList({ items, emptyTitle, emptyText, onRemove }: { items: LocalItem[]; emptyTitle: string; emptyText: string; onRemove: (id: string) => void }) {
   if (!items.length) return <div className="ministry-empty"><div><FileText size={22}/></div><strong>{emptyTitle}</strong><p>{emptyText}</p></div>;
-  return <div className="ministry-draft-list">{items.map(item => <article className="ministry-draft-card" key={item.id}><div className="ministry-draft-type"><Bookmark size={17}/></div><div className="ministry-draft-copy"><strong>{item.title}</strong><span>{item.category}{item.status ? ' · '+item.status : ''}</span>{item.body && <p>{item.body}</p>}<small>{new Date(item.createdAt).toLocaleString()}</small></div><button aria-label={'Delete '+item.title} onClick={() => onRemove(item.id)}><Trash2 size={16}/></button></article>)}</div>;
+  return <div className="ministry-draft-list">{items.map(item => <article className="ministry-draft-card" key={item.id}><div className="ministry-draft-type"><Bookmark size={17}/></div><div className="ministry-draft-copy"><strong>{item.title}</strong><span>{item.category}{item.status ? ' · '+item.status : ''}</span>{item.body && <p>{item.body}</p>}{externalLinkFrom(item.body) && <a className="ministry-external-link" href={externalLinkFrom(item.body)} target="_blank" rel="noreferrer">Open media link <ChevronRight size={13}/></a>}<small>{new Date(item.createdAt).toLocaleString()}</small></div><button aria-label={'Delete '+item.title} onClick={() => onRemove(item.id)}><Trash2 size={16}/></button></article>)}</div>;
 }
 
 function EntryForm({ title, submitLabel, onCancel, onSave, children }: { title: string; submitLabel: string; onCancel: () => void; onSave: () => void; children: ReactNode }) {
