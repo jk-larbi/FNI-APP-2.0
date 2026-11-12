@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import {
   ArrowLeft, BookOpen, CalendarDays, CheckCircle2, ChevronRight, CircleDollarSign,
   FileText, HandHeart, Headphones, MessageSquareText, PlayCircle, Plus, Radio,
-  ScanLine, Search, ShieldCheck, UsersRound, X, Clock3, MapPin, Bookmark,
-  Send, Heart, LockKeyhole, CalendarCheck, Wallet, Sparkles, Trash2
+  ScanLine, Search, ShieldCheck, UsersRound, X, Bookmark,
+  Heart, LockKeyhole, CalendarCheck, Wallet, Sparkles, Trash2
 } from 'lucide-react';
 
 type MinistryArea = 'home' | 'sermons' | 'events' | 'resources' | 'forums' | 'prayer' | 'checkin' | 'giving';
@@ -62,7 +63,6 @@ export default function MinistryWorkspace() {
 
   const filteredAreas = useMemo(() => areas.filter(item => (item.title + ' ' + item.description).toLowerCase().includes(search.toLowerCase())), [search]);
   const selected = areas.find(item => item.id === area);
-  const listForArea = area === 'events' ? events : area === 'resources' ? resources : area === 'forums' ? topics : area === 'prayer' ? prayers : area === 'checkin' ? checkins : intentions;
 
   function saveDraft() {
     if (!title.trim() || !speaker.trim()) { setNotice('Add a message title and speaker before saving.'); return; }
@@ -114,7 +114,6 @@ export default function MinistryWorkspace() {
     setFormTitle(''); setFormBody(''); setFormCategory(''); setEventDate(''); setFormOpen(true);
   }
 
-  const pageAction = area === 'events' ? 'Create event draft' : area === 'resources' ? 'Add personal note' : area === 'forums' ? 'Start a discussion draft' : area === 'prayer' ? (prayerTab === 'Requests' ? 'Write prayer request' : 'Share testimony draft') : area === 'checkin' ? 'Record attendance' : 'Prepare giving intention';
 
   return <div className="ministry-workspace">
     {area === 'home' ? <>
@@ -223,7 +222,7 @@ export default function MinistryWorkspace() {
         <div className="ministry-giving-options"><div><span className="ministry-giving-option-icon"><Heart size={17}/></span><strong>Tithes</strong><small>Faithful giving</small></div><div><span className="ministry-giving-option-icon"><HandHeart size={17}/></span><strong>Offerings</strong><small>Worship through giving</small></div><div><span className="ministry-giving-option-icon"><Sparkles size={17}/></span><strong>Special gifts</strong><small>Support ministry work</small></div></div>
         <div className="ministry-section-heading"><div><span className="ministry-kicker">MY GIVING</span><h3>Giving intentions</h3><p>Keep a private note of what you plan to give.</p></div><button className="ministry-primary-action" onClick={openAreaForm}><Plus size={15}/> New intention</button></div>
         <ItemList items={intentions} emptyTitle="No giving intentions" emptyText="Prepare a personal giving note. This will not process a payment." onRemove={removeAreaItem}/>
-        {formOpen && <EntryForm title="Prepare a giving intention" submitLabel="Save intention" onCancel={() => setFormOpen(false)} onSave={() => { if (!givingAmount.trim()) { setNotice('Enter an amount or write “To decide”.'); return; } setFormTitle(givingType + ' · ' + givingAmount.trim()); saveAreaItem(); setGivingAmount(''); }}>
+        {formOpen && <EntryForm title="Prepare a giving intention" submitLabel="Save intention" onCancel={() => setFormOpen(false)} onSave={() => { if (!givingAmount.trim()) { setNotice('Enter an amount or write “To decide”.'); return; } const item = makeItem(givingType + ' · GHS ' + givingAmount.trim(), formBody, givingType, 'Intention only'); const next = [item, ...intentions]; setIntentions(next); storage.write('fni-ministry-giving-intentions', next); setGivingAmount(''); setFormBody(''); setFormOpen(false); setNotice('Giving intention saved on this device. No payment was made.'); }}>
           <label>Giving type<select value={givingType} onChange={e => setGivingType(e.target.value)}><option>Tithe</option><option>Offering</option><option>Special donation</option><option>Pledge</option></select></label>
           <label>Amount (GHS)<input value={givingAmount} onChange={e => setGivingAmount(e.target.value)} placeholder="e.g. 100 or To decide"/></label>
           <label>Note (optional)<textarea rows={3} value={formBody} onChange={e => setFormBody(e.target.value)} placeholder="Optional personal note"/></label>
@@ -245,6 +244,6 @@ function ItemList({ items, emptyTitle, emptyText, onRemove }: { items: LocalItem
   return <div className="ministry-draft-list">{items.map(item => <article className="ministry-draft-card" key={item.id}><div className="ministry-draft-type"><Bookmark size={17}/></div><div className="ministry-draft-copy"><strong>{item.title}</strong><span>{item.category}{item.status ? ' · '+item.status : ''}</span>{item.body && <p>{item.body}</p>}<small>{new Date(item.createdAt).toLocaleString()}</small></div><button aria-label={'Delete '+item.title} onClick={() => onRemove(item.id)}><Trash2 size={16}/></button></article>)}</div>;
 }
 
-function EntryForm({ title, submitLabel, onCancel, onSave, children }: { title: string; submitLabel: string; onCancel: () => void; onSave: () => void; children: React.ReactNode }) {
+function EntryForm({ title, submitLabel, onCancel, onSave, children }: { title: string; submitLabel: string; onCancel: () => void; onSave: () => void; children: ReactNode }) {
   return <section className="ministry-entry-form"><div className="ministry-entry-head"><div><span className="ministry-kicker">PERSONAL WORKSPACE</span><h3>{title}</h3></div><button onClick={onCancel} aria-label="Close form"><X size={17}/></button></div><div className="ministry-entry-fields">{children}</div><div className="ministry-modal-actions"><button className="ministry-secondary-action" onClick={onCancel}>Cancel</button><button className="ministry-primary-action" onClick={onSave}><CheckCircle2 size={15}/>{submitLabel}</button></div></section>;
 }
