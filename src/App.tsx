@@ -11,6 +11,34 @@ function SettingToggle({ title, description, checked, onChange }: { title: strin
 
 export default function App() {
   const [section, setSection] = useState<Section>('Chats');
+  const language = String(preferences.language || 'English');
+  const translations: Record<string, Record<string, string>> = {
+    French: {
+      Chats: 'Discussions', Contacts: 'Contacts', Calls: 'Appels', Settings: 'Paramètres',
+      'All chats': 'Toutes les discussions', Personal: 'Personnels', Groups: 'Groupes', Archived: 'Archivés',
+      Account: 'Compte', 'Privacy and Security': 'Confidentialité et sécurité', 'Notifications and Sounds': 'Notifications et sons',
+      Appearance: 'Apparence', 'Chat Settings': 'Paramètres des discussions', 'Data and Storage': 'Données et stockage',
+      Devices: 'Appareils', Language: 'Langue', 'FNI Community': 'Communauté FNI', Help: 'Aide',
+      'App language': 'Langue de l’application', 'Choose the language used across FNI': 'Choisissez la langue utilisée dans FNI',
+      'Manage your FNI app preferences': 'Gérez les préférences de votre application FNI',
+      'Search people, @usernames, messages...': 'Rechercher des personnes, @noms, messages...',
+      'FNI Member': 'Membre FNI', Online: 'En ligne',
+      'English is the default interface language.': 'L’anglais est la langue par défaut de l’interface.'
+    },
+    Twi: {
+      Chats: 'Nkɔmmɔbɔ', Contacts: 'Nkurɔfo', Calls: 'Frɛ', Settings: 'Nhyehyɛe',
+      'All chats': 'Nkɔmmɔbɔ nyinaa', Personal: 'Ankorankoro', Groups: 'Akuo', Archived: 'Wɔakora so',
+      Account: 'Akontaabu', 'Privacy and Security': 'Kokoam nsɛm ne ahobammɔ', 'Notifications and Sounds': 'Amanneɛbɔ ne nnyigyei',
+      Appearance: 'Nhwɛbea', 'Chat Settings': 'Nkɔmmɔbɔ nhyehyɛe', 'Data and Storage': 'Data ne nneɛma a wɔakora so',
+      Devices: 'Mfiri', Language: 'Kasa', 'FNI Community': 'FNI Kuw', Help: 'Mmoa',
+      'App language': 'App no kasa', 'Choose the language used across FNI': 'Paw kasa a wɔde bedi dwuma wɔ FNI nyinaa mu',
+      'Manage your FNI app preferences': 'Hyehyɛ FNI app no nhyehyɛe',
+      'Search people, @usernames, messages...': 'Hwehwɛ nnipa, @din, nkra...',
+      'FNI Member': 'FNI muni', Online: 'Ɔwɔ intanɛt so',
+      'English is the default interface language.': 'Borɔfo ne kasa a wɔde hyɛɛ ase wɔ app no mu.'
+    }
+  };
+  const t = (value: string) => translations[language]?.[value] || value;
   const [settingsCategory, setSettingsCategory] = useState('Account');
   const [settingsMobileDetail, setSettingsMobileDetail] = useState(false);
   const [storageReport, setStorageReport] = useState<{ localBytes: number; originUsage?: number; originQuota?: number } | null>(null);
@@ -389,13 +417,13 @@ export default function App() {
         </div>
         <div className="profile-summary">
           <div className="profile-avatar">F</div>
-          <div className="profile-copy"><strong>FNI Member</strong><span><i /> Online</span></div>
+          <div className="profile-copy"><strong>{t('FNI Member')}</strong><span><i /> {t('Online')}</span></div>
           <ChevronDown size={17} />
         </div>
         <nav className="main-navigation" aria-label="Main navigation">
           {navigation.map(({ label, icon: Icon }) => (
             <button key={label} className={section === label ? 'nav-item active' : 'nav-item'} onClick={() => { setSection(label); setActiveChat(''); setMenuOpen(false); }}>
-              <Icon size={20} strokeWidth={1.8} /><span>{label}</span>
+              <Icon size={20} strokeWidth={1.8} /><span>{t(label)}</span>
             </button>
           ))}
         </nav>
@@ -408,17 +436,17 @@ export default function App() {
         <header className="list-header">
           <div className="list-title-row">
             <button className="icon-button menu-button" aria-label="Open menu" onClick={() => setMenuOpen(true)}><Menu /></button>
-            <div><h1>{section}</h1><p>FORERUNNERS NETWORK INTERNATIONAL</p></div>
+            <div><h1>{t(section)}</h1><p>FORERUNNERS NETWORK INTERNATIONAL</p></div>
             <div className="header-actions-wrap"><div className="notification-wrap"><button className="icon-button notification-button" aria-label="Notifications" title="Notifications" aria-expanded={notificationsOpen} onClick={() => setNotificationsOpen((open) => !open)}><Bell />{meetingNotifications.some((item) => !item.read) && <span className="notification-count">{meetingNotifications.filter((item) => !item.read).length}</span>}</button>{notificationsOpen && <div className="notifications-popover"><div className="notifications-heading"><strong>Notifications</strong><button type="button" onClick={() => setMeetingNotifications((current) => current.map((item) => ({ ...item, read: true })))}>Mark all read</button></div>{meetingNotifications.length ? meetingNotifications.map((item) => <button type="button" className={"notification-item " + (item.read ? "" : "notification-unread")} key={item.id} onClick={() => { setMeetingNotifications((current) => current.map((notice) => notice.id === item.id ? { ...notice, read: true } : notice)); setActiveChat(item.groupId); setSection("Chats"); setFolder("Groups"); setNotificationsOpen(false); }}><strong>{item.title}</strong><span>{item.body}</span><time>{item.time}</time></button>) : <p className="notifications-empty">You’re all caught up.</p>}</div>}</div><div className="new-action-wrap"><button className="icon-button new-chat-button" aria-label="Create chat" title="Create chat or group" aria-expanded={newActionOpen} onClick={() => setNewActionOpen((open) => !open)}><Plus /></button>{newActionOpen && <div className="new-action-menu"><button onClick={() => { setNewChatOpen(true); setNewActionOpen(false); }}>New message</button><button onClick={() => { setNewGroupOpen(true); setNewActionOpen(false); }}>New group</button><button onClick={() => { setFindGroupsOpen(true); setNewActionOpen(false); }}>Find groups</button></div>}</div></div>
           </div>
           <label className="search-box">
             <Search size={18} />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search people, @usernames, messages..." />
+            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("Search people, @usernames, messages...")} />
           </label>
           {section === 'Chats' && (
             <div className="folder-tabs" role="tablist" aria-label="Chat folders">
               {(['All chats', 'Personal', 'Groups', 'Archived'] as Folder[]).map((item) => (
-                <button key={item} role="tab" aria-selected={folder === item} className={folder === item ? 'folder-tab selected' : 'folder-tab'} onClick={() => setFolder(item)}>{item}</button>
+                <button key={item} role="tab" aria-selected={folder === item} className={folder === item ? 'folder-tab selected' : 'folder-tab'} onClick={() => setFolder(item)}{t(item)}</button>
               ))}
             </div>
           )}
@@ -454,10 +482,10 @@ export default function App() {
                   { name: 'Language', icon: Globe2, detail: 'App language' },
                   { name: 'FNI Community', icon: HeartHandshake, detail: 'Ministry and community' },
                   { name: 'Help', icon: CircleHelp, detail: 'Support and information' },
-                ].map(({name, icon: Icon, detail}) => <button type="button" key={name} className={settingsCategory === name ? 'settings-category active' : 'settings-category'} onClick={() => { setSettingsCategory(name); setSettingsMobileDetail(true); }}><Icon size={18}/><span><strong>{name}</strong><small>{detail}</small></span><ChevronRight size={16}/></button>)}
+                ].map(({name, icon: Icon, detail}) => <button type="button" key={name} className={settingsCategory === name ? 'settings-category active' : 'settings-category'} onClick={() => { setSettingsCategory(name); setSettingsMobileDetail(true); }}><Icon size={18}/><span><strong>{t(name)}</strong><small>{detail}</small></span><ChevronRight size={16}/></button>)}
               </nav>
               <div className="settings-content">
-                <div className="settings-content-heading"><button type="button" className="settings-mobile-back" onClick={() => setSettingsMobileDetail(false)}><ArrowLeft size={17}/></button><div><h2>{settingsCategory}</h2><p>Manage your FNI app preferences</p></div></div>
+                <div className="settings-content-heading"><button type="button" className="settings-mobile-back" onClick={() => setSettingsMobileDetail(false)}><ArrowLeft size={17}/></button><div><h2>{t(settingsCategory)}</h2><p>{t('Manage your FNI app preferences')}</p></div></div>
                 {settingsCategory === 'Account' && <div className="settings-section">
                   <h3>Account information</h3>
                   <div className="settings-info-row"><UserRound/><span><strong>Profile details</strong><small>Name, username, bio and profile photo</small></span><em>Coming with account setup</em></div>
@@ -525,8 +553,14 @@ export default function App() {
                   <p className="settings-footnote">Telegram-style session management will show all phones, tablets and desktop sessions after FNI sign-in is connected. This preview cannot verify or revoke other devices.</p>
                 </div>}
                 {settingsCategory === 'Language' && <div className="settings-section">
-                  <h3>App language</h3><label className="settings-control-row"><span><strong>Language</strong><small>Choose the language used across FNI</small></span><select value={String(preferences.language)} onChange={e => updatePreference('language', e.target.value)}><option>English</option><option disabled>French · Coming soon</option><option disabled>Twi · Coming soon</option></select></label>
-                  <p className="settings-footnote">English is currently the available interface language.</p>
+                  <h3>{t('App language')}</h3>
+                  <label className="settings-control-row"><span><strong>{t('Language')}</strong><small>{t('Choose the language used across FNI')}</small></span>
+                    <select value={String(preferences.language)} onChange={e => updatePreference('language', e.target.value)}>
+                      <option value="English">English</option><option value="French">Français</option><option value="Twi">Twi</option>
+                    </select>
+                  </label>
+                  <p className="settings-footnote">{language === 'English' ? t('English is the default interface language.') : language === 'French' ? 'La langue de l’interface est maintenant le français.' : 'Wɔde Twi kasa redi dwuma wɔ mmeae a wɔatumi akyerɛ ase.'}</p>
+                  <p className="settings-footnote">Your choice is saved on this device and stays selected after you reopen FNI.</p>
                 </div>}
                 {settingsCategory === 'FNI Community' && <div className="settings-section">
                   <h3>Forerunners Network International</h3>
