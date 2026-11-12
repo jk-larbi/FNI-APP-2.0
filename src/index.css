@@ -726,3 +726,65 @@ input:focus,textarea:focus,select:focus,button:focus-visible{
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+
+/* Final specificity corrections for legacy light-theme selectors. */
+:root[data-theme="light"] .settings-menu,
+:root[data-theme="light"] .settings-detail,
+:root[data-theme="light"] .settings-profile,
+:root[data-theme="light"] .profile-preview-card,
+:root[data-theme="light"] .msg-admin-card,
+:root[data-theme="light"] .action-empty,
+:root[data-theme="light"] .local-record,
+:root[data-theme="light"] .ministry-card,
+:root[data-theme="light"] .setup-note,
+:root[data-theme="light"] .msg-empty,
+:root[data-theme="light"] .msg-footer-note,
+:root[data-theme="light"] .msg-info,
+:root[data-theme="light"] .workspace-callout{
+  background:var(--fni-surface-2)!important;
+  background-image:none!important;
+  border-color:var(--fni-line)!important;
+  box-shadow:none!important;
+}
+:root[data-theme="light"] .settings-detail,
+:root[data-theme="light"] .settings-menu,
+:root[data-theme="light"] .settings-profile,
+:root[data-theme="light"] .msg-form-card,
+:root[data-theme="light"] .msg-panel,
+:root[data-theme="light"] .action-sheet{background:var(--fni-surface)!important}
+:root[data-theme="light"] .setting-nav.active,
+:root[data-theme="light"] .nav-item.active,
+:root[data-theme="light"] .folder.active,
+:root[data-theme="light"] .msg-group-card:hover{
+  background:var(--fni-hover)!important;color:var(--fni-blue)!important;
+  background-image:none!important;box-shadow:none!important;
+}
+:root[data-theme="light"] .profile-preview-card{background:var(--fni-surface-2)!important}
+:root[data-theme="light"] .action-overlay{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+:root[data-theme="dark"] .settings-detail,
+:root[data-theme="dark"] .settings-menu,
+:root[data-theme="dark"] .settings-profile,
+:root[data-theme="dark"] .msg-form-card,
+:root[data-theme="dark"] .msg-panel,
+:root[data-theme="dark"] .action-sheet{background:var(--fni-surface)!important}
+:root[data-theme="dark"] .ministry-card,
+:root[data-theme="dark"] .profile-preview-card,
+:root[data-theme="dark"] .msg-admin-card,
+:root[data-theme="dark"] .action-empty,
+:root[data-theme="dark"] .local-record,
+:root[data-theme="dark"] .msg-empty,
+:root[data-theme="dark"] .msg-footer-note,
+:root[data-theme="dark"] .msg-info,
+:root[data-theme="dark"] .workspace-callout{
+  background:var(--fni-surface-2)!important;background-image:none!important;
+  border-color:var(--fni-line)!important;box-shadow:none!important;
+}
+:root[data-theme="dark"] .setting-nav.active,
+:root[data-theme="dark"] .nav-item.active,
+:root[data-theme="dark"] .folder.active,
+:root[data-theme="dark"] .msg-group-card:hover{
+  background:var(--fni-hover)!important;color:var(--fni-blue)!important;background-image:none!important;box-shadow:none!important;
+}
+:root[data-theme="dark"] .action-overlay{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+*,*::before,*::after{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
