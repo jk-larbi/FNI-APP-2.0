@@ -5923,3 +5923,12 @@ button{transition:background-color .14s ease,color .14s ease,border-color .14s e
 .fni-personal-reply-preview button{border:0;background:transparent;color:var(--fni-muted);cursor:pointer}
 @media(hover:hover){.fni-personal-message-more{opacity:0}.fni-personal-message-wrap:hover .fni-personal-message-more,.fni-personal-message-more:focus-visible{opacity:1}}
 @media(max-width:700px){.fni-personal-message-wrap{max-width:90%}.fni-personal-message-more{opacity:1}}
+
+
+/* Personal chat reactions */
+.fni-personal-reactions{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.fni-personal-reactions button,.fni-personal-reaction-picker button{border:1px solid var(--border-color,rgba(120,130,150,.22));background:var(--surface-2,rgba(120,130,150,.1));border-radius:999px;min-width:30px;height:27px;padding:2px 7px;cursor:pointer;font-size:15px}
+.fni-personal-reaction-picker{position:absolute;z-index:20;right:34px;bottom:8px;display:flex;gap:4px;padding:6px;background:var(--panel-bg,#fff);border:1px solid var(--border-color,rgba(120,130,150,.2));border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.fni-personal-message-wrap{position:relative}
+.fni-personal-reaction-picker button{width:32px;height:32px;padding:0;font-size:18px}
+.fni-personal-reactions button:focus-visible,.fni-personal-reaction-picker button:focus-visible{outline:2px solid var(--fni-gold,#d6ad42);outline-offset:2px}
