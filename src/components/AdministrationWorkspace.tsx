@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import { ShieldCheck, Users, UserPlus, ClipboardCheck, Settings2, Crown, Search, Trash2, ArrowUpRight, Megaphone, BookOpen, Images, HeartHandshake, Video, Bell, ScrollText } from 'lucide-react';
 
 type Assignment = { id: string; name: string; role: string; area: string };
@@ -27,7 +27,7 @@ export default function AdministrationWorkspace({ onNavigate }: Props) {
     setAudit(next); localStorage.setItem(AUDIT_KEY, JSON.stringify(next));
   }
   function save(next: Assignment[]) { setAssignments(next); localStorage.setItem(KEY, JSON.stringify(next)); }
-  function appoint(event: React.FormEvent<HTMLFormElement>) {
+  function appoint(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!name.trim() || !area.trim()) return;
     const item = { id: crypto.randomUUID(), name: name.trim(), role, area: area.trim() };
