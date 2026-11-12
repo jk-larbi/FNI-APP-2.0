@@ -48,7 +48,7 @@ export default function App() {
   const [meetingLink, setMeetingLink] = useState('');
   const [groupApprovalRequests, setGroupApprovalRequests] = useState<{ id: string; name: string; description: string; requestedAt: string; status: 'Pending' | 'Approved' | 'Declined' }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-requests') || '[]'); } catch { return []; } });
   const [groupApprovalLog, setGroupApprovalLog] = useState<{ id: string; groupName: string; action: 'Submitted' | 'Approved' | 'Declined'; time: string }[]>(() => { try { return JSON.parse(localStorage.getItem('fni-group-approval-log') || '[]'); } catch { return []; } });
-  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[]; announcements?: { id: number; text: string; important: boolean; createdAt: string }[];
+  const [groupDetails, setGroupDetails] = useState<Record<string, { name: string; description: string; members?: string[]; moderators?: string[]; meeting?: { date: string; time: string; location: string; link: string; responses?: Record<string, 'Going' | 'Maybe' | 'Not going'> }; prayerRequests?: { id: number; text: string; createdAt: string; prayed: boolean }[]; attendance?: { date: string; present: string[] }[]; goals?: { id: number; title: string; description: string; targetDate: string; progress: number; completed: boolean; createdAt: string }[]; announcements?: { id: number; text: string; important: boolean; createdAt: string }[];
     polls?: { id: number; question: string; options: string[]; votes: Record<string, string>; createdAt: string; closed?: boolean }[];
     tasks?: { id: number; title: string; assignee: string; dueDate: string; completed: boolean; createdAt: string }[];
     resources?: { id: number; title: string; url: string; category: string; createdAt: string }[];
@@ -574,6 +574,24 @@ export default function App() {
                   <button type="button" className="start-video-chat-button" onClick={() => { setVideoRoomStarted(false); setVideoMicOn(true); setVideoCameraOn(true); setVideoRoomOpen(true); }}><Video size={17} /> Start Video Chat</button>
                   {groupDetails[activeChat].meeting?.link && <a className="external-meeting-button" href={groupDetails[activeChat].meeting.link} target="_blank" rel="noreferrer">Join external meeting</a>}
                 </div>
+                {groupDetails[activeChat].meeting && (() => {
+                  const meeting = groupDetails[activeChat].meeting!;
+                  const roster = Array.from(new Set(['You', ...(groupDetails[activeChat].members || [])]));
+                  const responses = meeting.responses || {};
+                  const going = Object.values(responses).filter((status) => status === 'Going').length;
+                  const maybe = Object.values(responses).filter((status) => status === 'Maybe').length;
+                  return <section className="group-rsvp-panel">
+                    <div className="group-rsvp-heading"><strong>Attendance confirmation</strong><span>{going} going · {maybe} maybe</span></div>
+                    <p>Let the group know if you can attend this meeting.</p>
+                    <div className="group-rsvp-options">
+                      {(['Going', 'Maybe', 'Not going'] as const).map((status) => <button type="button" key={status} className={responses.You === status ? 'active' : ''} onClick={() => setGroupDetails((current) => ({ ...current, [activeChat]: { ...current[activeChat], meeting: { ...current[activeChat].meeting!, responses: { ...(current[activeChat].meeting?.responses || {}), You: status } } } }))}>{status}</button>)}
+                    </div>
+                    <div className="group-rsvp-roster">
+                      {roster.map((member) => <div key={member}><span>{member}</span><strong className={'rsvp-status rsvp-' + (responses[member] || 'pending').toLowerCase().replace(' ', '-')}>{responses[member] || 'No response'}</strong></div>)}
+                    </div>
+                    <small>RSVPs are stored on this device in the preview. Live member responses and reminders require the FNI backend.</small>
+                  </section>;
+                })()}
                 {groupDetails[activeChat].meeting && (
                   <div className="group-meeting-summary">
                     <strong>{new Date(`${groupDetails[activeChat].meeting.date}T${groupDetails[activeChat].meeting.time || '00:00'}`).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</strong>
