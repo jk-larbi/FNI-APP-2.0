@@ -599,3 +599,32 @@ button{cursor:pointer}
 .group-join-request-row time{font-size:9px;color:var(--muted,#929baa)}
 .group-join-request-row button{border:0;border-radius:6px;padding:7px 9px;background:#2878d0;color:#fff;font:inherit;font-size:10px;cursor:pointer}
 .group-join-request-row button:last-child{background:transparent;color:#c34d4d}
+
+
+/* FNI cell group collaboration tools */
+.group-feature-section{padding:15px 0;border-top:1px solid var(--border-color,#e8eaf0)}
+.group-feature-form{display:grid;gap:8px;margin:11px 0 13px}
+.group-feature-form>input,.group-feature-form textarea,.group-feature-form select,.group-feature-form-row input,.group-feature-form-row select{width:100%;min-width:0;min-height:38px;padding:9px 10px;border:1px solid var(--border-color,#dfe3ea);border-radius:8px;background:var(--surface,#fff);color:var(--text,#344054);font:inherit;font-size:12px}
+.group-feature-form textarea{resize:vertical}
+.group-feature-form>button,.group-feature-form-row button{justify-self:start;min-height:36px;padding:0 13px;border:0;border-radius:8px;background:#2878d0;color:#fff;font:inherit;font-size:11px;font-weight:600;cursor:pointer}
+.group-feature-form button:disabled{opacity:.45;cursor:not-allowed}
+.group-feature-form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.group-feature-card{display:grid;gap:9px;margin:8px 0;padding:11px 12px;border:1px solid var(--border-color,#e7eaf0);border-radius:9px;background:var(--surface,#fff)}
+.group-feature-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.group-feature-card-head strong,.group-resource-row strong{font-size:12px;font-weight:600;color:var(--text,#344054);overflow-wrap:anywhere}
+.group-feature-card-head span,.group-feature-card small{font-size:10px;color:var(--muted,#8993a1)}
+.group-poll-option{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:37px;padding:8px 10px;border:1px solid var(--border-color,#e5e9ef);border-radius:7px;background:transparent;color:var(--text,#344054);font:inherit;font-size:11px;text-align:left;cursor:pointer}
+.group-poll-option.selected{border-color:#2878d0;background:rgba(40,120,208,.08)}
+.group-poll-option small{font-size:10px;color:#2878d0}
+.group-feature-actions{display:flex;align-items:center;gap:12px;color:var(--muted,#8993a1);font-size:10px}
+.group-feature-actions button,.group-task-row>button,.group-resource-row>button{margin-left:auto;border:0;background:transparent;color:#2878d0;font:inherit;font-size:10px;cursor:pointer}
+.group-task-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.group-task-row label{display:flex;align-items:center;gap:9px;min-width:0}
+.group-task-row label input{accent-color:#2878d0}
+.group-task-row label span,.group-resource-row>div{display:grid;gap:4px;min-width:0}
+.group-task-row label strong{font-size:11px;color:var(--text,#344054);font-weight:550;overflow-wrap:anywhere}
+.group-task-row label small,.group-resource-row small{font-size:10px;color:var(--muted,#8993a1)}
+.group-task-row.task-done label strong{text-decoration:line-through;color:var(--muted,#8993a1)}
+.group-resource-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.group-resource-row a{max-width:100%;overflow:hidden;color:#2878d0;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:480px){.group-feature-form-row{grid-template-columns:1fr}.group-feature-actions{flex-wrap:wrap}}
