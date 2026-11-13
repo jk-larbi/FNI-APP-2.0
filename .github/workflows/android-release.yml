@@ -135,7 +135,7 @@ jobs:
           for existing_color in root.glob("values*/ic_launcher_background.xml"):
               existing_color.unlink()
           (values / "colors.xml").write_text(
-              '<resources><color name="ic_launcher_background">#101b45</color></resources>\\n'
+              '<resources><color name="ic_launcher_background">#101b45</color></resources>\n'
           )
           (root / "mipmap-anydpi-v26").mkdir(parents=True, exist_ok=True)
           icon_xml = '''<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
