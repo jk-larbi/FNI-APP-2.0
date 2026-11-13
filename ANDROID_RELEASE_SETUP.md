@@ -25,7 +25,7 @@ In GitHub, open **jk-larbi/FNI-APP-2.0 → Settings → Secrets and variables �
 - `FNI_ANDROID_KEY_PASSWORD`: the private key password
 - `FNI_ANDROID_STORE_PASSWORD`: the keystore password
 
-The release workflow uses the repository's built-in `GITHUB_TOKEN`; allow Actions to read and write repository contents under **Settings → Actions → General → Workflow permissions**.
+The release workflow uses the repository's built-in `GITHUB_TOKEN`; allow Actions to read and write repository contents under **Settings → Actions → General → Workflow permissions**. To make a release mandatory for older installations, set `minSupportedVersion` in `public/fni-update.json` to the new version before publishing; members on older versions will not be offered the later option.
 
 ## Publishing an update
 
