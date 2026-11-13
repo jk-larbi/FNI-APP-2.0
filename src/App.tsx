@@ -782,7 +782,7 @@ export default function App() {
         <div className="splash-orbit splash-orbit-one" />
         <div className="splash-orbit splash-orbit-two" />
         <div className="splash-content">
-          <div className="splash-logo-frame"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI logo" /></div>
+          <div className="splash-logo-frame"><img src={`${import.meta.env.BASE_URL}fni-logo.jpg`} alt="FNI logo" /></div>
           <div className="splash-wordmark">FNI</div>
           <div className="splash-full-name">FORERUNNERS NETWORK<br/>INTERNATIONAL</div>
           <div className="splash-rule"><span /></div>
@@ -793,7 +793,7 @@ export default function App() {
       <aside className={`navigation-drawer ${menuOpen ? 'drawer-open' : ''}`}>
         <div className="drawer-heading">
           <div className="brand-lockup">
-            <img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI" />
+            <img src={`${import.meta.env.BASE_URL}fni-logo.jpg`} alt="FNI" />
             <div><strong>FNI</strong><span>Forerunners Network International</span></div>
           </div>
           <button className="icon-button drawer-close" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X /></button>
@@ -985,7 +985,7 @@ export default function App() {
                   <div className="settings-info-row"><MessageCircle/><span><strong>Contact FNI support</strong><small>Get help with your account or the app</small></span><em>Coming soon</em></div>
                   <div className="settings-info-row"><ShieldCheck/><span><strong>Privacy policy and terms</strong><small>How FNI handles account and community data</small></span><em>To be published</em></div>
                   <div className="settings-info-row"><Download/><span><strong>App updates</strong><small>Check for the latest FNI version and release notes</small></span><button type="button" onClick={() => window.dispatchEvent(new Event('fni-check-for-updates'))}>Check now</button></div>
-                  <div className="settings-about"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI logo"/><strong>FNI Connect</strong><span>Forerunners Network International</span><small>Web preview</small></div>
+                  <div className="settings-about"><img src={`${import.meta.env.BASE_URL}fni-logo.jpg`} alt="FNI logo"/><strong>FNI Connect</strong><span>Forerunners Network International</span><small>Web preview</small></div>
                 </div>}
               </div>
             </div>
@@ -1126,7 +1126,7 @@ export default function App() {
           <>
             <div className="conversation-topbar"><span className="topbar-label">FNI CONNECT</span><div className="topbar-actions"><span className="secure-indicator"><i /> Connected</span></div></div>
             <div className="welcome-state">
-              <div className="welcome-logo"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="Forerunners Network International logo" /></div>
+              <div className="welcome-logo"><img src={`${import.meta.env.BASE_URL}fni-logo.jpg`} alt="Forerunners Network International logo" /></div>
               <h2>Stay connected.</h2>
               <p>Your conversations, community and ministry connections in one place.</p>
               <span className="welcome-caption">FORERUNNERS NETWORK INTERNATIONAL</span>
@@ -1673,7 +1673,7 @@ export default function App() {
         {passcodeError && <p className="settings-footnote" role="alert">{passcodeError}</p>}<p className="settings-footnote">This passcode is stored as a salted hash in this browser. Clearing browser data removes it.</p>
       </form></div>}
       <AppUpdateManager />
-      {appLocked && <div className="fni-lock-screen"><div className="fni-lock-card"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI"/><h2>FNI is locked</h2><p>Verify it's you to continue</p>{deviceLockEnabled && <button type="button" onClick={unlockWithDevice}>Unlock with phone</button>}{passcodeEnabled && <form onSubmit={event => { event.preventDefault(); unlockApp(); }}><input autoFocus type="password" inputMode="numeric" autoComplete="current-password" maxLength={12} value={unlockValue} onChange={event => setUnlockValue(event.target.value.replace(/\D/g,''))} placeholder="FNI passcode" aria-label="FNI passcode"/><button type="submit" disabled={!unlockValue}>Unlock with passcode</button></form>}{passcodeError && <small role="alert">{passcodeError}</small>}<small>Device authentication is a local preview test. Full secure verification requires FNI account services.</small></div></div>}
+      {appLocked && <div className="fni-lock-screen"><div className="fni-lock-card"><img src={`${import.meta.env.BASE_URL}fni-logo.jpg`} alt="FNI"/><h2>FNI is locked</h2><p>Verify it's you to continue</p>{deviceLockEnabled && <button type="button" onClick={unlockWithDevice}>Unlock with phone</button>}{passcodeEnabled && <form onSubmit={event => { event.preventDefault(); unlockApp(); }}><input autoFocus type="password" inputMode="numeric" autoComplete="current-password" maxLength={12} value={unlockValue} onChange={event => setUnlockValue(event.target.value.replace(/\D/g,''))} placeholder="FNI passcode" aria-label="FNI passcode"/><button type="submit" disabled={!unlockValue}>Unlock with passcode</button></form>}{passcodeError && <small role="alert">{passcodeError}</small>}<small>Device authentication is a local preview test. Full secure verification requires FNI account services.</small></div></div>}
     </main>
   );
 }
