@@ -126,13 +126,13 @@ jobs:
                   1
               )
               source = re.sub(
-                  r"(buildTypes\\s*\\{\\s*release\\s*\\{)",
-                  r"\\1\\n            signingConfig signingConfigs.release",
+                  r"(buildTypes\s*\{\s*release\s*\{)",
+                  r"\1\n            signingConfig signingConfigs.release",
                   source,
                   count=1
               )
-          source = re.sub(r"versionCode\\s+\\d+", "versionCode ${{ steps.version.outputs.version_code }}", source, count=1)
-          source = re.sub(r'versionName\\s+"[^"]+"', 'versionName "${{ steps.version.outputs.version }}"', source, count=1)
+          source = re.sub(r"versionCode\s+\d+", "versionCode ${{ steps.version.outputs.version_code }}", source, count=1)
+          source = re.sub(r'versionName\s+"[^"]+"', 'versionName "${{ steps.version.outputs.version }}"', source, count=1)
           path.write_text(source)
           PY
           grep -E "versionCode|versionName|signingConfig" android/app/build.gradle
@@ -167,7 +167,7 @@ jobs:
           current.apkUrl = 'https://github.com/jk-larbi/FNI-APP-2.0/releases/latest/download/FNI-Android-release.apk';
           current.releaseNotes = ['FNI ' + process.env.VERSION + ' is now available.', 'Install the update to receive the latest improvements.'];
           current.publishedAt = new Date().toISOString();
-          fs.writeFileSync(path, JSON.stringify(current, null, 2) + '\\n');
+          fs.writeFileSync(path, JSON.stringify(current, null, 2) + '\n');
           NODE
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
