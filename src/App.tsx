@@ -984,6 +984,7 @@ export default function App() {
                   <h3>Support</h3><div className="settings-info-row"><CircleHelp/><span><strong>Help Centre</strong><small>Guides for chats, calls and FNI groups</small></span><em>Coming soon</em></div>
                   <div className="settings-info-row"><MessageCircle/><span><strong>Contact FNI support</strong><small>Get help with your account or the app</small></span><em>Coming soon</em></div>
                   <div className="settings-info-row"><ShieldCheck/><span><strong>Privacy policy and terms</strong><small>How FNI handles account and community data</small></span><em>To be published</em></div>
+                  <div className="settings-info-row"><Download/><span><strong>App updates</strong><small>Check for the latest FNI version and release notes</small></span><button type="button" onClick={() => window.dispatchEvent(new Event('fni-check-for-updates'))}>Check now</button></div>
                   <div className="settings-about"><img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI logo"/><strong>FNI Connect</strong><span>Forerunners Network International</span><small>Web preview</small></div>
                 </div>}
               </div>
