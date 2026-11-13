@@ -131,9 +131,34 @@ jobs:
 
           values = root / "values"
           values.mkdir(parents=True, exist_ok=True)
-          (values / "colors.xml").write_text(
-              '<resources><color name="ic_launcher_background">#101b45</color></resources>\n'
-          )
+          # Capacitor already creates ic_launcher_background.xml. Update that
+          # resource in place instead of defining the same color a second time.
+          import re
+          color_files = list(root.glob("values*/ic_launcher_background.xml"))
+          if color_files:
+              for color_file in color_files:
+                  content = color_file.read_text()
+                  content = re.sub(
+                      r'(<color\\s+name="ic_launcher_background">).*?(</color>)',
+                      r'\\g<1>#101b45\\g<2>',
+                      content,
+                      flags=re.DOTALL
+                  )
+                  color_file.write_text(content)
+          else:
+              colors_file = values / "colors.xml"
+              if colors_file.exists():
+                  content = colors_file.read_text()
+                  if "name=\\"ic_launcher_background\\"" not in content:
+                      content = content.replace(
+                          "</resources>",
+                          '<color name="ic_launcher_background">#101b45</color></resources>'
+                      )
+                  colors_file.write_text(content)
+              else:
+                  colors_file.write_text(
+                      '<resources><color name="ic_launcher_background">#101b45</color></resources>\\n'
+                  )
           (root / "mipmap-anydpi-v26").mkdir(parents=True, exist_ok=True)
           icon_xml = '''<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
               <background android:drawable="@color/ic_launcher_background"/>
