@@ -99,14 +99,17 @@ jobs:
           from PIL import Image
 
           root = Path("android/app/src/main/res")
-          logo_path = Path("public/fni-logo.jpg")
+          logo_path = Path("public/fni-official-logo.jpg")
           if not logo_path.exists():
-              logo_path = Path("fni-logo.jpg")
+              logo_path = Path("public/fni-logo.jpg")
           if not logo_path.exists():
-              raise SystemExit("Official FNI logo not found at public/fni-logo.jpg or fni-logo.jpg")
+              raise SystemExit("Official FNI logo not found at public/fni-official-logo.jpg or public/fni-logo.jpg")
 
           with Image.open(logo_path) as source:
+              source.verify()
+          with Image.open(logo_path) as source:
               logo = source.convert("RGBA")
+          print(f"Using verified official FNI logo: {logo_path} ({logo.width}x{logo.height})")
 
           # Launcher icon artwork for all Android screen densities.
           sizes = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
