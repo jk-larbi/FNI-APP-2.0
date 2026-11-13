@@ -112,7 +112,7 @@ export default function AppUpdateManager() {
       <section className="fni-update-dialog" role="dialog" aria-modal="true" aria-labelledby="fni-update-title">
         {!mandatory && <button className="fni-update-close" type="button" aria-label="Close" onClick={() => setVisible(false)}><X size={19}/></button>}
         <div className="fni-update-brand">
-          <img src="/FNI-APP-2.0/fni-logo.jpg" alt="FNI"/>
+          <img src={import.meta.env.BASE_URL + "fni-logo.jpg"} alt="FNI"/>
         </div>
         {checking ? (
           <>
