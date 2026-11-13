@@ -1,0 +1,176 @@
+name: Build signed FNI Android release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (for example 1.0.1)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish signed Android APK
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release version
+        id: version
+        shell: bash
+        run: |
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+            TAG="v${VERSION#v}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+            VERSION="${TAG#v}"
+          fi
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version must use semantic format such as 1.0.1" >&2
+            exit 1
+          fi
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          VERSION_CODE=$((MAJOR * 1000000 + MINOR * 1000 + PATCH))
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Install dependencies and build web app
+        run: |
+          npm install
+          npm run build
+
+      - name: Generate and sync Android project
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: Configure permanent Android release signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.FNI_ANDROID_KEYSTORE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.FNI_ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.FNI_ANDROID_KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.FNI_ANDROID_STORE_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_BASE64" || (echo "Missing FNI_ANDROID_KEYSTORE_BASE64 repository secret" && exit 1)
+          test -n "$KEY_ALIAS" || (echo "Missing FNI_ANDROID_KEY_ALIAS repository secret" && exit 1)
+          test -n "$KEY_PASSWORD" || (echo "Missing FNI_ANDROID_KEY_PASSWORD repository secret" && exit 1)
+          test -n "$STORE_PASSWORD" || (echo "Missing FNI_ANDROID_STORE_PASSWORD repository secret" && exit 1)
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/app/fni-release.keystore
+          cat > android/keystore.properties <<EOF
+          storePassword=$STORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=fni-release.keystore
+          EOF
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          path = Path("android/app/build.gradle")
+          source = path.read_text()
+          if "signingConfigs {" not in source:
+              source = source.replace(
+                  "android {",
+                  """def keystoreProperties = new Properties()
+          def keystorePropertiesFile = rootProject.file("keystore.properties")
+          if (keystorePropertiesFile.exists()) {
+              keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+          }
+
+          android {""",
+                  1
+              )
+              source = source.replace(
+                  "    buildTypes {",
+                  """    signingConfigs {
+                  release {
+                      keyAlias keystoreProperties['keyAlias']
+                      keyPassword keystoreProperties['keyPassword']
+                      storeFile file(keystoreProperties['storeFile'])
+                      storePassword keystoreProperties['storePassword']
+                  }
+              }
+
+              buildTypes {""",
+                  1
+              )
+              source = re.sub(
+                  r"(buildTypes\\s*\\{\\s*release\\s*\\{)",
+                  r"\\1\\n            signingConfig signingConfigs.release",
+                  source,
+                  count=1
+              )
+          source = re.sub(r"versionCode\\s+\\d+", "versionCode ${{ steps.version.outputs.version_code }}", source, count=1)
+          source = re.sub(r'versionName\\s+"[^"]+"', 'versionName "${{ steps.version.outputs.version }}"', source, count=1)
+          path.write_text(source)
+          PY
+          grep -E "versionCode|versionName|signingConfig" android/app/build.gradle
+
+      - name: Build signed release APK
+        working-directory: android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Publish GitHub Release with APK
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk FNI-Android-release.apk
+          gh release create "${{ steps.version.outputs.tag }}" FNI-Android-release.apk \
+            --title "FNI ${{ steps.version.outputs.version }}" \
+            --notes "FNI Android release ${{ steps.version.outputs.version }}. Download and install the APK to update the app."
+
+      - name: Publish update manifest
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          VERSION_CODE: ${{ steps.version.outputs.version_code }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const path = 'public/fni-update.json';
+          const current = JSON.parse(fs.readFileSync(path, 'utf8'));
+          current.version = process.env.VERSION;
+          current.versionCode = Number(process.env.VERSION_CODE);
+          current.apkUrl = 'https://github.com/jk-larbi/FNI-APP-2.0/releases/latest/download/FNI-Android-release.apk';
+          current.releaseNotes = ['FNI ' + process.env.VERSION + ' is now available.', 'Install the update to receive the latest improvements.'];
+          current.publishedAt = new Date().toISOString();
+          fs.writeFileSync(path, JSON.stringify(current, null, 2) + '\\n');
+          NODE
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/fni-update.json
+          git commit -m "Publish FNI update manifest for ${{ steps.version.outputs.tag }}"
+          git push origin HEAD:main
