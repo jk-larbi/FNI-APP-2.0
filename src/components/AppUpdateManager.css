@@ -1,0 +1,20 @@
+.fni-update-backdrop{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:22px;background:rgba(8,14,38,.72);backdrop-filter:blur(8px)}
+.fni-update-dialog{position:relative;width:min(100%,420px);max-height:min(88dvh,700px);overflow:auto;border:1px solid rgba(220,225,255,.18);border-radius:22px;padding:28px 24px 22px;background:linear-gradient(155deg,#fff 0%,#f7f8ff 100%);box-shadow:0 24px 90px rgba(0,0,0,.3);text-align:center;color:#182348}
+.fni-update-close{position:absolute;right:14px;top:14px;width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:50%;background:#edf0fa;color:#35436a}
+.fni-update-brand{width:64px;height:64px;margin:2px auto 18px;border-radius:18px;overflow:hidden;background:#171d52;display:grid;place-items:center}
+.fni-update-brand img{width:100%;height:100%;object-fit:contain}
+.fni-update-dialog h2{margin:0 0 9px;font-size:21px;font-weight:750;letter-spacing:-.4px}
+.fni-update-dialog p{margin:0 auto 18px;max-width:330px;color:#68738d;font-size:13px;line-height:1.6}
+.fni-update-icon{margin:0 auto 14px;color:#5b4bd8}
+.fni-update-success{color:#16865c}
+.fni-update-eyebrow{display:inline-block;margin-bottom:8px;color:#8b6a0a;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.fni-update-notes{margin:18px 0;padding:14px 16px;border:1px solid #e4e8f3;border-radius:13px;background:#fff;text-align:left;font-size:12px}
+.fni-update-notes strong{color:#28345b}
+.fni-update-notes ul{margin:9px 0 0;padding-left:18px;color:#66718a;line-height:1.8}
+.fni-update-primary{width:100%;min-height:46px;display:flex;align-items:center;justify-content:center;gap:9px;border:0;border-radius:12px;background:linear-gradient(105deg,#252c78,#5636a2);color:#fff;font-size:13px;font-weight:750;cursor:pointer}
+.fni-update-primary:disabled{opacity:.65;cursor:wait}
+.fni-update-later{margin-top:13px;padding:8px 14px;border:0;background:transparent;color:#66718a;font-size:12px;font-weight:650}
+.fni-update-footnote{display:block;margin-top:13px;color:#7b8499;font-size:10px;line-height:1.55}
+.fni-update-spin{animation:fni-update-rotate 1s linear infinite}
+@keyframes fni-update-rotate{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.fni-update-spin{animation:none}}
