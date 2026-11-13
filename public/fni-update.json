@@ -1,11 +1,11 @@
 {
-  "version": "1.0.1",
-  "versionCode": 1000001,
+  "version": "1.0.6",
+  "versionCode": 1000006,
   "minSupportedVersion": "1.0.0",
   "apkUrl": "https://github.com/jk-larbi/FNI-APP-2.0/releases/latest/download/FNI-Android-release.apk",
   "releaseNotes": [
-    "FNI 1.0.1 is now available.",
+    "FNI 1.0.6 is now available.",
     "Install the update to receive the latest improvements."
   ],
-  "publishedAt": "2026-11-13T16:48:30.566Z"
+  "publishedAt": "2026-11-13T16:55:05.659Z"
 }
