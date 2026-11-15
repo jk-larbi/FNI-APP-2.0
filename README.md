@@ -1,6 +1,18 @@
+<div align="center">
+
 # FNI — Forerunners Network International
 
-A clean rebuild of the FNI application.
+**One community. One mission. Connected.**
+
+A mobile-first community application concept for FNI, with a cross-platform foundation and a GitHub Pages preview workflow.
+
+`React` · `TypeScript` · `Vite` · `Capacitor`
+
+[Repository](https://github.com/jk-larbi/FNI-APP-2.0)
+
+</div>
+
+---
 
 ## Development
 - Install dependencies: `npm install`
@@ -9,7 +21,4 @@ A clean rebuild of the FNI application.
 
 The project is deployed to GitHub Pages from the `main` branch.
 
-<!-- GitHub Pages redeployment trigger: 2026-11-12 -->
 
-<!-- Manual redeploy request: 2026-11-12T19:30Z -->
-<!-- redeploy request: 2026-11-12 -->
