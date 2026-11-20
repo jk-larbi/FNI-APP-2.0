@@ -348,9 +348,16 @@ export default function App() {
   const [bibleLookupError, setBibleLookupError] = useState('');
   const bibleCommand = draft.match(/^(?:@FNIBibleBot\s+|\/bible\s+)(.+)$/i);
   const [draftBeforeEdit, setDraftBeforeEdit] = useState('');
-  const [conversations, setConversations] = useState<Record<string, Message[]>>(() => {
-    try { return JSON.parse(localStorage.getItem('fni-local-conversations') || '{}'); }
+  const [deletedMessageIds, setDeletedMessageIds] = useState<Record<string, number[]>>(() => {
+    try { return JSON.parse(localStorage.getItem('fni-deleted-message-ids') || '{}'); }
     catch { return {}; }
+  });
+  const [conversations, setConversations] = useState<Record<string, Message[]>>(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('fni-local-conversations') || '{}') as Record<string, Message[]>;
+      const deleted = JSON.parse(localStorage.getItem('fni-deleted-message-ids') || '{}') as Record<string, number[]>;
+      return Object.fromEntries(Object.entries(stored).map(([chat, items]) => [chat, items.filter(item => !(deleted[chat] || []).includes(item.id))]));
+    } catch { return {}; }
   });
   const messages = activeChat ? conversations[activeChat] || [] : [];
   const setMessages = (update: Message[] | ((current: Message[]) => Message[])) => {
@@ -382,13 +389,28 @@ export default function App() {
   useEffect(() => {
     const textOnly: Record<string, Message[]> = {};
     Object.entries(conversations).forEach(([chat, items]) => {
-      textOnly[chat] = items.filter((item) => !item.mediaType || Boolean(item.recordingDataUrl));
+      const deleted = new Set(deletedMessageIds[chat] || []);
+      textOnly[chat] = items.filter(item => !deleted.has(item.id) && (!item.mediaType || Boolean(item.recordingDataUrl)));
     });
     try { localStorage.setItem('fni-local-conversations', JSON.stringify(textOnly)); } catch { /* storage may be unavailable */ }
-  }, [conversations]);
+  }, [conversations, deletedMessageIds]);
+  useEffect(() => {
+    try { localStorage.setItem('fni-deleted-message-ids', JSON.stringify(deletedMessageIds)); } catch { /* storage may be unavailable */ }
+  }, [deletedMessageIds]);
+  useEffect(() => {
+    try { localStorage.setItem('fni-pinned-messages', JSON.stringify(pinnedMessagesByChat)); } catch { /* storage may be unavailable */ }
+  }, [pinnedMessagesByChat]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
-  const [pinnedMessageId, setPinnedMessageId] = useState<number | null>(null);
+  const [pinnedMessagesByChat, setPinnedMessagesByChat] = useState<Record<string, number | null>>(() => {
+    try { return JSON.parse(localStorage.getItem('fni-pinned-messages') || '{}'); }
+    catch { return {}; }
+  });
+  const pinnedMessageId = activeChat ? pinnedMessagesByChat[activeChat] ?? null : null;
+  const setPinnedMessageId = (messageId: number | null) => {
+    if (!activeChat) return;
+    setPinnedMessagesByChat(current => ({ ...current, [activeChat]: messageId }));
+  };
   const [openMessageMenu, setOpenMessageMenu] = useState<number | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [emojiCategory, setEmojiCategory] = useState('Smileys');
@@ -1014,7 +1036,18 @@ export default function App() {
                 <button className="icon-button" aria-label="Chat options" aria-expanded={chatOptionsOpen} onClick={() => setChatOptionsOpen((open) => !open)}><MoreVertical /></button>
               </div>
             </header>
-            {chatOptionsOpen && <div className="chat-options-menu"><button onClick={() => { setUnreadChats((current) => ({ ...current, [activeChat]: true })); setActiveChat(''); setChatOptionsOpen(false); }}>Mark as unread</button><button onClick={() => { setMutedChats((current) => current.includes(activeChat) ? current.filter((chat) => chat !== activeChat) : [...current, activeChat]); setChatOptionsOpen(false); }}>{mutedChats.includes(activeChat) ? 'Unmute chat' : 'Mute chat'}</button><button onClick={() => { setArchivedChats((current) => current.includes(activeChat) ? current.filter((chat) => chat !== activeChat) : [...current, activeChat]); setActiveChat(''); setChatOptionsOpen(false); setFolder(archivedChats.includes(activeChat) ? 'All chats' : 'Archived'); }}>{archivedChats.includes(activeChat) ? 'Unarchive chat' : 'Archive chat'}</button><button className="delete-action" onClick={() => { if (window.confirm('Clear all messages in this conversation? This cannot be undone.')) { setMessages([]); setDraft(''); setReplyTo(null); setEditingMessage(null); setPinnedMessageId(null); setChatSearch(''); setChatSearchOpen(false); } setChatOptionsOpen(false); }}>Clear chat history</button><button className="delete-action" onClick={() => { const chatToDelete = activeChat; if (window.confirm(`Delete this conversation with ${chatToDelete}? This removes its local messages and drafts.`)) { setConversations((current) => { const next = { ...current }; delete next[chatToDelete]; return next; }); setDrafts((current) => { const next = { ...current }; delete next[chatToDelete]; return next; }); setUnreadChats((current) => { const next = { ...current }; delete next[chatToDelete]; return next; }); setArchivedChats((current) => current.filter((chat) => chat !== chatToDelete)); setMutedChats((current) => current.filter((chat) => chat !== chatToDelete)); setActiveChat(''); setPinnedMessageId(null); setReplyTo(null); setEditingMessage(null); setFolder('All chats'); } setChatOptionsOpen(false); }}>Delete conversation</button></div>}
+            {chatOptionsOpen && <div className="chat-options-menu"><button onClick={() => { setUnreadChats((current) => ({ ...current, [activeChat]: true })); setActiveChat(''); setChatOptionsOpen(false); }}>Mark as unread</button><button onClick={() => { setMutedChats((current) => current.includes(activeChat) ? current.filter((chat) => chat !== activeChat) : [...current, activeChat]); setChatOptionsOpen(false); }}>{mutedChats.includes(activeChat) ? 'Unmute chat' : 'Mute chat'}</button><button onClick={() => { setArchivedChats((current) => current.includes(activeChat) ? current.filter((chat) => chat !== activeChat) : [...current, activeChat]); setActiveChat(''); setChatOptionsOpen(false); setFolder(archivedChats.includes(activeChat) ? 'All chats' : 'Archived'); }}>{archivedChats.includes(activeChat) ? 'Unarchive chat' : 'Archive chat'}</button><button className="delete-action" onClick={() => { if (window.confirm('Clear all messages in this conversation? This cannot be undone.')) {
+                const chat = activeChat;
+                const ids = (conversations[chat] || []).map(item => item.id);
+                setDeletedMessageIds(current => ({ ...current, [chat]: Array.from(new Set([...(current[chat] || []), ...ids])) }));
+                setMessages([]);
+                setDraft('');
+                setReplyTo(null);
+                setEditingMessage(null);
+                setPinnedMessageId(null);
+                setChatSearch('');
+                setChatSearchOpen(false);
+              } setChatOptionsOpen(false); }}>Clear chat history</button><button className="delete-action" onClick={() => { const chatToDelete = activeChat; if (window.confirm(`Delete this conversation with ${chatToDelete}? This removes its local messages and drafts.`)) { setConversations((current) => { const next = { ...current }; delete next[chatToDelete]; return next; }); setDrafts((current) => { const next = { ...current }; delete next[chatToDelete]; return next; }); setUnreadChats((current) => { const next = { ...current }; delete next[chatToDelete]; return next; }); setArchivedChats((current) => current.filter((chat) => chat !== chatToDelete)); setMutedChats((current) => current.filter((chat) => chat !== chatToDelete)); setActiveChat(''); setPinnedMessageId(null); setReplyTo(null); setEditingMessage(null); setFolder('All chats'); } setChatOptionsOpen(false); }}>Delete conversation</button></div>}
             {chatSearchOpen && <div className="chat-search-bar"><Search size={17} /><input autoFocus value={chatSearch} onChange={(event) => setChatSearch(event.target.value)} placeholder="Search in conversation" /><span>{chatSearch.trim() ? `${matchingMessages.length} found` : ''}</span><button aria-label="Close search" onClick={() => { setChatSearchOpen(false); setChatSearch(''); }}><X size={17} /></button></div>}
             {pinnedMessageId !== null && messages.find((item) => item.id === pinnedMessageId) && (
               <button
@@ -1046,7 +1079,15 @@ export default function App() {
                       ) : (
                         <button onClick={() => { void navigator.clipboard?.writeText(message.text); setOpenMessageMenu(null); }}>Copy text</button>
                       )}
-                      <button className="delete-action" onClick={() => { setMessages((current) => current.filter((item) => item.id !== message.id)); setOpenMessageMenu(null); }}>Delete</button>
+                      <button className="delete-action" onClick={() => {
+                        const chat = activeChat;
+                        if (chat) {
+                          setDeletedMessageIds(current => ({ ...current, [chat]: Array.from(new Set([...(current[chat] || []), message.id])) }));
+                          setConversations(current => ({ ...current, [chat]: (current[chat] || []).filter(item => item.id !== message.id) }));
+                          if (pinnedMessagesByChat[chat] === message.id) setPinnedMessagesByChat(current => ({ ...current, [chat]: null }));
+                        }
+                        setOpenMessageMenu(null);
+                      }}>Delete</button>
                     </div>}
                     <div className="message-bubble" onTouchStart={event => { const touch=event.touches[0]; touchStart.current={x:touch.clientX,y:touch.clientY}; }} onTouchEnd={event => { if (!touchStart.current) return; const touch=event.changedTouches[0]; const dx=touch.clientX-touchStart.current.x; const dy=touch.clientY-touchStart.current.y; if (dx>64 && Math.abs(dy)<55) { setReplyTo(message); setEditingMessage(null); setOpenMessageMenu(null); } touchStart.current=null; }}>
                       {message.forwardedFrom && <div className="forwarded-label">Forwarded from {message.forwardedFrom}</div>}
