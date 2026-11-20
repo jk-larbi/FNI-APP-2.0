@@ -1265,3 +1265,25 @@ img,video{max-width:100%}
 .saved-recording-card strong{font-size:13px;overflow-wrap:anywhere}
 .saved-recording-card small{font-size:10px;color:#718096}
 .saved-recording-card video,.saved-recording-card audio{display:block;width:100%;max-width:420px;border-radius:8px}
+
+
+/* iOS Home Screen + Android keyboard and safe-area layout */
+:root{--fni-visible-height:100dvh;--fni-viewport-top:0px}
+html,body,#root{min-height:0}
+@media(max-width:620px){
+  .app-shell{height:var(--fni-visible-height,100dvh);max-height:var(--fni-visible-height,100dvh)}
+  .conversation-panel.conversation-active{top:var(--fni-viewport-top,0px);height:var(--fni-visible-height,100dvh);max-height:var(--fni-visible-height,100dvh);padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  .conversation-panel.conversation-active .active-chat-header{padding-top:env(safe-area-inset-top)}
+  .conversation-panel.conversation-active .message-history{scroll-padding-bottom:16px}
+  .conversation-panel.conversation-active .message-composer{padding-bottom:max(8px,env(safe-area-inset-bottom));margin-bottom:0}
+  :root[data-keyboard-open="true"] .conversation-panel.conversation-active{padding-bottom:0}
+  :root[data-keyboard-open="true"] .conversation-panel.conversation-active .message-composer{padding-bottom:6px}
+  :root[data-keyboard-open="true"] .conversation-panel.conversation-active .local-preview-note{display:none}
+  .saved-recording-card{align-items:stretch;position:relative;max-width:100%;overflow:hidden}
+  .saved-recording-card audio,.saved-recording-card video{position:static!important;inset:auto!important;display:block;width:100%;max-width:100%;min-width:0;height:auto;align-self:stretch}
+  .saved-recording-card audio{min-height:42px}
+  .message-bubble{overflow-wrap:anywhere}
+}
+@media(min-width:621px){
+  .saved-recording-card audio,.saved-recording-card video{position:static;display:block;max-width:100%}
+}
