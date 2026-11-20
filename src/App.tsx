@@ -32,6 +32,35 @@ export default function App() {
     const hideTimer = window.setTimeout(() => setSplashVisible(false), reduced ? 650 : 2550);
     return () => { window.clearTimeout(leaveTimer); window.clearTimeout(hideTimer); };
   }, []);
+  // Keep the installed iOS PWA and Android app aligned to the *visible* viewport.
+  // visualViewport shrinks when the software keyboard opens and accounts for browser chrome.
+  useEffect(() => {
+    const root = document.documentElement;
+    const viewport = window.visualViewport;
+    const updateViewport = () => {
+      const visibleHeight = viewport?.height || window.innerHeight;
+      const offsetTop = viewport?.offsetTop || 0;
+      const keyboardOpen = Boolean(viewport && window.innerHeight - visibleHeight > 120 &&
+        document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName));
+      root.style.setProperty('--fni-visible-height', Math.round(visibleHeight) + 'px');
+      root.style.setProperty('--fni-viewport-top', Math.max(0, Math.round(offsetTop)) + 'px');
+      root.dataset.keyboardOpen = keyboardOpen ? 'true' : 'false';
+    };
+    updateViewport();
+    viewport?.addEventListener('resize', updateViewport);
+    viewport?.addEventListener('scroll', updateViewport);
+    window.addEventListener('resize', updateViewport);
+    window.addEventListener('orientationchange', updateViewport);
+    document.addEventListener('focusin', updateViewport);
+    document.addEventListener('focusout', () => window.setTimeout(updateViewport, 80));
+    return () => {
+      viewport?.removeEventListener('resize', updateViewport);
+      viewport?.removeEventListener('scroll', updateViewport);
+      window.removeEventListener('resize', updateViewport);
+      window.removeEventListener('orientationchange', updateViewport);
+      document.removeEventListener('focusin', updateViewport);
+    };
+  }, []);
   const [section, setSection] = useState<Section>('Chats');
   const [settingsCategory, setSettingsCategory] = useState('Account');
   const [settingsMobileDetail, setSettingsMobileDetail] = useState(false);
