@@ -348,6 +348,10 @@ export default function App() {
   const [bibleLookupError, setBibleLookupError] = useState('');
   const bibleCommand = draft.match(/^(?:@FNIBibleBot\s+|\/bible\s+)(.+)$/i);
   const [draftBeforeEdit, setDraftBeforeEdit] = useState('');
+  const [pinnedMessagesByChat, setPinnedMessagesByChat] = useState<Record<string, number | null>>(() => {
+    try { return JSON.parse(localStorage.getItem('fni-pinned-messages') || '{}'); }
+    catch { return {}; }
+  });
   const [deletedMessageIds, setDeletedMessageIds] = useState<Record<string, number[]>>(() => {
     try { return JSON.parse(localStorage.getItem('fni-deleted-message-ids') || '{}'); }
     catch { return {}; }
@@ -402,10 +406,6 @@ export default function App() {
   }, [pinnedMessagesByChat]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
-  const [pinnedMessagesByChat, setPinnedMessagesByChat] = useState<Record<string, number | null>>(() => {
-    try { return JSON.parse(localStorage.getItem('fni-pinned-messages') || '{}'); }
-    catch { return {}; }
-  });
   const pinnedMessageId = activeChat ? pinnedMessagesByChat[activeChat] ?? null : null;
   const setPinnedMessageId = (messageId: number | null) => {
     if (!activeChat) return;
